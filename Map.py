@@ -58,27 +58,45 @@ class Actor(MapItem):
 
     def make_turn(self):
         """
-        Make turn: move, attack or something. Currently only the moves are available
+        Make turn: move, attack or something. If an actor has player=True, it respects self.last_command.
+        Otherwise this method makes the decision and calls the appropriate method to perform it
         :return:
         """
-        old_loc = copy(self.location)
         if not self.player:
             #  Placeholder action for non-player Actor
-            self.location[0] += 1
+            self.move(location=(self.location[0]+1, self.location[1]+1))
         else:
             #  Movement for a player actor
             if self.last_command[1] == 'w':
-                self.location[1] += 1
+                self.move((self.location[0], self.location[1]+1))
             elif self.last_command[1] == 's':
-                self.location[1] -= 1
+                self.move((self.location[0], self.location[1]-1))
             elif self.last_command[1] == 'a':
-                self.location[0] -= 1
+                self.move((self.location[0]-1, self.location[1]))
             elif self.last_command[1] == 'd':
-                self.location[0] += 1
+                self.move((self.location[0]+1, self.location[1]))
             self.last_command = None
-        self.map.move_item(layer=self.layer,
-                           old_location=old_loc,
-                           new_location=self.location)
+        # self.map.move_item(layer=self.layer,
+        #                    old_location=old_loc,
+        #                    new_location=self.location)
+
+    def move(self, location=(None, None)):
+        """
+        Move self to a location. Returns True after a successful movement
+        and False if it turns out to be impossible
+        :param location: tuple
+        :return: bool
+        """
+        if self.map.entrance_possible(location):
+            old_loc = copy(self.location)
+            self.location = location
+            self.map.move_item(layer=self.layer,
+                               old_location=old_loc,
+                               new_location=location)
+            return True
+        else:
+            return False
+
 
 
 class RLMap(object):
@@ -160,3 +178,24 @@ class RLMap(object):
             if actor.player:
                 actor.pass_command(keycode)
             actor.make_turn()
+
+    def entrance_possible(self, location):
+        """
+        Return true, if a given coordinates correspond to a valid move destination (ie passable tile
+        within borders of the map)
+        :param location: tuple
+        :return: bool
+        """
+        ret = True
+        for layer in self.items.keys():
+            try:
+                tile = self.get_item(layer=layer, location=location)
+                if tile is not None and tile.passable == False:
+                    #  Empty tiles are no problem: there may be a lot of those in eg actor layers
+                    ret = False
+                    break
+            except IndexError:
+                #  location beyond tile boundaries
+                ret = False
+                break
+        return ret

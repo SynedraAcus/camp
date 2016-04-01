@@ -40,7 +40,7 @@ class RLMapWidget(RelativeLayout):
             for y in range(self.map.size[1]):
                 if self.map.has_item(layer='actors', location=(x, y)):
                     actor_widget = self.tile_factory.create_actor_widget(self.map.get_item(layer='actors',
-                                 displayed                                                          location=(x, y)))
+                                                                         location=(x, y)))
                     actor_widget.pos=(50*x, 50*y)
                     self.add_widget(actor_widget)
         #  Map background canvas. Used solely to test positioning
