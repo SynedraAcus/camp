@@ -62,10 +62,7 @@ class Actor(MapItem):
         Otherwise this method makes the decision and calls the appropriate method to perform it
         :return:
         """
-        if not self.player:
-            #  Placeholder action for non-player Actor
-            self.move(location=(self.location[0]+1, self.location[1]+1))
-        else:
+        if self.player:
             #  Movement for a player actor
             if self.last_command[1] == 'w':
                 self.move((self.location[0], self.location[1]+1))
@@ -75,10 +72,11 @@ class Actor(MapItem):
                 self.move((self.location[0]-1, self.location[1]))
             elif self.last_command[1] == 'd':
                 self.move((self.location[0]+1, self.location[1]))
+            elif self.last_command[1] == ' ':
+                pass
             self.last_command = None
-        # self.map.move_item(layer=self.layer,
-        #                    old_location=old_loc,
-        #                    new_location=self.location)
+        else:
+            self.move(location=(self.location[0]+1, self.location[1]+1))
 
     def move(self, location=(None, None)):
         """
@@ -88,11 +86,12 @@ class Actor(MapItem):
         :return: bool
         """
         if self.map.entrance_possible(location):
-            old_loc = copy(self.location)
-            self.location = location
+            # old_loc = copy(self.location)
+            # self.location = location
             self.map.move_item(layer=self.layer,
-                               old_location=old_loc,
+                               old_location=self.location,
                                new_location=location)
+            self.location = location
             return True
         else:
             return False

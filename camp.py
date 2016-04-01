@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 import kivy
 kivy.require('1.9.0')
 from kivy.app import App
@@ -52,7 +53,7 @@ class RLMapWidget(RelativeLayout):
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
         self._keyboard.bind(on_key_down=self._on_key_down)
         #  The list of keys that will not be ignored by on_key_down
-        self.used_keys=['w', 'a', 's', 'd']
+        self.used_keys = ['w', 'a', 's', 'd', ' ']
 
     def redraw_actors(self):
         for actor in self.map.actors:
