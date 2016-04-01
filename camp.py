@@ -33,7 +33,6 @@ class RLMapWidget(RelativeLayout):
             for y in range(self.map.size[1]):
                 tile_widget = self.tile_factory.create_tile_widget(self.map.get_item(layer='bg',
                                                                                     location=(x, y)))
-                # tile_widget.pos = (50*x, 50*y)
                 tile_widget.pos = self._get_screen_pos((x, y))
                 self.add_widget(tile_widget)
         #  Initializing widgets for actor layers
