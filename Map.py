@@ -2,6 +2,8 @@
 #  These contain only the information about things in game and some gameplay logic, so they don't inherit from
 #  any of Kivy classes. MVC and all that.
 
+from copy import copy
+
 class MapItem(object):
     """
     Base class from which all items that can be placed on map should inherit
@@ -30,7 +32,7 @@ class Actor(MapItem):
         self.location=[]
 
 
-    def connect_to_map(self, map=None, location=(None, None)):
+    def connect_to_map(self, map=None, layer=None, location=(None, None)):
         """
         Remember that this actor was placed to a given map and a given location
         :param map: RLMap
@@ -38,6 +40,7 @@ class Actor(MapItem):
         :return:
         """
         self.map = map
+        self.layer = layer
         #  Cast the type: location attribute was a tuple
         self.location = list(location)
 
@@ -55,9 +58,10 @@ class Actor(MapItem):
 
     def make_turn(self):
         """
-        Make turn: move, attack or something
+        Make turn: move, attack or something. Currently only the moves are available
         :return:
         """
+        old_loc = copy(self.location)
         if not self.player:
             #  Placeholder action for non-player Actor
             self.location[0] += 1
@@ -72,13 +76,16 @@ class Actor(MapItem):
             elif self.last_command[1] == 'd':
                 self.location[0] += 1
             self.last_command = None
+        self.map.move_item(layer=self.layer,
+                           old_location=old_loc,
+                           new_location=self.location)
 
 
 class RLMap(object):
     def __init__(self, size=(10, 10), layers = ['default']):
         self.size=size
-        #  Initializing tiles container
-        self.tiles ={l: [[None for x in range(size[1])] for y in range(size[0])] for l in layers}
+        #  Initializing items container
+        self.items ={l: [[None for x in range(size[1])] for y in range(size[0])] for l in layers}
         #  Actors list
         self.actors = []
 
@@ -94,7 +101,7 @@ class RLMap(object):
         """
         moved_item=self.get_item(layer=layer, location=old_location)
         # moved_item.widget.pos=(new_location[0]*50, new_location[1]*50)
-        self.tiles[layer][new_location[0]][new_location[1]] = moved_item
+        self.items[layer][new_location[0]][new_location[1]] = moved_item
         self.delete_item(layer=layer, location=old_location)
 
     def get_item(self, layer='default', location=(0, 0)):
@@ -104,7 +111,7 @@ class RLMap(object):
         :param location:
         :return:
         """
-        return self.tiles[layer][location[0]][location[1]]
+        return self.items[layer][location[0]][location[1]]
 
     def add_item(self, item=None, layer='default', location=(0, 0)):
         """
@@ -114,10 +121,10 @@ class RLMap(object):
         :param location:
         :return:
         """
-        self.tiles[layer][location[0]][location[1]] = item
+        self.items[layer][location[0]][location[1]] = item
         if type(item) is Actor:
             self.actors.append(item)
-            item.connect_to_map(map=self, location=location)
+            item.connect_to_map(map=self, location=location, layer=layer)
 
     def has_item(self, layer='default', location=(None, None)):
         """
@@ -126,7 +133,7 @@ class RLMap(object):
         :param location:
         :return:
         """
-        if self.tiles[layer][location[0]][location[1]] is not None:
+        if self.items[layer][location[0]][location[1]] is not None:
             return True
         else:
             return False
@@ -138,7 +145,7 @@ class RLMap(object):
         :param location:
         :return:
         """
-        self.tile[layer][location[0]][location[1]] = None
+        self.items[layer][location[0]][location[1]] = None
 
     #  Game-related actions
 

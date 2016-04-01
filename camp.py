@@ -20,8 +20,7 @@ class PlaceholderActorWidget(Widget):
 class GroudnTileWidget(Widget):
     pass
 
-#  Map widget (using FloatLayout)
-#  The same object also contains the map data. This may be changed later, but for now it'll do
+#  Map widget (using RelativeLayout)
 class RLMapWidget(RelativeLayout):
 
     def __init__(self, map=None, **kwargs):
@@ -42,7 +41,7 @@ class RLMapWidget(RelativeLayout):
             for y in range(self.map.size[1]):
                 if self.map.has_item(layer='actors', location=(x, y)):
                     actor_widget = self.tile_factory.create_actor_widget(self.map.get_item(layer='actors',
-                                                                                           location=(x, y)))
+                                 displayed                                                          location=(x, y)))
                     actor_widget.pos=(50*x, 50*y)
                     self.add_widget(actor_widget)
         #  Map background canvas. Used solely to test positioning
@@ -50,10 +49,11 @@ class RLMapWidget(RelativeLayout):
             Color(0, 0, 1, 1)
             self.rect = Rectangle(size = self.size, pos=self.pos)
             self.bind(pos=self.update_rect, size=self.update_rect)
-        #  Initializing keyboard bindings
-        #  Copied straight from StackOverflow
+        #  Initializing keyboard bindings and key lists
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
         self._keyboard.bind(on_key_down=self._on_key_down)
+        #  The list of keys that will not be ignored by on_key_down
+        self.used_keys=['w', 'a', 's', 'd']
 
     def redraw_actors(self):
         for actor in self.map.actors:
@@ -78,10 +78,9 @@ class RLMapWidget(RelativeLayout):
         :param modifiers:
         :return:
         """
-        self.map.process_turn(keycode)
-        # for actor in self.map.actors:
-        #     actor.make_turn()
-        self.redraw_actors()
+        if keycode[1] in self.used_keys:
+            self.map.process_turn(keycode)
+            self.redraw_actors()
 
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_key_down)

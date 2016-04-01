@@ -11,12 +11,14 @@ class TileWidgetFactory(object):
 
     def create_tile_widget(self, tile):
         tile.widget = Image(source=tile.image_source,
-                            size_hint=(None, None))
+                            size_hint=(None, None),
+                            size=(50, 50))
         return tile.widget
 
     def create_actor_widget(self, actor):
             actor.widget = Image(source='Tmp_frame_black.png',
-                                 size_hint=(None, None))
+                                 size_hint=(None, None),
+                                 size=(50, 50))
             return actor.widget
 
 class MapFactory(object):
