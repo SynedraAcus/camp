@@ -72,7 +72,7 @@ class Actor(MapItem):
                 self.move((self.location[0]-1, self.location[1]))
             elif self.last_command[1] == 'd':
                 self.move((self.location[0]+1, self.location[1]))
-            elif self.last_command[1] == ' ':
+            elif self.last_command[1] == 'spacebar':
                 pass
             self.last_command = None
         else:
