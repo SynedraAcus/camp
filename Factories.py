@@ -2,11 +2,29 @@
 
 from kivy.uix.image import Image
 from kivy.uix.widget import Widget
+from kivy.graphics import Rectangle
 from kivy.atlas import Atlas
 from Map import RLMap, GroundTile, Actor
 
-class PlaceholderActorWidget(Widget):
-    pass
+class ActorWidget(Widget):
+    """
+    The actor widget that contains an actor image
+    """
+    def __init__(self, texture=None, **kwargs):
+        super(ActorWidget, self).__init__(**kwargs)
+        self.img = Image(source='Tmp_frame_black.png', size=(64, 64))
+        self.add_widget(self.img)
+        self.bind(pos=self.update_img)
+        with self.canvas:
+            self.rect = Rectangle(texture=texture, size=self.size, pos=self.pos)
+            self.bind(size=self.update_texture, pos=self.update_texture)
+
+    def update_img(self, a, b):
+        self.img.pos = self.pos
+
+    def update_texture(self, size, pos):
+        self.rect.size = self.size
+        self.rect.pos = self.pos
 
 class TileWidgetFactory(object):
     def __init__(self):
@@ -20,9 +38,12 @@ class TileWidgetFactory(object):
         return tile.widget
 
     def create_actor_widget(self, actor):
-        widget = Image(source='Tmp_frame_black.png',
-                       size=(64,64),
-                       size_hint=(None, None))
+        widget = ActorWidget(texture=self.atlas.textures['PCproto'],
+                                        size=(64, 64),
+                                        size_hint=(None, None))
+        # widget = Image(texture=self.atlas.textures['PC_proto'],
+        #                size=(64,64),
+        #                size_hint=(None, None))
         actor.widget = widget
         return widget
 
