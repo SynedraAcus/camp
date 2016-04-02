@@ -8,18 +8,11 @@ from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.uix.image import Image
 from kivy.graphics import Color, Rectangle
-
 from kivy.core.window import Window
-
 from Factories import TileWidgetFactory, MapFactory
 #  My own imports
 from Map import RLMap, GroundTile
 
-class PlaceholderActorWidget(Widget):
-    pass
-
-class GroudnTileWidget(Widget):
-    pass
 
 #  Map widget (using RelativeLayout)
 class RLMapWidget(RelativeLayout):
@@ -42,7 +35,7 @@ class RLMapWidget(RelativeLayout):
                 if self.map.has_item(layer='actors', location=(x, y)):
                     actor_widget = self.tile_factory.create_actor_widget(self.map.get_item(layer='actors',
                                                                          location=(x, y)))
-                    actor_widget.pos=(50*x, 50*y)
+                    actor_widget.pos = self._get_screen_pos(location=(x, y))
                     self.add_widget(actor_widget)
         #  Map background canvas. Used solely to test positioning
         with self.canvas.before:
@@ -65,7 +58,7 @@ class RLMapWidget(RelativeLayout):
         :param location: int tuple
         :return: int tuple
         """
-        return (location[0]*50, location[1]*50)
+        return (location[0]*64, location[1]*64)
 
     #  Keyboard-related methods
 
@@ -97,8 +90,9 @@ class CampApp(App):
         root = FloatLayout()
         map_factory = MapFactory()
         map = map_factory.create_test_map()
+        Window.size=(map.size[0]*64, map.size[1]*64)
         map_widget = RLMapWidget(map=map,
-                                 size=(map.size[0]*50, map.size[1]*50),
+                                 size=(map.size[0]*64, map.size[1]*64),
                                  size_hint=(None, None))
         root.add_widget(map_widget)
         return root

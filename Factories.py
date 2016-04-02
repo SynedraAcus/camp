@@ -2,24 +2,29 @@
 
 from kivy.uix.image import Image
 from kivy.uix.widget import Widget
+from kivy.atlas import Atlas
 from Map import RLMap, GroundTile, Actor
-# from camp import PlaceholderActorWidget
+
+class PlaceholderActorWidget(Widget):
+    pass
 
 class TileWidgetFactory(object):
     def __init__(self):
-        pass
+        self.atlas = Atlas('prototiles.atlas')
 
     def create_tile_widget(self, tile):
-        tile.widget = Image(source=tile.image_source,
-                            size_hint=(None, None),
-                            size=(50, 50))
+        if tile.passable:
+            tile.widget = Image(source='Tmp_frame.png',
+                                size_hint=(None, None),
+                                size=(64, 64))
         return tile.widget
 
     def create_actor_widget(self, actor):
-            actor.widget = Image(source='Tmp_frame_black.png',
-                                 size_hint=(None, None),
-                                 size=(50, 50))
-            return actor.widget
+        widget = Image(source='Tmp_frame_black.png',
+                       size=(64,64),
+                       size_hint=(None, None))
+        actor.widget = widget
+        return widget
 
 class MapFactory(object):
     def __init__(self):
