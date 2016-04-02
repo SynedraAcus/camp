@@ -8,7 +8,8 @@ class MapItem(object):
     """
     Base class from which all items that can be placed on map should inherit
     """
-    pass
+    def __init__(self, passable=True):
+        self.passable=passable
 
 class GroundTile(MapItem):
     def __init__(self, passable=True, image_source='Tmp_frame.png', **kwargs):
@@ -20,6 +21,9 @@ class GroundTile(MapItem):
 
 class Actor(MapItem):
     def __init__(self, player=False, **kwargs):
+        #  Actors should be impassable by default
+        if 'passable' not in kwargs.keys():
+            kwargs.update({'passable': False})
         super(Actor, self).__init__(**kwargs)
         #  Set to true if this is a player-controlled actor
         self.player=player
