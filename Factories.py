@@ -62,12 +62,18 @@ class MapFactory(object):
         pass
 
     def create_test_map(self):
-        map = RLMap(size=(10,10), layers=['bg', 'actors'])
+        map = RLMap(size=(10, 10), layers=['bg', 'actors'])
         for x in range(10):
-            for y in range(10):
+            map.add_item(item=GroundTile(passable=False, image_source='Tmp_frame.png'),
+                         layer='bg',
+                         location=(x, 0))
+            map.add_item(item=GroundTile(passable=False, image_source='Tmp_frame.png'),
+                         layer='bg',
+                         location=(x, 9))
+            for y in range(1, 9):
                 map.add_item(item=GroundTile(passable=True, image_source='Tmp_frame.png'),
                              layer='bg',
                              location=(x, y))
-        map.add_item(item=Actor(player=True), location=(5,5), layer='actors')
+        map.add_item(item=Actor(player=True), location=(5, 5), layer='actors')
         map.add_item(item=Actor(player=False), location=(2, 2), layer='actors')
         return map

@@ -54,25 +54,26 @@ class RLMapWidget(RelativeLayout):
         #  Animation queue
         self.anim_queue = []
 
-    def create_actor_animation(self, actor, duration):
+    def create_movement_animation(self, actor, duration):
         final = self._get_screen_pos(actor.location)
         return Animation(x=final[0], y=final[1], duration=duration)
-        # a.start(actor.widget)
 
     def run_animation(self):
         """
-        Recursive animation call
+        Recursive animation call for processing animation queue
         """
         if self.anim_queue:
             widget, animation = self.anim_queue.pop(0)
-            animation.bind(on_complete=lambda x,y: self.run_animation())
-            # animation.bind(on_complete=lambda *args: print (args))
+            animation.bind(on_complete=lambda x, y: self.run_animation())  #  Lambda args are irrelevant
             animation.start(widget)
+        # else:
+        #     #  The queue is exhausted
+        #     self.running_animation = False
 
     def redraw_actors(self):
         for actor in self.map.actors:
             if not self._get_screen_pos(actor.location) == (actor.widget.x, actor.widget.y):
-                self.anim_queue.append((actor.widget, self.create_actor_animation(actor, 0.5)))
+                self.anim_queue.append((actor.widget, self.create_movement_animation(actor, 0.5)))
         self.run_animation()
 
 
@@ -95,13 +96,17 @@ class RLMapWidget(RelativeLayout):
         :param modifiers:
         :return:
         """
-        #  There are weird turn order bugs if the player is not the first element in map.actors
+        #  Assumes self.map.actors[0] is player
         if keycode[1] in self.used_keys:
-            for actor in self.map.actors:
-                if actor.player:
-                    actor.pass_command(keycode)
-                actor.make_turn()
+            print(len(self.anim_queue))
+            self.map.actors[0].pass_command(keycode)
+            r = self.map.actors[0].make_turn()
+            if r:
+                #  If the player has managed to do something, draw results and let others work
                 self.redraw_actors()
+                for actor in self.map.actors[1:]:
+                    actor.make_turn()
+                    self.redraw_actors()
                 # self.update_actor_widget(actor)
 
     def _keyboard_closed(self):

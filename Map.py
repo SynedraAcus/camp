@@ -12,8 +12,9 @@ class MapItem(object):
         self.passable=passable
 
     def collide(self, other):
-        """ Collisions are expected to be overloaded if they are to actually do something """
-        pass
+        """ Collisions are expected to be overloaded if they are to actually do something.
+        This method returns False indicating that nothing actually happened."""
+        return False
 
 class GroundTile(MapItem):
     def __init__(self, passable=True, image_source='Tmp_frame.png', **kwargs):
@@ -67,29 +68,35 @@ class Actor(MapItem):
     def make_turn(self):
         """
         Make turn: move, attack or something. If an actor has player=True, it respects self.last_command.
-        Otherwise this method makes the decision and calls the appropriate method to perform it
+        Otherwise this method makes the decision and calls the appropriate method to perform it.
+        Returns True if this actor has managed to do something
         :return:
         """
         if self.player:
             #  Movement for a player actor
             if self.last_command[1] == 'w':
-                self.move((self.location[0], self.location[1]+1))
+                self.last_command = None
+                return self.move((self.location[0], self.location[1]+1))
             elif self.last_command[1] == 's':
-                self.move((self.location[0], self.location[1]-1))
+                self.last_command = None
+                return self.move((self.location[0], self.location[1]-1))
             elif self.last_command[1] == 'a':
-                self.move((self.location[0]-1, self.location[1]))
+                self.last_command = None
+                return self.move((self.location[0]-1, self.location[1]))
             elif self.last_command[1] == 'd':
-                self.move((self.location[0]+1, self.location[1]))
+                self.last_command = None
+                return self.move((self.location[0]+1, self.location[1]))
             elif self.last_command[1] == 'spacebar':
-                pass
-            self.last_command = None
+                self.last_command = None
+                return True
         else:
-            self.move(location=(self.location[0]+1, self.location[1]+1))
+            return self.move(location=(self.location[0]+1, self.location[1]+1))
 
     def move(self, location=(None, None)):
         """
         Move self to a location. Returns True after a successful movement
-        and False if it turns out to be impossible (whether collision occured or not)
+        and False if it turns out to be impossible. Movement is considered successful if
+        collision occured even if the actor didn't actually move.
         :param location: tuple
         :return: bool
         """
@@ -98,20 +105,24 @@ class Actor(MapItem):
         # turn, having vasted current one on cleaning the obstacle or killing enemy
         passability = self.map.entrance_possible(location)
         # Check if collision has occured
+        collision_occured = False
         try:
             for item in self.map.get_column(location):
-                    item.collide(self)
+                if type(item) is Actor:
+                    #  No need to collide with tiles or something
+                    if item.collide(self):
+                        collision_occured = True
         except IndexError:
             #  Attempts to collide with something outside map boundaries are silently ignored
             pass
+        moved = False
         if passability:
             self.map.move_item(layer=self.layer,
                                old_location=self.location,
                                new_location=location)
             self.location = location
-            return True
-        else:
-            return False
+            moved = True
+        return moved or collision_occured
 
     def collide(self, other):
         """ Collision callback: get bumped into by some other actor.
@@ -119,6 +130,7 @@ class Actor(MapItem):
         :return:
         """
         self.move(location=(1, 1))
+        return True
 
 
 
