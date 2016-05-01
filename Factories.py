@@ -1,8 +1,9 @@
 #  This file contains various Factory classes for the Expedition Camp project
 
 from kivy.uix.image import Image
+from kivy.core.image import Image as CoreImage
 from kivy.uix.widget import Widget
-from kivy.graphics import Rectangle
+from kivy.graphics import Rectangle, BindTexture
 from kivy.atlas import Atlas
 from Map import RLMap, GroundTile, Actor
 
@@ -15,9 +16,13 @@ class ActorWidget(Widget):
         self.img = Image(source='Tmp_frame_black.png', size=(64, 64))
         self.add_widget(self.img)
         self.bind(pos=self.update_img)
-        with self.canvas:
-            self.rect = Rectangle(texture=texture, size=self.size, pos=self.pos)
-            self.bind(size=self.update_texture, pos=self.update_texture)
+        # self.canvas.add(Rectangle(texture=texture))
+        # t = CoreImage('Tmp_frame_black.png').texture
+        # with self.canvas.after:
+        #     BindTexture(texture=texture)
+            # Rectangle(texture=texture, pos=self.pos, size=self.size)
+            # self.rect = Rectangle(texture=texture, size=self.size, pos=self.pos)
+            # self.bind(size=self.update_texture, pos=self.update_texture)
 
     def update_img(self, a, b):
         self.img.pos = self.pos
@@ -29,6 +34,7 @@ class ActorWidget(Widget):
 class TileWidgetFactory(object):
     def __init__(self):
         self.atlas = Atlas('prototiles.atlas')
+        self.atlas_texture=CoreImage('prototiles.png').texture
 
     def create_tile_widget(self, tile):
         if tile.passable:
@@ -39,7 +45,7 @@ class TileWidgetFactory(object):
 
     def create_actor_widget(self, actor):
         widget = ActorWidget(texture=self.atlas.textures['PCproto'],
-                                        size=(64, 64),
+                                        size = (64, 64),
                                         size_hint=(None, None))
         # widget = Image(texture=self.atlas.textures['PC_proto'],
         #                size=(64,64),

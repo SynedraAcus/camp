@@ -11,6 +11,10 @@ class MapItem(object):
     def __init__(self, passable=True):
         self.passable=passable
 
+    def collide(self, other):
+        """ Collisions are expected to be overloaded if they are to actually do something """
+        pass
+
 class GroundTile(MapItem):
     def __init__(self, passable=True, image_source='Tmp_frame.png', **kwargs):
         super(GroundTile, self).__init__(**kwargs)
@@ -85,13 +89,20 @@ class Actor(MapItem):
     def move(self, location=(None, None)):
         """
         Move self to a location. Returns True after a successful movement
-        and False if it turns out to be impossible
+        and False if it turns out to be impossible (whether collision occured or not)
         :param location: tuple
         :return: bool
         """
+        # Check if collision has occured
+        for item in self.map.get_column(location):
+            try:
+                item.collide(self)
+            except IndexError:
+                #  Attempts to collide with something outside map boundaries are silently ignored
+                pass
+        # Collisions, in general, have nothing to do with passability. It's possible to first collide
+        # with the object, then enter
         if self.map.entrance_possible(location):
-            # old_loc = copy(self.location)
-            # self.location = location
             self.map.move_item(layer=self.layer,
                                old_location=self.location,
                                new_location=location)
@@ -99,6 +110,13 @@ class Actor(MapItem):
             return True
         else:
             return False
+
+    def collide(self, other):
+        """ Collision callback: get bumped into by some other actor.
+        :param other: Actor
+        :return:
+        """
+        self.move(location=(1, 1))
 
 
 
@@ -114,7 +132,7 @@ class RLMap(object):
 
     def move_item(self, layer='default', old_location=(0, 0), new_location=(1, 1)):
         """
-        Move the map item to a new location. Place None in its old position.
+        Move the map item to a new location. Place None in its old position. Does not move items between layers
         :param layer: Layer in which the moved object is (str)
         :param old_location: Where to take item from (2-int tuple)
         :param new_location: Where to place the item (2-int tuple)
@@ -133,6 +151,15 @@ class RLMap(object):
         :return:
         """
         return self.items[layer][location[0]][location[1]]
+
+    def get_column(self, location=(0,0)):
+        """
+        Return a tuple of truthy objects in all layers in the given location
+        :param location: int tuple
+        :return:
+        """
+        return (self.items[layer][location[0]][location[1]] for layer in self.items.keys()
+                if self.items[layer][location[0]][location[1]])
 
     def add_item(self, item=None, layer='default', location=(0, 0)):
         """
