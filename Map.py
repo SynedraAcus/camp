@@ -62,7 +62,7 @@ class Actor(MapItem):
         """
         if not self.player:
             raise NotImplementedError('Commands to non-player Actors are not implemented')
-        self.last_command=keycode
+        self.last_command = keycode
 
     def make_turn(self):
         """
@@ -93,6 +93,10 @@ class Actor(MapItem):
         :param location: tuple
         :return: bool
         """
+        # Passability should be detected before collision. In general these two concepts are unrelated
+        # but collision may change passability. In that case actor should enter the tile only on the next
+        # turn, having vasted current one on cleaning the obstacle or killing enemy
+        passability = self.map.entrance_possible(location)
         # Check if collision has occured
         try:
             for item in self.map.get_column(location):
@@ -100,9 +104,7 @@ class Actor(MapItem):
         except IndexError:
             #  Attempts to collide with something outside map boundaries are silently ignored
             pass
-        # Collisions, in general, have nothing to do with passability. It's possible to first collide
-        # with the object, then enter
-        if self.map.entrance_possible(location):
+        if passability:
             self.map.move_item(layer=self.layer,
                                old_location=self.location,
                                new_location=location)

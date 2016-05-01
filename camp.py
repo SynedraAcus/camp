@@ -51,9 +51,9 @@ class RLMapWidget(RelativeLayout):
     def update_actor_widget(self, actor):
         actor.widget.pos = self._get_screen_pos(actor.location)
 
-    # def redraw_actors(self):
-    #     for actor in self.map.actors:
-    #         self.update_actor_widget(actor)
+    def redraw_actors(self):
+        for actor in self.map.actors:
+            self.update_actor_widget(actor)
 
     def _get_screen_pos(self, location):
         """
@@ -82,7 +82,8 @@ class RLMapWidget(RelativeLayout):
                 if actor.player:
                     actor.pass_command(keycode)
                 actor.make_turn()
-                self.update_actor_widget(actor)
+                self.redraw_actors()
+                # self.update_actor_widget(actor)
 
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_key_down)
