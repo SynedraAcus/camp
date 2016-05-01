@@ -11,6 +11,7 @@ from kivy.uix.image import Image
 from kivy.graphics import Color, Rectangle
 from kivy.core.window import Window
 from kivy.animation import Animation
+from kivy.clock import Clock
 
 #  My own stuff
 from Factories import TileWidgetFactory, MapFactory
@@ -50,16 +51,30 @@ class RLMapWidget(RelativeLayout):
         self._keyboard.bind(on_key_down=self._on_key_down)
         #  The list of keys that will not be ignored by on_key_down
         self.used_keys = ['w', 'a', 's', 'd', 'spacebar']
+        #  Animation queue
+        self.anim_queue = []
 
-    def update_actor_widget(self, actor):
+    def create_actor_animation(self, actor, duration):
         final = self._get_screen_pos(actor.location)
-        a = Animation(x=final[0], y=final[1], duration=0.5)
-        a.start(actor.widget)
+        return Animation(x=final[0], y=final[1], duration=duration)
+        # a.start(actor.widget)
+
+    def run_animation(self):
+        """
+        Recursive animation call
+        """
+        if self.anim_queue:
+            widget, animation = self.anim_queue.pop(0)
+            animation.bind(on_complete=lambda x,y: self.run_animation())
+            # animation.bind(on_complete=lambda *args: print (args))
+            animation.start(widget)
 
     def redraw_actors(self):
         for actor in self.map.actors:
             if not self._get_screen_pos(actor.location) == (actor.widget.x, actor.widget.y):
-                self.update_actor_widget(actor)
+                self.anim_queue.append((actor.widget, self.create_actor_animation(actor, 0.5)))
+        self.run_animation()
+
 
     def _get_screen_pos(self, location):
         """
