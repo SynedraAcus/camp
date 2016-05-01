@@ -48,9 +48,12 @@ class RLMapWidget(RelativeLayout):
         #  The list of keys that will not be ignored by on_key_down
         self.used_keys = ['w', 'a', 's', 'd', 'spacebar']
 
-    def redraw_actors(self):
-        for actor in self.map.actors:
-            actor.widget.pos = self._get_screen_pos(actor.location)
+    def update_actor_widget(self, actor):
+        actor.widget.pos = self._get_screen_pos(actor.location)
+
+    # def redraw_actors(self):
+    #     for actor in self.map.actors:
+    #         self.update_actor_widget(actor)
 
     def _get_screen_pos(self, location):
         """
@@ -72,8 +75,14 @@ class RLMapWidget(RelativeLayout):
         :return:
         """
         if keycode[1] in self.used_keys:
-            self.map.process_turn(keycode)
-            self.redraw_actors()
+            # self.map.process_turn(keycode)
+            # self.redraw_actors()
+            #  Call every actor and tell them to make the damn move
+            for actor in self.map.actors:
+                if actor.player:
+                    actor.pass_command(keycode)
+                actor.make_turn()
+                self.update_actor_widget(actor)
 
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_key_down)

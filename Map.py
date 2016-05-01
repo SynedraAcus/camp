@@ -94,12 +94,12 @@ class Actor(MapItem):
         :return: bool
         """
         # Check if collision has occured
-        for item in self.map.get_column(location):
-            try:
-                item.collide(self)
-            except IndexError:
-                #  Attempts to collide with something outside map boundaries are silently ignored
-                pass
+        try:
+            for item in self.map.get_column(location):
+                    item.collide(self)
+        except IndexError:
+            #  Attempts to collide with something outside map boundaries are silently ignored
+            pass
         # Collisions, in general, have nothing to do with passability. It's possible to first collide
         # with the object, then enter
         if self.map.entrance_possible(location):
