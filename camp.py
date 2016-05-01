@@ -67,17 +67,15 @@ class RLMapWidget(RelativeLayout):
 
     def _on_key_down(self, keyboard, keycode, text, modifiers):
         """
-        Process keyboard event and make a turn, if necessary
+        Process keyboard event and let all actors make turns. Basically this is a tick
         :param keyboard:
         :param keycode:
         :param text:
         :param modifiers:
         :return:
         """
+        #  There are weird turn order bugs if the player is not the first element in map.actors
         if keycode[1] in self.used_keys:
-            # self.map.process_turn(keycode)
-            # self.redraw_actors()
-            #  Call every actor and tell them to make the damn move
             for actor in self.map.actors:
                 if actor.player:
                     actor.pass_command(keycode)
