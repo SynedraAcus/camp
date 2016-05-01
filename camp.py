@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+#  Kivy imports
 import kivy
 kivy.require('1.9.0')
 from kivy.app import App
@@ -9,8 +10,10 @@ from kivy.uix.label import Label
 from kivy.uix.image import Image
 from kivy.graphics import Color, Rectangle
 from kivy.core.window import Window
+from kivy.animation import Animation
+
+#  My own stuff
 from Factories import TileWidgetFactory, MapFactory
-#  My own imports
 from Map import RLMap, GroundTile
 
 
@@ -49,11 +52,14 @@ class RLMapWidget(RelativeLayout):
         self.used_keys = ['w', 'a', 's', 'd', 'spacebar']
 
     def update_actor_widget(self, actor):
-        actor.widget.pos = self._get_screen_pos(actor.location)
+        final = self._get_screen_pos(actor.location)
+        a = Animation(x=final[0], y=final[1], duration=0.5)
+        a.start(actor.widget)
 
     def redraw_actors(self):
         for actor in self.map.actors:
-            self.update_actor_widget(actor)
+            if not self._get_screen_pos(actor.location) == (actor.widget.x, actor.widget.y):
+                self.update_actor_widget(actor)
 
     def _get_screen_pos(self, location):
         """

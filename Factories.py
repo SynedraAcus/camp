@@ -10,9 +10,26 @@ class ActorWidget(Widget):
     """
     The actor widget that contains an actor image
     """
-    def __init__(self, texture=None, **kwargs):
+    def __init__(self, source='PC.png', **kwargs):
         super(ActorWidget, self).__init__(**kwargs)
-        self.img = Image(source='Tmp_frame_black.png', size=(64, 64))
+        self.img = Image(source=source, size=(64, 64))
+        self.add_widget(self.img)
+        self.bind(pos=self.update_img)
+
+    def update_img(self, a, b):
+        self.img.pos = self.pos
+
+    def update_texture(self, size, pos):
+        self.rect.size = self.size
+        self.rect.pos = self.pos
+
+class TileWidget(Widget):
+    """
+    The tile widget that currently contains only an image.
+    """
+    def __init__(self, source='PC.png', **kwargs):
+        super(TileWidget, self).__init__(**kwargs)
+        self.img = Image(source=source, size=(64, 64))
         self.add_widget(self.img)
         self.bind(pos=self.update_img)
 
@@ -28,14 +45,14 @@ class TileWidgetFactory(object):
         pass
 
     def create_tile_widget(self, tile):
-        if tile.passable:
-            tile.widget = Image(source='Tmp_frame.png',
-                                size_hint=(None, None),
-                                size=(64, 64))
+        s = 'Tile_passable.png' if tile.passable else 'Tile_impassable.png'
+        tile.widget = TileWidget(source=s, size=(64, 64),
+                                 size_hint=(None, None))
         return tile.widget
 
     def create_actor_widget(self, actor):
-        widget = ActorWidget(size = (64, 64),
+        s = 'PC.png' if actor.player else 'NPC.png'
+        widget = ActorWidget(source=s, size = (64, 64),
                              size_hint=(None, None))
         actor.widget = widget
         return widget
