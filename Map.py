@@ -3,6 +3,7 @@
 #  any of Kivy classes. MVC and all that.
 
 from copy import copy
+import Controller
 
 class MapItem(object):
     """
@@ -33,13 +34,12 @@ class Actor(MapItem):
         #  Set to true if this is a player-controlled actor
         self.player=player
         if self.player:
-            #  Last command sent to player-controlled Actor
-            self.last_command=None
+            #  Attach controller to a PC
+            self.attach_controller(Controller.create_prototype_controller())
         #  Here will be data re: map location (in tiles, not pixels)
         #  This is not set by constructor
         self.map = None
         self.location=[]
-
 
     def connect_to_map(self, map=None, layer=None, location=(None, None)):
         """
@@ -53,6 +53,16 @@ class Actor(MapItem):
         #  Cast the type: location attribute was a tuple
         self.location = list(location)
 
+    def attach_controller(self, controller):
+        """
+        Attach a controller to the Actor
+        :param controller: Controller
+        :return:
+        """
+        assert type(controller) is Controller.Controller
+        self.controller = controller
+        self.controller.actor = self
+
     def pass_command(self, keycode):
         """
         Pass the last key that was pressed. This method is intended to be called before make_turn() for
@@ -61,9 +71,11 @@ class Actor(MapItem):
         :param keycode: kivy keycode tuple
         :return:
         """
-        if not self.player:
+        try:
+            self.controller.take_keycode(keycode)
+        except AttributeError:
             raise NotImplementedError('Commands to non-player Actors are not implemented')
-        self.last_command = keycode
+        # self.last_command = keycode
 
     def make_turn(self):
         """
@@ -73,22 +85,23 @@ class Actor(MapItem):
         :return:
         """
         if self.player:
+            return self.controller.call_actor_method()
             #  Movement for a player actor
-            if self.last_command[1] == 'w':
-                self.last_command = None
-                return self.move((self.location[0], self.location[1]+1))
-            elif self.last_command[1] == 's':
-                self.last_command = None
-                return self.move((self.location[0], self.location[1]-1))
-            elif self.last_command[1] == 'a':
-                self.last_command = None
-                return self.move((self.location[0]-1, self.location[1]))
-            elif self.last_command[1] == 'd':
-                self.last_command = None
-                return self.move((self.location[0]+1, self.location[1]))
-            elif self.last_command[1] == 'spacebar':
-                self.last_command = None
-                return True
+            # if self.last_command[1] == 'w':
+            #     self.last_command = None
+            #     return self.move((self.location[0], self.location[1]+1))
+            # elif self.last_command[1] == 's':
+            #     self.last_command = None
+            #     return self.move((self.location[0], self.location[1]-1))
+            # elif self.last_command[1] == 'a':
+            #     self.last_command = None
+            #     return self.move((self.location[0]-1, self.location[1]))
+            # elif self.last_command[1] == 'd':
+            #     self.last_command = None
+            #     return self.move((self.location[0]+1, self.location[1]))
+            # elif self.last_command[1] == 'spacebar':
+            #     self.last_command = None
+            #     return self.pause()
         else:
             return self.move(location=(self.location[0]+1, self.location[1]+1))
 
@@ -123,6 +136,13 @@ class Actor(MapItem):
             self.location = location
             moved = True
         return moved or collision_occured
+
+    def pause(self):
+        """
+        Spend one turn doing nothing. Return True if it was possible, False otherwise
+        :return:
+        """
+        return True
 
     def collide(self, other):
         """ Collision callback: get bumped into by some other actor.

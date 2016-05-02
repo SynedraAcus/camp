@@ -94,14 +94,14 @@ class RLMapWidget(RelativeLayout):
             print('Done')
             self.block_keyboard = False
 
-    def create_others_animations(self, actor):
-        """
-        Launch the animation for all actors that are not where they belong
-        :return:
-        """
-        for actor in self.map.actors:
-            if not self._get_screen_pos(actor.location) == (actor.widget.x, actor.widget.y):
-                self.anim_queue.append((actor.widget, self.create_movement_animation(actor, 0.5)))
+    # def create_others_animations(self, actor):
+    #     """
+    #     Launch the animation for all actors that are not where they belong
+    #     :return:
+    #     """
+    #     for actor in self.map.actors:
+    #         if not self._get_screen_pos(actor.location) == (actor.widget.x, actor.widget.y):
+    #             self.anim_queue.append((actor.widget, self.create_movement_animation(actor, 0.5)))
 
 
     def _get_screen_pos(self, location):
