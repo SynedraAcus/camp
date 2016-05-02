@@ -37,7 +37,7 @@ class Actor(MapItem):
             #  Attach controller to a PC
             self.attach_controller(Controller.create_prototype_controller())
         #  Here will be data re: map location (in tiles, not pixels)
-        #  This is not set by constructor
+        #  This is not set by constructor: it is only defined when map factory places the actor on the map
         self.map = None
         self.location=[]
 
@@ -75,33 +75,16 @@ class Actor(MapItem):
             self.controller.take_keycode(keycode)
         except AttributeError:
             raise NotImplementedError('Commands to non-player Actors are not implemented')
-        # self.last_command = keycode
 
     def make_turn(self):
         """
         Make turn: move, attack or something. If an actor has player=True, it respects self.last_command.
         Otherwise this method makes the decision and calls the appropriate method to perform it.
         Returns True if this actor has managed to do something
-        :return:
+        :return: bool
         """
         if self.player:
             return self.controller.call_actor_method()
-            #  Movement for a player actor
-            # if self.last_command[1] == 'w':
-            #     self.last_command = None
-            #     return self.move((self.location[0], self.location[1]+1))
-            # elif self.last_command[1] == 's':
-            #     self.last_command = None
-            #     return self.move((self.location[0], self.location[1]-1))
-            # elif self.last_command[1] == 'a':
-            #     self.last_command = None
-            #     return self.move((self.location[0]-1, self.location[1]))
-            # elif self.last_command[1] == 'd':
-            #     self.last_command = None
-            #     return self.move((self.location[0]+1, self.location[1]))
-            # elif self.last_command[1] == 'spacebar':
-            #     self.last_command = None
-            #     return self.pause()
         else:
             return self.move(location=(self.location[0]+1, self.location[1]+1))
 
