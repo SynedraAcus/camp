@@ -49,32 +49,59 @@ class RLMapWidget(RelativeLayout):
         #  Initializing keyboard bindings and key lists
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
         self._keyboard.bind(on_key_down=self._on_key_down)
+        self.last_command = None
         #  The list of keys that will not be ignored by on_key_down
         self.used_keys = ['w', 'a', 's', 'd', 'spacebar']
-        #  Animation queue
+        #  Animation queue and stuff
         self.anim_queue = []
+        self.block_keyboard = False
 
-    def create_movement_animation(self, actor, duration):
+    def create_movement_animation(self, actor, duration=0.5):
+        """
+        Create the animation for actor movement, if it is not where it belongs. Pass otherwise.
+        Tries to create animations for all actors (in case they were affected by the move),
+        but to preserve chronological order moves the one in the argument first.
+        :param actor:
+        :param duration:
+        :return:
+        """
         final = self._get_screen_pos(actor.location)
-        return Animation(x=final[0], y=final[1], duration=duration)
+        if not(final == (actor.widget.x, actor.widget.y)):
+            self.anim_queue.append((actor.widget, Animation(x=final[0], y=final[1], duration=duration)))
+        for other_actor in self.map.actors:
+            if not other_actor is actor:
+                final = self._get_screen_pos(other_actor.location)
+                if not (final == (other_actor.widget.x, other_actor.widget.y)):
+                    self.anim_queue.append((other_actor.widget,
+                                            Animation(x=final[0], y=final[1], duration=duration)))
+
+
+    def remember_anim(self):
+        self.block_keyboard = True
 
     def run_animation(self):
         """
         Recursive animation call for processing animation queue
         """
-        if self.anim_queue:
+        if len(self.anim_queue)>0:
             widget, animation = self.anim_queue.pop(0)
-            animation.bind(on_complete=lambda x, y: self.run_animation())  #  Lambda args are irrelevant
+            print('Starting animation on {0}'.format(widget))
+            animation.bind(on_start=lambda x, y: self.remember_anim(),
+                           on_complete=lambda x, y: self.run_animation())  #  Lambda args are irrelevant
             animation.start(widget)
-        # else:
-        #     #  The queue is exhausted
-        #     self.running_animation = False
+        else:
+            #  The queue is exhausted
+            print('Done')
+            self.block_keyboard = False
 
-    def redraw_actors(self):
+    def create_others_animations(self, actor):
+        """
+        Launch the animation for all actors that are not where they belong
+        :return:
+        """
         for actor in self.map.actors:
             if not self._get_screen_pos(actor.location) == (actor.widget.x, actor.widget.y):
                 self.anim_queue.append((actor.widget, self.create_movement_animation(actor, 0.5)))
-        self.run_animation()
 
 
     def _get_screen_pos(self, location):
@@ -97,17 +124,20 @@ class RLMapWidget(RelativeLayout):
         :return:
         """
         #  Assumes self.map.actors[0] is player
+        if self.block_keyboard:
+            return
         if keycode[1] in self.used_keys:
-            print(len(self.anim_queue))
             self.map.actors[0].pass_command(keycode)
             r = self.map.actors[0].make_turn()
+            self.create_movement_animation(self.map.actors[0])
             if r:
-                #  If the player has managed to do something, draw results and let others work
-                self.redraw_actors()
+                #  If the player has managed to do something, draw results and let others work.
+                #  If not for this check, the player attempting to do impossible things will have
+                #  wasted a turn
                 for actor in self.map.actors[1:]:
-                    actor.make_turn()
-                    self.redraw_actors()
-                # self.update_actor_widget(actor)
+                    if actor.make_turn():
+                        self.create_movement_animation(actor)
+            self.run_animation()
 
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_key_down)
