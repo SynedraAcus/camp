@@ -49,9 +49,6 @@ class RLMapWidget(RelativeLayout):
         #  Initializing keyboard bindings and key lists
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
         self._keyboard.bind(on_key_down=self._on_key_down)
-        self.last_command = None
-        #  The list of keys that will not be ignored by on_key_down
-        self.used_keys = ['w', 'a', 's', 'd', 'spacebar']
         #  Animation queue and stuff
         self.anim_queue = []
         self.block_keyboard = False
@@ -85,13 +82,13 @@ class RLMapWidget(RelativeLayout):
         """
         if len(self.anim_queue)>0:
             widget, animation = self.anim_queue.pop(0)
-            print('Starting animation on {0}'.format(widget))
+            # print('Starting animation on {0}'.format(widget))
             animation.bind(on_start=lambda x, y: self.remember_anim(),
                            on_complete=lambda x, y: self.run_animation())  #  Lambda args are irrelevant
             animation.start(widget)
         else:
             #  The queue is exhausted
-            print('Done')
+            # print('Done')
             self.block_keyboard = False
 
     # def create_others_animations(self, actor):
@@ -126,8 +123,8 @@ class RLMapWidget(RelativeLayout):
         #  Assumes self.map.actors[0] is player
         if self.block_keyboard:
             return
-        if keycode[1] in self.used_keys:
-            self.map.actors[0].pass_command(keycode)
+        if self.map.actors[0].controller.take_keycode(keycode):
+            #  If the player controller accepts this button
             r = self.map.actors[0].make_turn()
             self.create_movement_animation(self.map.actors[0])
             if r:
