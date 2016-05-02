@@ -49,6 +49,14 @@ class RLMapWidget(RelativeLayout):
         #  Initializing keyboard bindings and key lists
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
         self._keyboard.bind(on_key_down=self._on_key_down)
+        #  Keys not in this list are ignored by _on_key_down
+        self.allowed_keys=['spacebar', '.',
+                           'w', 'a', 's', 'd',
+                           'h', 'j', 'k', 'l',
+                           'y', 'u', 'b', 'n',
+                           'up', 'down', 'left', 'right',
+                           'numpad1', 'numpad2', 'numpad3', 'numpad4', 'numpad5',
+                           'numpad6', 'numpad7', 'numpad8', 'numpad9']
         #  Animation queue and stuff
         self.anim_queue = []
         self.block_keyboard = False
@@ -112,8 +120,8 @@ class RLMapWidget(RelativeLayout):
         #  Assumes self.map.actors[0] is player
         if self.block_keyboard:
             return
-        if self.map.actors[0].controller.take_keycode(keycode):
-            #  If the player controller accepts this button
+        if keycode[1] in self.allowed_keys and self.map.actors[0].controller.take_keycode(keycode):
+            #  If this button is used, either by player controller or otherwise
             r = self.map.actors[0].make_turn()
             self.create_movement_animation(self.map.actors[0])
             if r:
