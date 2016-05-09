@@ -20,7 +20,7 @@ class Actor(MapItem):
             kwargs.update({'passable': False})
         super(Actor, self).__init__(**kwargs)
         #  Set to true if this is a player-controlled actor
-        self.player=player
+        self.player = player
         if self.player:
             #  Attach controller to a PC
             self.attach_controller(PlayerController())
@@ -90,7 +90,7 @@ class Actor(MapItem):
         """
         # Passability should be detected before collision. In general these two concepts are unrelated
         # but collision may change passability. In that case actor should enter the tile only on the next
-        # turn, having vasted current one on cleaning the obstacle or killing enemy
+        # turn, having wasted current one on cleaning the obstacle or killing enemy
         passability = self.map.entrance_possible(location)
         # Check if collision has occured
         collision_occured = False

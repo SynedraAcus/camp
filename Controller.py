@@ -18,14 +18,45 @@ command_dict = {'wait': ('spacebar', '.', 'numpad5'),
 
 class Controller(object):
     """
-    Controller class. It should be attached to actor; when order is passed to the controller,
-    it will take a keycode and run the relevant actor's procedure when requested
+    Controller class. It should be attached to actor.
+    All Controller subclasses should provide call_actor_method() method that will make actor perform the
+    required action and return its result (normally a boolean value). Player-controlled subclasses
+    should also provide take_keycode method that will take kivy keycode and make the next call to
+    self.call_actor_method() perform appropriate action for that keycode.
     """
-    def __init__(self, commands=command_dict):
-        self.commands = {}
-        self.load_commands(commands)
+    def __init__(self): #, commands=command_dict):
+        # self.commands = {}
+        # self.load_commands(commands)
         self.last_command = None
         self.actor = None
+
+
+
+    # def choose_actor_action(self):
+    #     """
+    #     Set self.last_command to appropriate value
+    #     :return:
+    #     """
+    #     self.last_command = 'walk_9'
+
+    def call_actor_method(self):
+        """
+        Call the actor method that corresponds to self.last_command and return its result
+        :return: bool
+        """
+        raise NotImplementedError('Base Controller class does not actually call actor methods')
+
+
+
+class PlayerController(Controller):
+    """
+    Controller subclass that allows passing keycode to the actor.
+    It also parses the keys
+    """
+    def __init__(self, commands=command_dict):
+        super(Controller, self).__init__()
+        self.commands = {}
+        self.load_commands(commands)
 
     def load_commands(self, d):
         """
@@ -37,20 +68,22 @@ class Controller(object):
         for command in d.items():
             self.commands.update({x: command[0] for x in command[1]})
 
-    def choose_actor_action(self):
+    def take_keycode(self, keycode):
         """
-        Set self.last_command to appropriate value
-        :return:
-        """
-        self.last_command = 'walk_9'
-
-    def call_actor_method(self):
-        """
-        Call the actor method that corresponds to self.last_command and return its result
+        Take the keycode that will be processed during actor's next turn. Return True if the keycode is
+        recognised, False otherwise.
+        :param keycode: keycode
         :return: bool
         """
+        try:
+            self.last_command = self.commands[keycode[1]]
+            return True
+        except KeyError:
+            return False
+
+    def call_actor_method(self):
         if not self.actor:
-            raise AttributeError('Controller cannot be used when not attached to actor')
+                raise AttributeError('Controller cannot be used when not attached to actor')
         #  Methods to call for every action are defined here. Later I'll build some more complex system
         #  using getattr, loading commands, their methods and arguments from external source and so on
         #  Boilerplate will do for now
@@ -74,30 +107,8 @@ class Controller(object):
             r = self.actor.move(location=(self.actor.location[0]-1, self.actor.location[1]-1))
         elif self.last_command == 'walk_3':
             r = self.actor.move(location=(self.actor.location[0]+1, self.actor.location[1]-1))
-        if self.actor.player:
-            #  Remove command for the player actor
-            self.last_command = None
+        self.last_command = None
         return r
-
-
-class PlayerController(Controller):
-    """
-    Controller subclass that allows passing keycode to the actor.
-    It also parses the keys
-    """
-
-    def take_keycode(self, keycode):
-        """
-        Take the keycode that will be processed during actor's next turn. Return True if the keycode is
-        recognised, False otherwise.
-        :param keycode: keycode
-        :return: bool
-        """
-        try:
-            self.last_command = self.commands[keycode[1]]
-            return True
-        except KeyError:
-            return False
 
 
 class AIController(Controller):
@@ -107,9 +118,8 @@ class AIController(Controller):
     def __init__(self):
         super(AIController, self).__init__()
 
+    def call_actor_method(self):
+        return self.actor.move((self.actor.location[0]+1, self.actor.location[1]+1))
 
-
-# def create_prototype_controller():
-#     c = Controller()
-#     c.load_commands(command_dict)
-#     return c
+    def choose_actor_action(self):
+        self.last_command = 'walk_9'
