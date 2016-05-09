@@ -118,6 +118,7 @@ class Actor(MapItem):
                                new_location=location)
             self.location = location
             moved = True
+            self.widget.last_move_animated = False
         return moved or collision_occured
 
     def pause(self):

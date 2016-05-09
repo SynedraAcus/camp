@@ -15,6 +15,8 @@ class ActorWidget(Widget):
         self.img = Image(source=source, size=(64, 64))
         self.add_widget(self.img)
         self.bind(pos=self.update_img)
+        #  Flag that controls whether this widget is to be animated
+        self.last_move_animated = True
 
     def update_img(self, a, b):
         self.img.pos = self.pos
@@ -76,4 +78,5 @@ class MapFactory(object):
                              location=(x, y))
         map.add_item(item=Actor(player=True), location=(5, 5), layer='actors')
         map.add_item(item=Actor(player=False), location=(2, 2), layer='actors')
+        map.add_item(item=Actor(player=False), location=(3, 5), layer='actors')
         return map

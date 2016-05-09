@@ -13,6 +13,9 @@ from kivy.core.window import Window
 from kivy.animation import Animation
 from kivy.clock import Clock
 
+#  Other imports
+import sys
+
 #  My own stuff
 from Factories import TileWidgetFactory, MapFactory
 from Map import RLMap, GroundTile
@@ -71,16 +74,20 @@ class RLMapWidget(RelativeLayout):
         :return:
         """
         final = self._get_screen_pos(actor.location)
-        if not(final == (actor.widget.x, actor.widget.y)):
+        if not actor.widget.last_move_animated:
             self.anim_queue.append((actor.widget, Animation(x=final[0], y=final[1], duration=duration)))
+            actor.widget.last_move_animated = True
         for other_actor in self.map.actors:
             if not other_actor is actor:
                 final = self._get_screen_pos(other_actor.location)
-                if not (final == (other_actor.widget.x, other_actor.widget.y)):
+                if not other_actor.widget.last_move_animated:
                     self.anim_queue.append((other_actor.widget,
                                             Animation(x=final[0], y=final[1], duration=duration)))
+                    other_actor.widget.last_move_animated = True
 
 
+        #  Animation flag
+        self.animated_last_movement = False
     def remember_anim(self):
         self.block_keyboard = True
 
@@ -90,12 +97,13 @@ class RLMapWidget(RelativeLayout):
         """
         if len(self.anim_queue)>0:
             widget, animation = self.anim_queue.pop(0)
-            # print('Starting animation on {0}'.format(widget))
+            sys.stderr.write('Starting animation on {0}\n'.format(widget))
             animation.bind(on_start=lambda x, y: self.remember_anim(),
                            on_complete=lambda x, y: self.run_animation())  #  Lambda args are irrelevant
             animation.start(widget)
         else:
             #  The queue is exhausted
+            sys.stderr.write('Animation queue exhausted\n')
             self.block_keyboard = False
 
     def _get_screen_pos(self, location):
