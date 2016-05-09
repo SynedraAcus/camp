@@ -135,12 +135,12 @@ class Actor(MapItem):
         :return:
         """
         if self.map.entrance_possible((1, 1)):
-            self.map.game_log.append('{0} successfully teleported by {1}\n'.format(self.name,
+            self.map.game_log.append('{0} successfully teleported by {1}'.format(self.name,
                                                                                    other.name))
             return self.move(location=(1, 1))
         else:
             #  Collision did happen, but teleportation turned out to be broken
-            self.map.game_log.append('{1} attempted to teleport {0}, but failed\n'.format(self.name,
+            self.map.game_log.append('{1} attempted to teleport {0}, but failed'.format(self.name,
                                                                                           other.name))
             return True
         # return True
