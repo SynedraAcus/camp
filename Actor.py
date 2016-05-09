@@ -15,7 +15,7 @@ class FighterComponent(object):
 
 class Actor(MapItem):
     def __init__(self, player=False, name='Unnamed actor',
-                 controller=None, **kwargs):
+                 controller=None, fighter=None, **kwargs):
         #  Actors should be impassable by default. The 'passable' should be in kwargs to be passed to
         #  superclass constructor, so a simple default value in signature won't work here
         if 'passable' not in kwargs.keys():
@@ -24,11 +24,12 @@ class Actor(MapItem):
         #  Set to true if this is a player-controlled actor
         self.player = player
         self.attach_controller(controller)
+        self.fighter = fighter
         self.name = name
         #  Here will be data that not set by constructor: it is only defined when map factory
         # places the actor on the map
         self.map = None
-        self.location=[]
+        self.location = []
 
     def connect_to_map(self, map=None, layer=None, location=(None, None)):
         """
@@ -123,13 +124,20 @@ class Actor(MapItem):
         :param other: Actor
         :return:
         """
-        if self.map.entrance_possible((1, 1)):
-            self.map.game_log.append('{0} successfully teleported by {1}'.format(self.name,
-                                                                                   other.name))
-            #  Cannot just return True here because the item needs to be actually moved
-            return self.move(location=(1, 1))
-        else:
-            #  Collision did happen, but teleportation turned out to be impossible
-            self.map.game_log.append('{1} attempted to teleport {0}, but failed'.format(self.name,
-                                                                                          other.name))
+        if self.fighter and other.fighter:
+            self.fighter.hp -= other.fighter.damage
+            if self.fighter.hp <= 0:
+                self.map.game_log.append('{} run out of HP'.format(self.name))
             return True
+        else:
+            #  Teleporting non-fighter Actors instead of fighting
+            if self.map.entrance_possible((1, 1)):
+                self.map.game_log.append('{0} successfully teleported by {1}'.format(self.name,
+                                                                                       other.name))
+                #  Cannot just return True here because the item needs to be actually moved
+                return self.move(location=(1, 1))
+            else:
+                #  Collision did happen, but teleportation turned out to be impossible
+                self.map.game_log.append('{1} attempted to teleport {0}, but failed'.format(self.name,
+                                                                                              other.name))
+                return True
