@@ -154,8 +154,9 @@ class RLMap(object):
         self.items ={l: [[None for x in range(size[1])] for y in range(size[0])] for l in layers}
         #  Actors list
         self.actors = []
-        #  Log list
-        self.game_log = []
+        #  Log list. Initial values allow not to have empty log at the startup
+        self.game_log = ['Игра начинается', 'Если вы видите этот текст, то лог работает',
+                         'All the text below will be in English']
 
     #  Actions on map items: addition, removal and so on
 
@@ -168,7 +169,6 @@ class RLMap(object):
         :return:
         """
         moved_item=self.get_item(layer=layer, location=old_location)
-        # moved_item.widget.pos=(new_location[0]*50, new_location[1]*50)
         self.items[layer][new_location[0]][new_location[1]] = moved_item
         self.delete_item(layer=layer, location=old_location)
 

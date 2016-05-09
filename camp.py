@@ -176,14 +176,14 @@ class CampApp(App):
 
         root.add_widget(map_widget)
         log_widget = LogWindow(id='log_window',
-                               text='TEST_python',
+                               text='\n'.join(map.game_log[-3:]),
                                size=(Window.size[0], 50),
                                pos=(0, 0),
                                #  Cannot use self.size here, as 'self' is a root widget
                                text_size=(Window.size[0], 50),
-                               font_size=12,
+                               font_size=10,
                                valign='top',
-                               line_height=0.5)
+                               line_height=1)
         root.add_widget(log_widget)
         return root
 
