@@ -11,24 +11,22 @@ class FighterComponent(object):
     """
     def __init__(self, hp=5, damage=1):
         self.hp = hp
-        self.damage = 1
+        self.damage = damage
 
 class Actor(MapItem):
-    def __init__(self, player=False, name='Unnamed actor', **kwargs):
-        #  Actors should be impassable by default
+    def __init__(self, player=False, name='Unnamed actor',
+                 controller=None, **kwargs):
+        #  Actors should be impassable by default. The 'passable' should be in kwargs to be passed to
+        #  superclass constructor, so a simple default value in signature won't work here
         if 'passable' not in kwargs.keys():
             kwargs.update({'passable': False})
         super(Actor, self).__init__(**kwargs)
         #  Set to true if this is a player-controlled actor
         self.player = player
-        if self.player:
-            #  Attach controller to a PC
-            self.attach_controller(PlayerController())
-        else:
-            self.attach_controller(AIController())
+        self.attach_controller(controller)
         self.name = name
         #  Here will be data that not set by constructor: it is only defined when map factory
-        # places the actor on the map, controllers are attached and so on
+        # places the actor on the map
         self.map = None
         self.location=[]
 

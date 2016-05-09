@@ -24,20 +24,9 @@ class Controller(object):
     should also provide take_keycode method that will take kivy keycode and make the next call to
     self.call_actor_method() perform appropriate action for that keycode.
     """
-    def __init__(self): #, commands=command_dict):
-        # self.commands = {}
-        # self.load_commands(commands)
+    def __init__(self):
         self.last_command = None
         self.actor = None
-
-
-
-    # def choose_actor_action(self):
-    #     """
-    #     Set self.last_command to appropriate value
-    #     :return:
-    #     """
-    #     self.last_command = 'walk_9'
 
     def call_actor_method(self):
         """
