@@ -1,12 +1,29 @@
 from copy import copy
 
+
+#  Little more than a placeholder. There is only movement, and it allows to use
+#  numpad and nethack-like vim keys. WASD and arrows
+command_dict = {'wait': ('spacebar', '.', 'numpad5'),
+                #  Walking in cardinal directions
+                'walk_8': ('w', 'h', 'numpad8', 'up'),
+                'walk_2': ('s', 'l', 'numpad2', 'down'),
+                'walk_4': ('a', 'j', 'numpad4', 'left'),
+                'walk_6': ('d', 'k', 'numpad6', 'right'),
+                #  Diagonal movement
+                'walk_7': ('y', 'numpad7', ),
+                'walk_9': ('u', 'numpad9', ),
+                'walk_1': ('b', 'numpad1', ),
+                'walk_3': ('n', 'numpad3', )}
+
+
 class Controller(object):
     """
     Controller class. It should be attached to actor; when order is passed to the controller,
     it will take a keycode and run the relevant actor's procedure when requested
     """
-    def __init__(self):
+    def __init__(self, commands=command_dict):
         self.commands = {}
+        self.load_commands(commands)
         self.last_command = None
         self.actor = None
 
@@ -20,23 +37,17 @@ class Controller(object):
         for command in d.items():
             self.commands.update({x: command[0] for x in command[1]})
 
-    def take_keycode(self, keycode):
+    def choose_actor_action(self):
         """
-        Take the keycode that will be processed during actor's next turn. Return True if the keycode is
-        recognised, False otherwise.
-        :param keycode: keycode
-        :return: bool
+        Set self.last_command to appropriate value
+        :return:
         """
-        try:
-            self.last_command = self.commands[keycode[1]]
-            return True
-        except KeyError:
-            return False
+        self.last_command = 'walk_9'
 
     def call_actor_method(self):
         """
         Call the actor method that corresponds to self.last_command and return its result
-        :return:
+        :return: bool
         """
         if not self.actor:
             raise AttributeError('Controller cannot be used when not attached to actor')
@@ -63,25 +74,42 @@ class Controller(object):
             r = self.actor.move(location=(self.actor.location[0]-1, self.actor.location[1]-1))
         elif self.last_command == 'walk_3':
             r = self.actor.move(location=(self.actor.location[0]+1, self.actor.location[1]-1))
-        self.last_command = None
+        if self.actor.player:
+            #  Remove command for the player actor
+            self.last_command = None
         return r
 
 
-#  Little more than a placeholder, again. There is only movement, and it allows to use
-#  numpad and nethack-like vim keys. WASD and arrows
-command_dict = {'wait': ('spacebar', '.', 'numpad5'),
-                #  Walking in cardinal directions
-                'walk_8': ('w', 'h', 'numpad8', 'up'),
-                'walk_2': ('s', 'l', 'numpad2', 'down'),
-                'walk_4': ('a', 'j', 'numpad4', 'left'),
-                'walk_6': ('d', 'k', 'numpad6', 'right'),
-                #  Diagonal movement
-                'walk_7': ('y', 'numpad7', ),
-                'walk_9': ('u', 'numpad9', ),
-                'walk_1': ('b', 'numpad1', ),
-                'walk_3': ('n', 'numpad3', )}
+class PlayerController(Controller):
+    """
+    Controller subclass that allows passing keycode to the actor.
+    It also parses the keys
+    """
 
-def create_prototype_controller():
-    c = Controller()
-    c.load_commands(command_dict)
-    return c
+    def take_keycode(self, keycode):
+        """
+        Take the keycode that will be processed during actor's next turn. Return True if the keycode is
+        recognised, False otherwise.
+        :param keycode: keycode
+        :return: bool
+        """
+        try:
+            self.last_command = self.commands[keycode[1]]
+            return True
+        except KeyError:
+            return False
+
+
+class AIController(Controller):
+    """
+    Controller subclass that just orders walk_9 at every turn
+    """
+    def __init__(self):
+        super(AIController, self).__init__()
+
+
+
+# def create_prototype_controller():
+#     c = Controller()
+#     c.load_commands(command_dict)
+#     return c

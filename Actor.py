@@ -2,8 +2,16 @@
 Actor classes.
 """
 
-import Controller
+from Controller import Controller, PlayerController, AIController
 from MapItem import MapItem
+
+class FighterComponent(object):
+    """
+    The component that provides the actor with combat capabilities
+    """
+    def __init__(self, hp=5, damage=1):
+        self.hp = hp
+        self.damage = 1
 
 class Actor(MapItem):
     def __init__(self, player=False, name='Unnamed actor', **kwargs):
@@ -15,10 +23,12 @@ class Actor(MapItem):
         self.player=player
         if self.player:
             #  Attach controller to a PC
-            self.attach_controller(Controller.create_prototype_controller())
+            self.attach_controller(PlayerController())
+        else:
+            self.attach_controller(AIController())
         self.name = name
-        #  Here will be data re: map location (in tiles, not pixels)
-        #  This is not set by constructor: it is only defined when map factory places the actor on the map
+        #  Here will be data that not set by constructor: it is only defined when map factory
+        # places the actor on the map, controllers are attached and so on
         self.map = None
         self.location=[]
 
@@ -40,7 +50,7 @@ class Actor(MapItem):
         :param controller: Controller
         :return:
         """
-        assert type(controller) is Controller.Controller
+        assert isinstance(controller, Controller)
         self.controller = controller
         self.controller.actor = self
 
@@ -64,10 +74,11 @@ class Actor(MapItem):
         Returns True if this actor has managed to do something
         :return: bool
         """
-        if self.player:
-            return self.controller.call_actor_method()
-        else:
-            return self.move(location=(self.location[0]+1, self.location[1]+1))
+        return self.controller.call_actor_method()
+        # if self.player:
+        #     return self.controller.call_actor_method()
+        # else:
+        #     return self.controller.call_actor_method()
 
     def move(self, location=(None, None)):
         """
