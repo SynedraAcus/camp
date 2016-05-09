@@ -9,7 +9,7 @@ class FighterComponent(object):
     """
     The component that provides the actor with combat capabilities
     """
-    def __init__(self, hp=5, damage=1):
+    def __init__(self, hp=5, damage=3):
         self.hp = hp
         self.damage = damage
 
@@ -126,8 +126,12 @@ class Actor(MapItem):
         """
         if self.fighter and other.fighter:
             self.fighter.hp -= other.fighter.damage
+            self.map.game_log.append('{1} hit {0} for {2} damage'.format(self.name,
+                                                                                other.name,
+                                                                                self.fighter.damage))
             if self.fighter.hp <= 0:
-                self.map.game_log.append('{} run out of HP'.format(self.name))
+                self.map.game_log.append('{} was killed'.format(self.name))
+                self.map.delete_item(layer='actors', location=self.location)
             return True
         else:
             #  Teleporting non-fighter Actors instead of fighting
