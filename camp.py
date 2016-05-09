@@ -47,11 +47,6 @@ class RLMapWidget(RelativeLayout):
                                                                          location=(x, y)))
                     actor_widget.pos = self._get_screen_pos(location=(x, y))
                     self.add_widget(actor_widget)
-        #  Map background canvas. Used solely to test positioning
-        with self.canvas.before:
-            Color(0, 0, 1, 1)
-            self.rect = Rectangle(size = self.size, pos=self.pos)
-            self.bind(pos=self.update_rect, size=self.update_rect)
         #  Initializing keyboard bindings and key lists
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
         self._keyboard.bind(on_key_down=self._on_key_down)
@@ -142,6 +137,13 @@ class RLMapWidget(RelativeLayout):
                 for actor in self.map.actors[1:]:
                     if actor.make_turn():
                         self.create_movement_animation(actor)
+            sys.stderr.write(str(self.parent.children))
+            #  Update log Label
+            for x in self.parent.children:
+                if type(x) is LogWindow:
+                    w = x
+                    break
+            w.text = 'Whatever'
             self.run_animation()
 
     def _keyboard_closed(self):
@@ -152,6 +154,8 @@ class RLMapWidget(RelativeLayout):
         self.rect.pos = self.pos
         self.rect.size = self.size
 
+class LogWindow(Label):
+    pass
 
 class CampApp(App):
 
@@ -159,13 +163,14 @@ class CampApp(App):
         root = BoxLayout(orientation='vertical')
         map_factory = MapFactory()
         map = map_factory.create_test_map()
-        Window.size=(map.size[0]*64, map.size[1]*64+100)
+        Window.size = (map.size[0]*64, map.size[1]*64+100)
         map_widget = RLMapWidget(map=map,
                                  size=(map.size[0]*64, map.size[1]*64),
                                  size_hint=(None, None))
+
         root.add_widget(map_widget)
-        test_button = Label(text='TEST', size=(map_widget.size[0], 100))
-        root.add_widget(test_button)
+        log_widget = LogWindow(id='log_window', text='TEST_python') #, size=(map_widget.size[0], 100))
+        root.add_widget(log_widget)
         return root
 
 if __name__ == '__main__':

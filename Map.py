@@ -26,7 +26,7 @@ class GroundTile(MapItem):
         self.widget = None
 
 class Actor(MapItem):
-    def __init__(self, player=False, **kwargs):
+    def __init__(self, player=False, name='Unnamed actor', **kwargs):
         #  Actors should be impassable by default
         if 'passable' not in kwargs.keys():
             kwargs.update({'passable': False})
@@ -36,6 +36,7 @@ class Actor(MapItem):
         if self.player:
             #  Attach controller to a PC
             self.attach_controller(Controller.create_prototype_controller())
+        self.name = name
         #  Here will be data re: map location (in tiles, not pixels)
         #  This is not set by constructor: it is only defined when map factory places the actor on the map
         self.map = None
@@ -134,9 +135,13 @@ class Actor(MapItem):
         :return:
         """
         if self.map.entrance_possible((1, 1)):
+            self.map.game_log.append('{0} successfully teleported by {1}\n'.format(self.name,
+                                                                                   other.name))
             return self.move(location=(1, 1))
         else:
             #  Collision did happen, but teleportation turned out to be broken
+            self.map.game_log.append('{1} attempted to teleport {0}, but failed\n'.format(self.name,
+                                                                                          other.name))
             return True
         # return True
 
@@ -149,6 +154,8 @@ class RLMap(object):
         self.items ={l: [[None for x in range(size[1])] for y in range(size[0])] for l in layers}
         #  Actors list
         self.actors = []
+        #  Log list
+        self.game_log = []
 
     #  Actions on map items: addition, removal and so on
 

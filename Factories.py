@@ -76,7 +76,7 @@ class MapFactory(object):
                 map.add_item(item=GroundTile(passable=True, image_source='Tmp_frame.png'),
                              layer='bg',
                              location=(x, y))
-        map.add_item(item=Actor(player=True), location=(5, 5), layer='actors')
-        map.add_item(item=Actor(player=False), location=(2, 2), layer='actors')
-        map.add_item(item=Actor(player=False), location=(3, 5), layer='actors')
+        map.add_item(item=Actor(player=True, name='PC'), location=(5, 5), layer='actors')
+        map.add_item(item=Actor(player=False, name='NPC1'), location=(2, 2), layer='actors')
+        map.add_item(item=Actor(player=False, name='NPC2'), location=(3, 5), layer='actors')
         return map

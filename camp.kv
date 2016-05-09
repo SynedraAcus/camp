@@ -1,12 +1,26 @@
 #:kivy 1.9.0
 <CampApp>:
-    RLMap:
-        canvas:
-            Color:
-                rgba: 0, 0, 1, 1
-            Rectangle:
-                pos: self.pos
-                size: self.size
+    BoxLayout:
+        id: outer_box
+        orientation: horizontal
+        RLMap:
+            id: map_widget
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 1, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            size: self.map.size[0]*64, self.map.size[1]*64
+            size_hint: None, None
+            pos: 0, 100
+
+        LogWindow:
+            id: log_window
+            size_hint: None, None
+            size: self.parent.size[0], 100
+            text: 'TEST'
+
     TileWidget:
         size_hint: None, None
         pos_hint: None
