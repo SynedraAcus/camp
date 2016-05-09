@@ -133,8 +133,12 @@ class Actor(MapItem):
         :param other: Actor
         :return:
         """
-        self.move(location=(1, 1))
-        return True
+        if self.map.entrance_possible((1, 1)):
+            return self.move(location=(1, 1))
+        else:
+            #  Collision did happen, but teleportation turned out to be broken
+            return True
+        # return True
 
 
 
