@@ -101,19 +101,21 @@ class RLMap(object):
         if isinstance(self.items[layer][location[0]][location[1]], Actor):
             self.actors.remove(self.items[layer][location[0]][location[1]])
 
-    #  Game-related actions
-
-    def process_turn(self, keycode):
+    def get_neighbours(self, layer='default', location=(None, None)):
         """
-        Perform a turn. This procedure is called when player character makes a turn; later I might
-        implement a more complex time system.
-        :param keycode: kivy keycode tuple
+        Get all the items in the cells connected to this one on a given layer
+        :param layer:
+        :param location:
         :return:
         """
-        for actor in self.actors:
-            if actor.player:
-                actor.pass_command(keycode)
-            actor.make_turn()
+        l = [self.get_item(layer=layer, location=(x, y))for x in range(location[0]-1, location[0]+2)
+                                                        for y in range(location[1]-1, location[1]+2)]
+        # Filter out Nones and the item at (x, y)
+        l = list(filter(lambda x: x is not None and not x.location == location, l))
+
+        return l
+    #  Game-related actions
+
 
     def entrance_possible(self, location):
         """

@@ -1,4 +1,5 @@
-from copy import copy
+import sys
+import random
 
 
 #  Little more than a placeholder. There is only movement, and it allows to use
@@ -108,7 +109,19 @@ class AIController(Controller):
         super(AIController, self).__init__()
 
     def call_actor_method(self):
-        return self.actor.move((self.actor.location[0]+1, self.actor.location[1]+1))
+        """
+        The primitive AI routine. If there are neighbours, attack a random one, otherwise walk_9
+        :return:
+        """
+        neighbours = self.actor.map.get_neighbours(layer='actors', location=self.actor.location)
+        sys.stderr.write('{0} has {1} neighbors\n'.format(self.actor.name,
+                                                          str(len(self.actor.map.get_neighbours(layer='actors',
+                                                                                                location=self.actor.location)))))
+        if len(neighbours) > 0:
+            victim = random.choice(neighbours)
+            return self.actor.move(victim.location)
+        else:
+            return self.actor.move((self.actor.location[0]+1, self.actor.location[1]+1))
 
     def choose_actor_action(self):
         self.last_command = 'walk_9'

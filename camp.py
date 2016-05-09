@@ -23,9 +23,6 @@ import sys
 from Factories import TileWidgetFactory, MapFactory
 from Actor import Actor
 
-# from Map import RLMap, GroundTile
-
-
 #  Map widget (using RelativeLayout)
 class RLMapWidget(RelativeLayout):
 
