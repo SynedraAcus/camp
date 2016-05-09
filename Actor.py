@@ -73,6 +73,11 @@ class Actor(MapItem):
         Returns True if this actor has managed to do something
         :return: bool
         """
+        #  Prevent dead actors from making turns. If I'm correct, they act just because GC doesn't get to them
+        #  quickly enough to prevent that. If, on the other hand, I've missed an Actor reference somewhere,
+        #  this is a potential memory leak
+        if self.fighter and self.fighter.hp <= 0:
+            return False
         return self.controller.call_actor_method()
         # if self.player:
         #     return self.controller.call_actor_method()

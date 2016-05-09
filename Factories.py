@@ -59,7 +59,7 @@ class TileWidgetFactory(object):
 
     def create_actor_widget(self, actor):
         s = 'PC.png' if actor.player else 'NPC.png'
-        widget = ActorWidget(source=s, size = (64, 64),
+        widget = ActorWidget(source=s, size=(64, 64),
                              size_hint=(None, None))
         actor.widget = widget
         return widget
@@ -85,6 +85,6 @@ class MapFactory(object):
                      location=(5, 5), layer='actors')
         map.add_item(item=Actor(player=False, name='NPC1', controller=AIController(), fighter=FighterComponent()),
                      location=(2, 2), layer='actors')
-        map.add_item(item=Actor(player=False, name='NPC2', controller=AIController()),
+        map.add_item(item=Actor(player=False, name='NPC2', controller=AIController(), fighter=FighterComponent()),
                      location=(3, 5), layer='actors')
         return map
