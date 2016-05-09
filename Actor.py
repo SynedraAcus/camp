@@ -75,14 +75,10 @@ class Actor(MapItem):
         """
         #  Prevent dead actors from making turns. If I'm correct, they act just because GC doesn't get to them
         #  quickly enough to prevent that. If, on the other hand, I've missed an Actor reference somewhere,
-        #  this is a potential memory leak
+        #  this is a potential memory leak.
         if self.fighter and self.fighter.hp <= 0:
             return False
         return self.controller.call_actor_method()
-        # if self.player:
-        #     return self.controller.call_actor_method()
-        # else:
-        #     return self.controller.call_actor_method()
 
     def move(self, location=(None, None)):
         """
@@ -138,15 +134,3 @@ class Actor(MapItem):
                 self.map.game_log.append('{} was killed'.format(self.name))
                 self.map.delete_item(layer='actors', location=self.location)
             return True
-        else:
-            #  Teleporting non-fighter Actors instead of fighting
-            if self.map.entrance_possible((1, 1)):
-                self.map.game_log.append('{0} successfully teleported by {1}'.format(self.name,
-                                                                                       other.name))
-                #  Cannot just return True here because the item needs to be actually moved
-                return self.move(location=(1, 1))
-            else:
-                #  Collision did happen, but teleportation turned out to be impossible
-                self.map.game_log.append('{1} attempted to teleport {0}, but failed'.format(self.name,
-                                                                                              other.name))
-                return True
