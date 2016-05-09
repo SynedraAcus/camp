@@ -4,7 +4,11 @@ from kivy.uix.image import Image
 from kivy.core.image import Image as CoreImage
 from kivy.uix.widget import Widget
 from kivy.graphics import Rectangle, BindTexture
-from Map import RLMap, GroundTile, Actor
+
+#  Importing my own stuff
+from Map import RLMap
+from MapItem import GroundTile
+from Actor import Actor
 
 class ActorWidget(Widget):
     """

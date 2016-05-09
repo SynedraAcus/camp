@@ -21,7 +21,9 @@ import sys
 
 #  My own stuff
 from Factories import TileWidgetFactory, MapFactory
-from Map import RLMap, GroundTile
+from Actor import Actor
+
+# from Map import RLMap, GroundTile
 
 
 #  Map widget (using RelativeLayout)
