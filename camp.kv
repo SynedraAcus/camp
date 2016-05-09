@@ -13,13 +13,13 @@
                     size: self.size
             size: self.map.size[0]*64, self.map.size[1]*64
             size_hint: None, None
-            pos: 0, 100
 
         LogWindow:
             id: log_window
             size_hint: None, None
             size: self.parent.size[0], 100
-            text: 'TEST'
+            pos_hint: True
+            text_size: self.parent.size[0], 100
 
     TileWidget:
         size_hint: None, None

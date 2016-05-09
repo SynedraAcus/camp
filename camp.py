@@ -137,13 +137,12 @@ class RLMapWidget(RelativeLayout):
                 for actor in self.map.actors[1:]:
                     if actor.make_turn():
                         self.create_movement_animation(actor)
-            sys.stderr.write(str(self.parent.children))
             #  Update log Label
             for x in self.parent.children:
-                if type(x) is LogWindow:
+                if x.id == 'log_window':
                     w = x
                     break
-            w.text = 'Whatever'
+            w.text = '\n'.join(self.map.game_log[-3:])
             self.run_animation()
 
     def _keyboard_closed(self):
@@ -155,7 +154,13 @@ class RLMapWidget(RelativeLayout):
         self.rect.size = self.size
 
 class LogWindow(Label):
-    pass
+    """ Text widget that shows the last 3 items from game_log
+    """
+    def __init__(self, *args, **kwargs):
+        super(LogWindow, self).__init__(*args, **kwargs)
+        with self.canvas.before:
+            Color(1, 0, 0)
+            Rectangle(size=self.size, pos=self.pos)
 
 class CampApp(App):
 
@@ -163,13 +168,22 @@ class CampApp(App):
         root = BoxLayout(orientation='vertical')
         map_factory = MapFactory()
         map = map_factory.create_test_map()
-        Window.size = (map.size[0]*64, map.size[1]*64+100)
+        Window.size = (map.size[0]*64, map.size[1]*64+50)
         map_widget = RLMapWidget(map=map,
                                  size=(map.size[0]*64, map.size[1]*64),
-                                 size_hint=(None, None))
+                                 size_hint=(None, None),
+                                 pos=(0, 100))
 
         root.add_widget(map_widget)
-        log_widget = LogWindow(id='log_window', text='TEST_python') #, size=(map_widget.size[0], 100))
+        log_widget = LogWindow(id='log_window',
+                               text='TEST_python',
+                               size=(Window.size[0], 50),
+                               pos=(0, 0),
+                               #  Cannot use self.size here, as 'self' is a root widget
+                               text_size=(Window.size[0], 50),
+                               font_size=12,
+                               valign='top',
+                               line_height=0.5)
         root.add_widget(log_widget)
         return root
 
