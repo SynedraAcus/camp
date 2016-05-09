@@ -5,6 +5,9 @@ kivy.require('1.9.0')
 from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.uix.image import Image
@@ -153,14 +156,16 @@ class RLMapWidget(RelativeLayout):
 class CampApp(App):
 
     def build(self):
-        root = FloatLayout()
+        root = BoxLayout(orientation='vertical')
         map_factory = MapFactory()
         map = map_factory.create_test_map()
-        Window.size=(map.size[0]*64, map.size[1]*64)
+        Window.size=(map.size[0]*64, map.size[1]*64+100)
         map_widget = RLMapWidget(map=map,
                                  size=(map.size[0]*64, map.size[1]*64),
                                  size_hint=(None, None))
         root.add_widget(map_widget)
+        test_button = Label(text='TEST', size=(map_widget.size[0], 100))
+        root.add_widget(test_button)
         return root
 
 if __name__ == '__main__':
