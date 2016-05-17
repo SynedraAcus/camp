@@ -111,7 +111,7 @@ class Actor(MapItem):
         #  quickly enough to prevent that. If, on the other hand, I've missed an Actor reference somewhere,
         #  this is a potential memory leak.
         if self.fighter and self.fighter.hp <= 0:
-            return True
+            return False
         return self.controller.call_actor_method()
 
     def move(self, location=(None, None)):

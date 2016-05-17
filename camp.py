@@ -61,6 +61,12 @@ class RLMapWidget(RelativeLayout):
         self.anim_queue = []
         self.block_keyboard = False
 
+#########################################################
+    #
+    #  Stuff related to animation
+    #
+#########################################################
+
     def update_animation_queue(self, duration=0.3):
         """
         Populate self.anim_queue based on self.map.game_events
@@ -115,6 +121,7 @@ class RLMapWidget(RelativeLayout):
         else:
             #  The queue is exhausted
             sys.stderr.write('Animation queue exhausted\n')
+            self.update_log()
             self.block_keyboard = False
 
     def _get_screen_pos(self, location):
@@ -125,8 +132,36 @@ class RLMapWidget(RelativeLayout):
         """
         return (location[0]*64, location[1]*64)
 
-    #  Keyboard-related methods
+############################################################
+    #
+    #  Updating procedures for various non-map stuff
+    #
+############################################################
 
+    #  Procedures here are NOT kivy callbacks. They are called
+    #  whenever appropriate from the game's point of view (ie
+    #  after someone made turn), not after something that
+    #  happened with the widgets
+
+    def update_log(self):
+        """
+        Updating the log window under the map.
+        :return:
+        """
+        for x in self.parent.children:
+            if x.id == 'log_window':
+                w = x
+                break
+        w.text = '\n'.join(self.map.game_log[-3:])
+
+    def update_hud(self):
+        pass
+############################################################
+    #
+    #  Keyboard-related methods
+    #  The turn is made here, inside _on_key_down
+    #
+############################################################
     def _on_key_down(self, keyboard, keycode, text, modifiers):
         """
         Process keyboard event and let all actors make turns. Basically this is a tick
@@ -150,12 +185,6 @@ class RLMapWidget(RelativeLayout):
                 for actor in self.map.actors[1:]:
                     if actor.make_turn():
                         self.update_animation_queue()
-            #  Update log Label
-            for x in self.parent.children:
-                if x.id == 'log_window':
-                    w = x
-                    break
-            w.text = '\n'.join(self.map.game_log[-3:])
             self.run_animation()
 
     def _keyboard_closed(self):
