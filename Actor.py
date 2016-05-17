@@ -1,9 +1,12 @@
 """
-Actor classes.
+Actor classes. Also contains other classes (components, TurnReport) that are necessary for actors'
+functioning, but are not, strictly speaking, related to graphics
 """
 
 from Controller import Controller, PlayerController, AIController
 from MapItem import MapItem
+# from Map import GameEvent
+
 
 class FighterComponent(object):
     """
@@ -12,6 +15,29 @@ class FighterComponent(object):
     def __init__(self, hp=5, damage=3):
         self.hp = hp
         self.damage = damage
+
+
+class GameEvent(object):
+    """
+    Something that has happened in the game.
+    Contrary to its name, this is not an event in IO/clock sense. This is, rather, a data class that contains a
+    pointer to actor involved, location(s) of the event and event type. The latter must be an str and its value
+    should be one of GameEvent.acceptable_types elements
+    """
+    acceptable_types = ('moved',
+                        'was_destroyed',
+                        'attacked')
+
+    def __init__(self, event_type=None, actor=None, location=None):
+        assert isinstance(event_type, str) and event_type in self.acceptable_types
+        self.event_type = event_type
+        assert isinstance(actor, Actor)
+        self.actor = actor
+        if location:
+            self.location = location
+        else:
+            self.location = actor.location
+
 
 class Actor(MapItem):
     def __init__(self, player=False, name='Unnamed actor',
@@ -68,8 +94,8 @@ class Actor(MapItem):
 
     def make_turn(self):
         """
-        Make turn: move, attack or something. If an actor has player=True, it respects self.last_command.
-        Otherwise this method makes the decision and calls the appropriate method to perform it.
+        Make turn: move, attack or something. Asks a controller to actually do stuff, but
+        handles other turn-related stuff.
         Returns True if this actor has managed to do something
         :return: bool
         """
@@ -109,6 +135,8 @@ class Actor(MapItem):
                                old_location=self.location,
                                new_location=location)
             self.location = location
+            self.map.game_events.append(GameEvent(event_type='moved',
+                                                  actor=self))
             moved = True
             self.widget.last_move_animated = False
         return moved or collision_occured
@@ -127,10 +155,16 @@ class Actor(MapItem):
         """
         if self.fighter and other.fighter:
             self.fighter.hp -= other.fighter.damage
+            self.map.game_events.append(GameEvent(event_type='attacked',
+                                                  actor=other, location=self.location))
             self.map.game_log.append('{1} hit {0} for {2} damage'.format(self.name,
                                                                                 other.name,
                                                                                 self.fighter.damage))
             if self.fighter.hp <= 0:
                 self.map.game_log.append('{} was killed'.format(self.name))
+                self.map.game_events.append(GameEvent(event_type='was_destroyed',
+                                                      actor=self))
                 self.map.delete_item(layer='actors', location=self.location)
+                #  By this moment GameEvent should be the only thing holding the actor reference.
+                #  When it is animated and then removed, Actor instance will be forgotten
             return True

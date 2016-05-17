@@ -60,7 +60,7 @@ class PlayerController(Controller):
 
     def take_keycode(self, keycode):
         """
-        Take the keycode that will be processed during actor's next turn. Return True if the keycode is
+        Take the keycodeis that will be processed during actor's next turn. Return True if the keycode is
         recognised, False otherwise.
         :param keycode: keycode
         :return: bool

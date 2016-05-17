@@ -17,6 +17,8 @@ class RLMap(object):
         #  Log list. Initial values allow not to have empty log at the startup
         self.game_log = ['Игра начинается', 'Если вы видите этот текст, то кириллический лог работает',
                          'All the text below will be in English, so I guess Latin log works as well']
+        #  GameEvent list
+        self.game_events = []
 
     #  Actions on map items: addition, removal and so on
 
@@ -92,14 +94,14 @@ class RLMap(object):
         :param location: int tuple
         :return:
         """
-        #  We need to remove widget as well as the map reference
-        w = self.items[layer][location[0]][location[1]].widget
-        w.parent.remove_widget(w)
         self.items[layer][location[0]][location[1]] = None
         #  If the item deleted is an actor, it should be removed from self.actors as well as
-        #  from self.items
+        #  from self.items.
         if isinstance(self.items[layer][location[0]][location[1]], Actor):
             self.actors.remove(self.items[layer][location[0]][location[1]])
+        #  If no other references exist (when this executes, one should probably be in GameEvent)
+        #  Actor object will be garbage-collected. Please note that this method does not handle
+        #  widget deletion. That one should be called according to GameEvent somehow
 
     def get_neighbours(self, layer='default', location=(None, None)):
         """
@@ -114,8 +116,8 @@ class RLMap(object):
         l = list(filter(lambda x: x is not None and not x.location == location, l))
 
         return l
-    #  Game-related actions
 
+    #  Game-related actions
 
     def entrance_possible(self, location):
         """
@@ -137,3 +139,4 @@ class RLMap(object):
                 ret = False
                 break
         return ret
+

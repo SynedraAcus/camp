@@ -17,18 +17,23 @@ class ActorWidget(Widget):
     """
     def __init__(self, source='PC.png', **kwargs):
         super(ActorWidget, self).__init__(**kwargs)
-        self.img = Image(source=source, size=(64, 64))
+        self.img = Image(source=source, size=(64, 64), allow_stretch=True)
         self.add_widget(self.img)
         self.bind(pos=self.update_img)
+        self.bind(size=self.update_img)
+        # self.last_move_animated = True
         #  Flag that controls whether this widget is to be animated
-        self.last_move_animated = True
+
+    # def update_size(self, a, b):
+    #     self.img.size=self.size
 
     def update_img(self, a, b):
         self.img.pos = self.pos
+        self.img.size = self.size
 
-    def update_texture(self, size, pos):
-        self.rect.size = self.size
-        self.rect.pos = self.pos
+    # def update_texture(self, size, pos):
+    #     self.rect.size = self.size
+    #     self.rect.pos = self.pos
 
 class TileWidget(Widget):
     """
