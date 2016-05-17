@@ -142,7 +142,6 @@ class RLMapWidget(RelativeLayout):
         if keycode[1] in self.allowed_keys and self.map.actors[0].controller.take_keycode(keycode):
             #  If this button is used, either by player controller or otherwise
             r = self.map.actors[0].make_turn()
-            # self.create_movement_animation(self.map.actors[0])
             self.update_animation_queue()
             if r:
                 #  If the player has managed to do something, draw results and let others work.
@@ -151,7 +150,6 @@ class RLMapWidget(RelativeLayout):
                 for actor in self.map.actors[1:]:
                     if actor.make_turn():
                         self.update_animation_queue()
-                        # self.create_movement_animation(actor)
             #  Update log Label
             for x in self.parent.children:
                 if x.id == 'log_window':

@@ -5,6 +5,7 @@ functioning, but are not, strictly speaking, related to graphics
 
 from Controller import Controller, PlayerController, AIController
 from MapItem import MapItem
+from random import choice
 # from Map import GameEvent
 
 
@@ -12,9 +13,16 @@ class FighterComponent(object):
     """
     The component that provides the actor with combat capabilities
     """
-    def __init__(self, hp=5, damage=3):
+    def __init__(self, hp=5, attacks=[1, 2, 3], defenses=[0, 0, 1]):
         self.hp = hp
-        self.damage = damage
+        self.attacks = attacks
+        self.defenses = defenses
+
+    def attack(self):
+        return choice(self.attacks)
+
+    def defense(self):
+        return choice(self.defenses)
 
 
 class GameEvent(object):
@@ -103,7 +111,7 @@ class Actor(MapItem):
         #  quickly enough to prevent that. If, on the other hand, I've missed an Actor reference somewhere,
         #  this is a potential memory leak.
         if self.fighter and self.fighter.hp <= 0:
-            return False
+            return True
         return self.controller.call_actor_method()
 
     def move(self, location=(None, None)):
@@ -154,12 +162,19 @@ class Actor(MapItem):
         :return:
         """
         if self.fighter and other.fighter:
-            self.fighter.hp -= other.fighter.damage
+            a = other.fighter.attack()
+            d = self.fighter.defense()
             self.map.game_events.append(GameEvent(event_type='attacked',
                                                   actor=other, location=self.location))
-            self.map.game_log.append('{1} hit {0} for {2} damage'.format(self.name,
-                                                                                other.name,
-                                                                                self.fighter.damage))
+            if a > d:
+                self.fighter.hp -= a-d
+                self.map.game_log.append('{1} hit {0} for {2} damage ({3}/{4})'.format(self.name,
+                                                                                       other.name,
+                                                                                       a-d, a, d))
+            else:
+                self.map.game_log.append('{1} missed {0}({3}/{4})'.format(self.name,
+                                                                          other.name,
+                                                                          a, d))
             if self.fighter.hp <= 0:
                 self.map.game_log.append('{} was killed'.format(self.name))
                 self.map.game_events.append(GameEvent(event_type='was_destroyed',
