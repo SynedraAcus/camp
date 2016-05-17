@@ -89,32 +89,12 @@ class RLMapWidget(RelativeLayout):
                 # self.map.delete_item(layer='actors', location=event.location)
         self.map.game_events = []
 
-    def create_movement_animation(self, actor, duration=0.3):
-        """
-        Create the animation for actor movement, if it is not where it belongs. Pass otherwise.
-        Tries to create animations for all actors (in case they were affected by the move),
-        but to preserve chronological order moves the one in the argument first.
-        :param actor:
-        :param duration:
-        :return:
-        """
-        final = self._get_screen_pos(actor.location)
-        if not actor.widget.last_move_animated:
-            self.anim_queue.append((actor.widget, Animation(x=final[0], y=final[1], duration=duration)))
-            actor.widget.last_move_animated = True
-        for other_actor in self.map.actors:
-            if not other_actor is actor:
-                final = self._get_screen_pos(other_actor.location)
-                if not other_actor.widget.last_move_animated:
-                    self.anim_queue.append((other_actor.widget,
-                                            Animation(x=final[0], y=final[1], duration=duration)))
-                    other_actor.widget.last_move_animated = True
-
-
-        #  Animation flag
-        self.animated_last_movement = False
-
     def remember_anim(self):
+        '''
+        This is a separate method because lambdas cannot into assignment, and animation queue
+         depends on lambdas not to be evaluated prematurely.
+        :return:
+        '''
         self.block_keyboard = True
 
     def run_animation(self, widget=Widget()):
