@@ -15,6 +15,7 @@ from kivy.graphics import Color, Rectangle
 from kivy.core.window import Window
 from kivy.animation import Animation
 from kivy.clock import Clock
+from kivy.core.audio import SoundLoader
 
 #  Other imports
 import sys
@@ -57,9 +58,10 @@ class RLMapWidget(RelativeLayout):
                            'up', 'down', 'left', 'right',
                            'numpad1', 'numpad2', 'numpad3', 'numpad4', 'numpad5',
                            'numpad6', 'numpad7', 'numpad8', 'numpad9']
-        #  Animation queue and stuff
-        self.anim_queue = []
+        #  This is set to True during animation to avoid mistakes
         self.block_keyboard = False
+        self.boombox={'moved': SoundLoader.load('dshoof.wav'),
+                      'attacked': SoundLoader.load('dspunch.wav')}
 
 #########################################################
     #
@@ -85,10 +87,11 @@ class RLMapWidget(RelativeLayout):
             event = self.map.game_events.pop(0)
             if event.event_type == 'moved':
                 final = self._get_screen_pos(event.actor.location)
-                a = Animation(x=final[0], y=final[1], duration=0.3)
+                a = Animation(x=final[0], y=final[1], duration=anim_duration)
                 a.bind(on_start=lambda x, y: self.remember_anim(),
                        on_complete=lambda x, y: self.process_game_event(y))
                 a.start(event.actor.widget)
+                self.boombox['moved'].play()
             elif event.event_type == 'attacked':
                 current = self._get_screen_pos(event.actor.location)
                 target = self._get_screen_pos(event.location)
@@ -99,6 +102,7 @@ class RLMapWidget(RelativeLayout):
                 a.bind(on_start=lambda x, y: self.remember_anim(),
                        on_complete=lambda x, y: self.process_game_event(y))
                 a.start(event.actor.widget)
+                self.boombox['attacked'].play()
             elif event.event_type == 'was_destroyed':
                 a = Animation(size=(0, 0), duration=anim_duration)
                 a.bind(on_start=lambda x, y: self.remember_anim(),
