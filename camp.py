@@ -66,34 +66,50 @@ class RLMapWidget(RelativeLayout):
     #  Stuff related to animation
     #
 #########################################################
-
-    def update_animation_queue(self, duration=0.3):
+    def process_game_event(self, widget=Widget(), anim_duration=0.3):
         """
-        Populate self.anim_queue based on self.map.game_events
+        Process a single event from self.map.game_events.
+        Read the event and perform the correct actions on widgets (such as update text of log window,
+        create and launch animation, maybe make some sound). The event is removed from self.map.game_events.
+        After the actions required are performed, the method calls itself again, either recursively, or, in
+        case of animations, via Animation's on_complete argument. The recursion is broken when event queue is
+        empty.
         :return:
         """
-        for event in self.map.game_events:
+        if widget.size == (0, 0):
+            #  If the widget was given zero size, this means it should be removed
+            #  This entire affair, including creating placeholder widget on every iteration,
+            #  is kinda inefficient and should be rebuilt later
+            widget.parent.remove_widget(widget)
+        if not self.map.game_events == []:
+            event = self.map.game_events.pop(0)
             if event.event_type == 'moved':
-                final = self._get_screen_pos(event.location)
-                self.anim_queue.append((event.actor.widget,
-                                       Animation(x=final[0], y=final[1], duration=duration)))
+                final = self._get_screen_pos(event.actor.location)
+                a = Animation(x=final[0], y=final[1], duration=0.3)
+                a.bind(on_start=lambda x, y: self.remember_anim(),
+                       on_complete=lambda x, y: self.process_game_event(y))
+                a.start(event.actor.widget)
             elif event.event_type == 'attacked':
-                #  Assuming that at the time of animation actor is still where he was during the attack
-                #  Otherwise I'd have to support multiple locations for actors
-                #  Attack animation is to move towards the target and then back
                 current = self._get_screen_pos(event.actor.location)
                 target = self._get_screen_pos(event.location)
-                self.anim_queue.append((event.actor.widget,
-                                        Animation(x=current[0]+int((target[0]-current[0])/2),
-                                                  y=current[1]+int((target[1]-current[1])/2),
-                                                  duration=duration/2)))
-                self.anim_queue.append((event.actor.widget,
-                                        Animation(x=current[0], y=current[1], duration=duration/2)))
+                a = Animation(x=current[0]+int((target[0]-current[0])/2),
+                              y=current[1]+int((target[1]-current[1])/2),
+                              duration=anim_duration/2)
+                a += Animation(x = current[0], y=current[1], duration=anim_duration/2)
+                a.bind(on_start=lambda x, y: self.remember_anim(),
+                       on_complete=lambda x, y: self.process_game_event(y))
+                a.start(event.actor.widget)
             elif event.event_type == 'was_destroyed':
-                self.anim_queue.append((event.actor.widget,
-                                        Animation(size=(0, 0), duration=duration)))
-                # self.map.delete_item(layer='actors', location=event.location)
-        self.map.game_events = []
+                a = Animation(size=(0, 0), duration=anim_duration)
+                a.bind(on_start=lambda x, y: self.remember_anim(),
+                       on_complete=lambda x, y: self.process_game_event(y))
+                a.start(event.actor.widget)
+            elif event.event_type == 'log_updated':
+                self.update_log()
+        else:
+            #  Reactivating keyboard after finishing animation
+            self.block_keyboard = False
+
 
     def remember_anim(self):
         '''
@@ -102,27 +118,6 @@ class RLMapWidget(RelativeLayout):
         :return:
         '''
         self.block_keyboard = True
-
-    def run_animation(self, widget=Widget()):
-        """
-        Recursive animation call for processing animation queue
-        """
-        if widget.size == (0, 0):
-            #  If the widget was given zero size, this means it should be removed
-            #  This entire affair, including creating placeholder widget on every iteration,
-            #  is kinda inefficient and should be rebuilt later
-            widget.parent.remove_widget(widget)
-        if len(self.anim_queue)>0:
-            widget, animation = self.anim_queue.pop(0)
-            sys.stderr.write('Starting animation on {0}\n'.format(widget))
-            animation.bind(on_start=lambda x, y: self.remember_anim(),
-                           on_complete=lambda x, y: self.run_animation(y))  #  Second lambda arg is widget
-            animation.start(widget)
-        else:
-            #  The queue is exhausted
-            sys.stderr.write('Animation queue exhausted\n')
-            self.update_log()
-            self.block_keyboard = False
 
     def _get_screen_pos(self, location):
         """
@@ -177,15 +172,19 @@ class RLMapWidget(RelativeLayout):
         if keycode[1] in self.allowed_keys and self.map.actors[0].controller.take_keycode(keycode):
             #  If this button is used, either by player controller or otherwise
             r = self.map.actors[0].make_turn()
-            self.update_animation_queue()
+            # self.process_game_event()
+            # self.update_animation_queue()
             if r:
                 #  If the player has managed to do something, draw results and let others work.
                 #  If not for this check, the player attempting to do impossible things will have
                 #  wasted a turn
                 for actor in self.map.actors[1:]:
                     if actor.make_turn():
-                        self.update_animation_queue()
-            self.run_animation()
+                        pass
+                        # self.process_game_event(Widget())
+                        # self.update_animation_queue()
+            self.process_game_event()
+            # self.run_animation()
 
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_key_down)

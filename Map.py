@@ -4,7 +4,7 @@
 
 from copy import copy
 # import Controller
-from Actor import Actor
+from Actor import Actor, GameEvent
 
 
 class RLMap(object):

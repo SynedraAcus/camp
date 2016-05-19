@@ -34,12 +34,13 @@ class GameEvent(object):
     """
     acceptable_types = ('moved',
                         'was_destroyed',
-                        'attacked')
+                        'attacked',
+                        'log_updated')
 
     def __init__(self, event_type=None, actor=None, location=None):
         assert isinstance(event_type, str) and event_type in self.acceptable_types
         self.event_type = event_type
-        assert isinstance(actor, Actor)
+        #  Actor and location may safely be None (ie in 'log_updated')
         self.actor = actor
         if location:
             self.location = location
