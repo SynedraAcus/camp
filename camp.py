@@ -91,7 +91,6 @@ class RLMapWidget(RelativeLayout):
                 a.bind(on_start=lambda x, y: self.remember_anim(),
                        on_complete=lambda x, y: self.process_game_event(y))
                 a.start(event.actor.widget)
-                self.boombox['moved'].play()
             elif event.event_type == 'attacked':
                 current = self._get_screen_pos(event.actor.location)
                 target = self._get_screen_pos(event.location)
