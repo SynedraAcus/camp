@@ -31,6 +31,8 @@ class GameEvent(object):
     Contrary to its name, this is not an event in IO/clock sense. This is, rather, a data class that contains a
     pointer to actor involved, location(s) of the event and event type. The latter must be an str and its value
     should be one of GameEvent.acceptable_types elements
+    Actor and location can be omitted for some event types. If actor is provided and location is not, it is
+    assumed to be actor's location
     """
     acceptable_types = ('moved',
                         'was_destroyed',
@@ -40,11 +42,11 @@ class GameEvent(object):
     def __init__(self, event_type=None, actor=None, location=None):
         assert isinstance(event_type, str) and event_type in self.acceptable_types
         self.event_type = event_type
-        #  Actor and location may safely be None (ie in 'log_updated')
+
         self.actor = actor
         if location:
             self.location = location
-        else:
+        elif self.actor:
             self.location = actor.location
 
 
@@ -169,15 +171,15 @@ class Actor(MapItem):
                                                   actor=other, location=self.location))
             if a > d:
                 self.fighter.hp -= a-d
-                self.map.game_log.append('{1} hit {0} for {2} damage ({3}/{4})'.format(self.name,
-                                                                                       other.name,
-                                                                                       a-d, a, d))
+                self.map.extend_log('{1} hit {0} for {2} damage ({3}/{4})'.format(self.name,
+                                                                                  other.name,
+                                                                                  a-d, a, d))
             else:
-                self.map.game_log.append('{1} missed {0}({3}/{4})'.format(self.name,
-                                                                          other.name,
-                                                                          a, d))
+                self.map.extend_log('{1} missed {0}({3}/{4})'.format(self.name,
+                                                                     other.name,
+                                                                     a, d))
             if self.fighter.hp <= 0:
-                self.map.game_log.append('{} was killed'.format(self.name))
+                self.map.extend_log('{} was killed'.format(self.name))
                 self.map.game_events.append(GameEvent(event_type='was_destroyed',
                                                       actor=self))
                 self.map.delete_item(layer='actors', location=self.location)

@@ -114,10 +114,20 @@ class RLMap(object):
                                                         for y in range(location[1]-1, location[1]+2)]
         # Filter out Nones and the item at (x, y)
         l = list(filter(lambda x: x is not None and not x.location == location, l))
-
         return l
 
-    #  Game-related actions
+    def extend_log(self, item):
+        """
+        Add item to self.game_log
+        Adds a string to the log (the one to be displayed on the screen) and emit a GameEvent
+        so that a game widget will know to update it.
+        :param item: string to be added
+        :return:
+        """
+        assert isinstance(item, str)
+        self.game_log.append(item)
+        self.game_events.append(GameEvent(event_type='log_updated'))
+    #  Game logic-related actions
 
     def entrance_possible(self, location):
         """
