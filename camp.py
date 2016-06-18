@@ -24,14 +24,40 @@ import sys
 from Factories import TileWidgetFactory, MapFactory
 from Actor import Actor
 
+class GameWidget(RelativeLayout):
+    """
+    Main game widget. Includes map, as well as various other widgets, as children.
+    The game state is contained in this widget's self.state
+    """
+    def __init__(self, map_widget=None, log_widget=None, **kwargs):
+        super(GameWidget, self).__init__(**kwargs)
+        self.map_widget = map_widget
+        self.add_widget(self.map_widget)
+        self.log_widget = log_widget
+        self.add_widget(log_widget)
+
+    def _on_key_down(self, keycode, text, modifier):
+        pass
+
+    def update_log(self):
+        """
+        Updating the log window under the map.
+        :return:
+        """
+        pass
+        self.log_widget.text = '\n'.join(self.map_widget.map.game_log[-3:])
+
 #  Map widget (using RelativeLayout)
 class RLMapWidget(RelativeLayout):
-
+    """
+    Game map widget
+    """
     def __init__(self, map=None, **kwargs):
         super(FloatLayout, self).__init__(**kwargs)
         #  Connecting to map, factories and other objects this class should know about
         self.tile_factory = TileWidgetFactory()
         self.map = map
+        self.size = [self.map.size[0]*64, self.map.size[1]*64]
         #  Initializing tile widgets for BG layer and adding them as children
         for x in range(self.map.size[0]):
             for y in range(self.map.size[1]):
@@ -67,7 +93,7 @@ class RLMapWidget(RelativeLayout):
     #
     #  Stuff related to animation
     #
-#########################################################
+########################################## ###############
     def process_game_event(self, widget=Widget(), anim_duration=0.3):
         """
         Process a single event from self.map.game_events.
@@ -108,7 +134,7 @@ class RLMapWidget(RelativeLayout):
                        on_complete=lambda x, y: self.process_game_event(y))
                 a.start(event.actor.widget)
             elif event.event_type == 'log_updated':
-                self.update_log()
+                self.parent.update_log()
                 self.process_game_event()
         else:
             #  Reactivating keyboard after finishing animation
@@ -142,16 +168,16 @@ class RLMapWidget(RelativeLayout):
     #  after someone made turn), not after something that
     #  happened with the widgets
 
-    def update_log(self):
-        """
-        Updating the log window under the map.
-        :return:
-        """
-        for x in self.parent.children:
-            if x.id == 'log_window':
-                w = x
-                break
-        w.text = '\n'.join(self.map.game_log[-3:])
+    # def update_log(self):
+    #     """
+    #     Updating the log window under the map.
+    #     :return:
+    #     """
+    #     for x in self.children:
+    #         if x.id == 'log_window':
+    #             w = x
+    #             break
+    #     w.text = '\n'.join(self.map.game_log[-3:])
 
     def update_hud(self):
         pass
@@ -212,19 +238,22 @@ class CampApp(App):
         map_widget = RLMapWidget(map=map,
                                  size=(map.size[0]*64, map.size[1]*64),
                                  size_hint=(None, None),
-                                 pos=(0, 100))
-
-        root.add_widget(map_widget)
+                                 pos=(0, 50))
         log_widget = LogWindow(id='log_window',
                                text='\n'.join(map.game_log[-3:]),
                                size=(Window.size[0], 50),
+                               size_hint=(None, None),
                                pos=(0, 0),
-                               #  Cannot use self.size here, as 'self' is a root widget
                                text_size=(Window.size[0], 50),
                                font_size=10,
                                valign='top',
                                line_height=1)
-        root.add_widget(log_widget)
+        game_widget = GameWidget(map_widget=map_widget,
+                                 log_widget=log_widget,
+                                 size=Window.size,
+                                 size_hint=(None, None),
+                                 pos=(0, 0))
+        root.add_widget(game_widget)
         return root
 
 if __name__ == '__main__':
