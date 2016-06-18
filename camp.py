@@ -37,10 +37,56 @@ class GameWidget(RelativeLayout):
         self.add_widget(log_widget)
         #  Sound object
         self.boombox = {'moved': SoundLoader.load('dshoof.wav'),
-                      'attacked': SoundLoader.load('dspunch.wav')}
+                        'attacked': SoundLoader.load('dspunch.wav')}
+        #  Keyboard controls
+        #  Initializing keyboard bindings and key lists
+        self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
+        self._keyboard.bind(on_key_down=self._on_key_down)
+        #  Keys not in this list are ignored by _on_key_down
+        self.allowed_keys=['spacebar', '.',
+                           'w', 'a', 's', 'd',
+                           'h', 'j', 'k', 'l',
+                           'y', 'u', 'b', 'n',
+                           'up', 'down', 'left', 'right',
+                           'numpad1', 'numpad2', 'numpad3', 'numpad4', 'numpad5',
+                           'numpad6', 'numpad7', 'numpad8', 'numpad9']
+        #  Keys in this list are processed by self.map_widget.map
+        self.map_keys = self.allowed_keys
 
-    def _on_key_down(self, keycode, text, modifier):
-        pass
+
+    def _on_key_down(self, keyboard, keycode, text, modifier):
+        """
+        Process a single keypress
+        :param keycode:
+        :param text:
+        :param modifier:
+        :return:
+        """
+        #  Do nothing if animation is still running
+        if self.map_widget.animating:
+            return
+        if keycode[1] in self.allowed_keys:
+            #  Ignore unknown keys
+            if keycode[1] in self.map_keys:
+                #  If the key is a 'map-controlling' one, ie uses a turn
+                if self.map_widget.map.actors[0].controller.take_keycode(keycode):
+                    #  If this button is not used by player controller, it is silently ignored
+                    r = self.map_widget.map.actors[0].make_turn()
+                    if r:
+                        #  If the player has managed to do something, draw results and let others work.
+                        #  If not for this check, the player attempting to do impossible things will have
+                        #  wasted a turn
+                        for actor in self.map_widget.map.actors[1:]:
+                            actor.make_turn()
+                    self.map_widget.process_game_event()
+            else:
+                #  Processing non-turn-using keys will be here
+                pass
+
+
+    def _keyboard_closed(self):
+        self._keyboard.unbind(on_key_down=self._on_key_down)
+        self._keyboard = None
 
     def update_log(self):
         """
@@ -80,19 +126,8 @@ class RLMapWidget(RelativeLayout):
                                                                          location=(x, y)))
                     actor_widget.pos = self._get_screen_pos(location=(x, y))
                     self.add_widget(actor_widget)
-        #  Initializing keyboard bindings and key lists
-        self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
-        self._keyboard.bind(on_key_down=self._on_key_down)
-        #  Keys not in this list are ignored by _on_key_down
-        self.allowed_keys=['spacebar', '.',
-                           'w', 'a', 's', 'd',
-                           'h', 'j', 'k', 'l',
-                           'y', 'u', 'b', 'n',
-                           'up', 'down', 'left', 'right',
-                           'numpad1', 'numpad2', 'numpad3', 'numpad4', 'numpad5',
-                           'numpad6', 'numpad7', 'numpad8', 'numpad9']
         #  This is set to True during animation to avoid mistakes
-        self.block_keyboard = False
+        self.animating = False
 
 #########################################################
     #
@@ -143,7 +178,7 @@ class RLMapWidget(RelativeLayout):
                 self.process_game_event()
         else:
             #  Reactivating keyboard after finishing animation
-            self.block_keyboard = False
+            self.animating = False
 
 
     def remember_anim(self):
@@ -152,7 +187,7 @@ class RLMapWidget(RelativeLayout):
          depends on lambdas not to be evaluated prematurely.
         :return:
         '''
-        self.block_keyboard = True
+        self.animating = True
 
     def _get_screen_pos(self, location):
         """
@@ -168,33 +203,7 @@ class RLMapWidget(RelativeLayout):
     #  The turn is made here, inside _on_key_down
     #
 ############################################################
-    def _on_key_down(self, keyboard, keycode, text, modifiers):
-        """
-        Process keyboard event and let all actors make turns. Basically this is a tick
-        :param keyboard:
-        :param keycode:
-        :param text:
-        :param modifiers:
-        :return:
-        """
-        #  Assumes self.map.actors[0] is player
-        if self.block_keyboard:
-            return
-        if keycode[1] in self.allowed_keys and self.map.actors[0].controller.take_keycode(keycode):
-            #  If this button is used, either by player controller or otherwise
-            r = self.map.actors[0].make_turn()
-            if r:
-                #  If the player has managed to do something, draw results and let others work.
-                #  If not for this check, the player attempting to do impossible things will have
-                #  wasted a turn
-                for actor in self.map.actors[1:]:
-                    actor.make_turn()
-            self.process_game_event()
-            # self.run_animation()
 
-    def _keyboard_closed(self):
-        self._keyboard.unbind(on_key_down=self._on_key_down)
-        self._keyboard = None
 
     def update_rect(self, pos, size):
         self.rect.pos = self.pos
