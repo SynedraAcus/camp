@@ -35,6 +35,9 @@ class GameWidget(RelativeLayout):
         self.add_widget(self.map_widget)
         self.log_widget = log_widget
         self.add_widget(log_widget)
+        #  Sound object
+        self.boombox = {'moved': SoundLoader.load('dshoof.wav'),
+                      'attacked': SoundLoader.load('dspunch.wav')}
 
     def _on_key_down(self, keycode, text, modifier):
         pass
@@ -86,8 +89,6 @@ class RLMapWidget(RelativeLayout):
                            'numpad6', 'numpad7', 'numpad8', 'numpad9']
         #  This is set to True during animation to avoid mistakes
         self.block_keyboard = False
-        self.boombox={'moved': SoundLoader.load('dshoof.wav'),
-                      'attacked': SoundLoader.load('dspunch.wav')}
 
 #########################################################
     #
@@ -127,7 +128,7 @@ class RLMapWidget(RelativeLayout):
                 a.bind(on_start=lambda x, y: self.remember_anim(),
                        on_complete=lambda x, y: self.process_game_event(y))
                 a.start(event.actor.widget)
-                self.boombox['attacked'].play()
+                self.parent.boombox['attacked'].play()
             elif event.event_type == 'was_destroyed':
                 a = Animation(size=(0, 0), duration=anim_duration)
                 a.bind(on_start=lambda x, y: self.remember_anim(),
