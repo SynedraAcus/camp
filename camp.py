@@ -160,30 +160,6 @@ class RLMapWidget(RelativeLayout):
 
 ############################################################
     #
-    #  Updating procedures for various non-map stuff
-    #
-############################################################
-
-    #  Procedures here are NOT kivy callbacks. They are called
-    #  whenever appropriate from the game's point of view (ie
-    #  after someone made turn), not after something that
-    #  happened with the widgets
-
-    # def update_log(self):
-    #     """
-    #     Updating the log window under the map.
-    #     :return:
-    #     """
-    #     for x in self.children:
-    #         if x.id == 'log_window':
-    #             w = x
-    #             break
-    #     w.text = '\n'.join(self.map.game_log[-3:])
-
-    def update_hud(self):
-        pass
-############################################################
-    #
     #  Keyboard-related methods
     #  The turn is made here, inside _on_key_down
     #
