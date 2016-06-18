@@ -60,7 +60,6 @@ class GameWidget(RelativeLayout):
                          'numpad1', 'numpad2', 'numpad3', 'numpad4', 'numpad5',
                          'numpad6', 'numpad7', 'numpad8', 'numpad9']
         #  Game state
-        #  Should be one of 'playing', 'window'
         self.game_state = 'playing'
 
 
@@ -95,10 +94,14 @@ class GameWidget(RelativeLayout):
                     if self.game_state == 'playing':
                         #  Displaying player stats window
                         self.game_state = 'window'
-                        self.stat_widget = LogWindow(text='Test',
-                                                pos=(200, 200),
-                                                size=(200, 200),
-                                                size_hint=(None, None))
+                        self.stat_widget = LogWindow(pos=(200, 200),
+                                                     size=(200, 200),
+                                                     size_hint=(None, None),
+                                                     text='Health {0}\nAttacks {1}'.format(
+                                                         str(self.map_widget.map.actors[0].fighter.hp),
+                                                         '|'.join((str(x) for x in
+                                                                   self.map_widget.map.actors[0].fighter.attacks))
+                                                     ))
                         self.add_widget(self.stat_widget)
                     else:
                         self.remove_widget(self.stat_widget)
