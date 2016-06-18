@@ -43,15 +43,25 @@ class GameWidget(RelativeLayout):
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
         self._keyboard.bind(on_key_down=self._on_key_down)
         #  Keys not in this list are ignored by _on_key_down
-        self.allowed_keys=['spacebar', '.',
-                           'w', 'a', 's', 'd',
-                           'h', 'j', 'k', 'l',
-                           'y', 'u', 'b', 'n',
-                           'up', 'down', 'left', 'right',
-                           'numpad1', 'numpad2', 'numpad3', 'numpad4', 'numpad5',
-                           'numpad6', 'numpad7', 'numpad8', 'numpad9']
+        self.allowed_keys = ['spacebar', '.',
+                             'w', 'a', 's', 'd',
+                             'h', 'j', 'k', 'l',
+                             'y', 'u', 'b', 'n',
+                             'up', 'down', 'left', 'right',
+                             'numpad1', 'numpad2', 'numpad3', 'numpad4', 'numpad5',
+                             'numpad6', 'numpad7', 'numpad8', 'numpad9',
+                             'c']
         #  Keys in this list are processed by self.map_widget.map
-        self.map_keys = self.allowed_keys
+        self.map_keys = ['spacebar', '.',
+                         'w', 'a', 's', 'd',
+                         'h', 'j', 'k', 'l',
+                         'y', 'u', 'b', 'n',
+                         'up', 'down', 'left', 'right',
+                         'numpad1', 'numpad2', 'numpad3', 'numpad4', 'numpad5',
+                         'numpad6', 'numpad7', 'numpad8', 'numpad9']
+        #  Game state
+        #  Should be one of 'playing', 'window'
+        self.game_state = 'playing'
 
 
     def _on_key_down(self, keyboard, keycode, text, modifier):
@@ -67,7 +77,7 @@ class GameWidget(RelativeLayout):
             return
         if keycode[1] in self.allowed_keys:
             #  Ignore unknown keys
-            if keycode[1] in self.map_keys:
+            if keycode[1] in self.map_keys and self.game_state == 'playing':
                 #  If the key is a 'map-controlling' one, ie uses a turn
                 if self.map_widget.map.actors[0].controller.take_keycode(keycode):
                     #  If this button is not used by player controller, it is silently ignored
@@ -81,8 +91,18 @@ class GameWidget(RelativeLayout):
                     self.map_widget.process_game_event()
             else:
                 #  Processing non-turn-using keys will be here
-                pass
-
+                if keycode[1] in ('c'):
+                    if self.game_state == 'playing':
+                        #  Displaying player stats window
+                        self.game_state = 'window'
+                        self.stat_widget = LogWindow(text='Test',
+                                                pos=(200, 200),
+                                                size=(200, 200),
+                                                size_hint=(None, None))
+                        self.add_widget(self.stat_widget)
+                    else:
+                        self.remove_widget(self.stat_widget)
+                        self.game_state = 'playing'
 
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_key_down)
