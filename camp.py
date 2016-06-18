@@ -53,7 +53,11 @@ class GameWidget(RelativeLayout):
 #  Map widget (using RelativeLayout)
 class RLMapWidget(RelativeLayout):
     """
-    Game map widget
+    Game map widget. Mostly is busy displaying character widgets and such.
+    Depends on its' parent having the following attributes:
+    self.parent.boombox  a dict of SoundLoader instances with correct sounds
+    and the following methods:
+    self.parent.update_log()  Update the visible game log with this object's self.map.game_log
     """
     def __init__(self, map=None, **kwargs):
         super(FloatLayout, self).__init__(**kwargs)
