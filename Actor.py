@@ -5,24 +5,9 @@ functioning, but are not, strictly speaking, related to graphics
 
 from Controller import Controller, PlayerController, AIController
 from MapItem import MapItem
+from Components import FighterComponent, InventoryComponent
 from random import choice
 # from Map import GameEvent
-
-
-class FighterComponent(object):
-    """
-    The component that provides the actor with combat capabilities
-    """
-    def __init__(self, hp=5, attacks=[1, 2, 3], defenses=[0, 0, 1]):
-        self.hp = hp
-        self.attacks = attacks
-        self.defenses = defenses
-
-    def attack(self):
-        return choice(self.attacks)
-
-    def defense(self):
-        return choice(self.defenses)
 
 
 class GameEvent(object):
