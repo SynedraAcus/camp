@@ -50,7 +50,7 @@ class GameWidget(RelativeLayout):
                              'up', 'down', 'left', 'right',
                              'numpad1', 'numpad2', 'numpad3', 'numpad4', 'numpad5',
                              'numpad6', 'numpad7', 'numpad8', 'numpad9',
-                             'c']
+                             'c', 'i']
         #  Keys in this list are processed by self.map_widget.map
         self.map_keys = ['spacebar', '.',
                          'w', 'a', 's', 'd',
@@ -76,33 +76,40 @@ class GameWidget(RelativeLayout):
             return
         if keycode[1] in self.allowed_keys:
             #  Ignore unknown keys
-            if keycode[1] in self.map_keys and self.game_state == 'playing':
-                #  If the key is a 'map-controlling' one, ie uses a turn
-                if self.map_widget.map.actors[0].controller.take_keycode(keycode):
-                    #  If this button is not used by player controller, it is silently ignored
-                    r = self.map_widget.map.actors[0].make_turn()
-                    if r:
-                        #  If the player has managed to do something, draw results and let others work.
-                        #  If not for this check, the player attempting to do impossible things will have
-                        #  wasted a turn
-                        for actor in self.map_widget.map.actors[1:]:
-                            actor.make_turn()
-                    self.map_widget.process_game_event()
+            if self.game_state == 'playing':
+                #  Either make a turn or show one of windows
+                if keycode[1] in self.map_keys :
+                    #  If the key is a 'map-controlling' one, ie uses a turn
+                    if self.map_widget.map.actors[0].controller.take_keycode(keycode):
+                        #  If this button is not used by player controller, it is silently ignored
+                        r = self.map_widget.map.actors[0].make_turn()
+                        if r:
+                            #  If the player has managed to do something, draw results and let others work.
+                            #  If not for this check, the player attempting to do impossible things will have
+                            #  wasted a turn
+                            for actor in self.map_widget.map.actors[1:]:
+                                actor.make_turn()
+                        self.map_widget.process_game_event()
+                elif keycode[1] in 'c':
+                    #  Displaying player stats window
+                    self.game_state = 'stat_window'
+                    self.window_widget = LogWindow(pos=(200, 200),
+                                                 size=(200, 200),
+                                                 size_hint=(None, None),
+                                                 text=self.map_widget.map.actors[0].descriptor.get_description(
+                                                     combat=True))
+                    self.add_widget(self.window_widget)
+                elif keycode[1] in 'i':
+                    self.game_state = 'inv_window'
+                    self.window_widget = LogWindow(pos=(200, 200),
+                                                   size=(200, 200),
+                                                   size_hint=(None, None),
+                                                   text=self.map_widget.map.actors[0].inventory.get_string())
+                    self.add_widget(self.window_widget)
             else:
-                #  Processing non-turn-using keys will be here
-                if keycode[1] in ('c'):
-                    if self.game_state == 'playing':
-                        #  Displaying player stats window
-                        self.game_state = 'stat_window'
-                        self.stat_widget = LogWindow(pos=(200, 200),
-                                                     size=(200, 200),
-                                                     size_hint=(None, None),
-                                                     text=self.map_widget.map.actors[0].descriptor.get_description(
-                                                         combat=True))
-                        self.add_widget(self.stat_widget)
-                    elif self.game_state == 'stat_window':
-                        self.remove_widget(self.stat_widget)
-                        self.game_state = 'playing'
+                if 'window' in self.game_state and keycode[1] in ('i', 'c'):
+                    self.remove_widget(self.window_widget)
+                    self.game_state = 'playing'
 
 
     def _keyboard_closed(self):

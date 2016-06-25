@@ -89,3 +89,16 @@ class InventoryComponent(Component):
         """
         #  Let list raise exceptions, if needed
         self.items.remove(item)
+
+    def get_string(self):
+        """
+        Get a string representation of inventory
+        :return:
+        """
+        r = ''
+        if len(self.items)==0:
+            r = 'Inventory is empty'
+        else:
+            for i in range(0, len(self.items)):
+                r += '{0}\t{1}'.format(i, self.items[i])
+        return r
