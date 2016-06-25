@@ -11,6 +11,7 @@ from MapItem import GroundTile
 from Actor import Actor
 from Components import FighterComponent, DescriptorComponent, InventoryComponent
 from Controller import PlayerController, AIController
+from Items import PotionTypeItem
 
 class ActorWidget(Widget):
     """
@@ -91,7 +92,7 @@ class MapFactory(object):
                                 fighter=FighterComponent(),
                                 descriptor=DescriptorComponent(name='PC',
                                                                 description='Player-controlled dude'),
-                                inventory=InventoryComponent()),
+                                inventory=InventoryComponent(initial_items=[PotionTypeItem(name='Bottle')])),
                      location=(5, 5), layer='actors')
         map.add_item(item=Actor(player=False, name='NPC1', controller=AIController(),
                                 fighter=FighterComponent(),

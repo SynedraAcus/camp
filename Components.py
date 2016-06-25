@@ -64,6 +64,7 @@ class InventoryComponent(Component):
     def __init__(self, volume=10, initial_items=[]):
         self.volume = volume #  Inventories of more than ten slots not supported by the interface
         self.items = []
+        self.actor = None
         for a in initial_items:
             self.append(a)
 
@@ -75,7 +76,7 @@ class InventoryComponent(Component):
         """
         assert isinstance(item, Item)
         if len(self.items) < self.volume:
-            item.owner = self.actor
+            item.owner = self
             self.items.append(item)
             return True
         else:
@@ -96,9 +97,9 @@ class InventoryComponent(Component):
         :return:
         """
         r = ''
-        if len(self.items)==0:
+        if len(self.items) == 0:
             r = 'Inventory is empty'
         else:
             for i in range(0, len(self.items)):
-                r += '{0}\t{1}'.format(i, self.items[i])
+                r += '{0} - {1}'.format(i, self.items[i].name)
         return r

@@ -59,7 +59,9 @@ class Actor(MapItem):
         else:
             self.descriptor = DescriptorComponent()
         #  Inventory component
-        self.inventory = inventory
+        if inventory:
+            self.inventory = inventory
+            self.inventory.actor = self
         #  These attributes are not set by constructor: it is only defined when map factory
         # places the actor on the map
         self.map = None

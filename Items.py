@@ -8,6 +8,7 @@ class Item(object):
     """
     def __init__(self, name='Item', owner=None):
         self.name = name
+        #  Owner is an inventory component, not an actor
         self.owner = owner
 
     def use(self):
@@ -21,11 +22,11 @@ class Item(object):
 class PotionTypeItem(Item):
     """
     Single-use items that affect whoever uses them.
-    When creating object, this should be supplied with the effect parameter, which
-    should be a function (possibly lambda) accepting actor as a single parameter.
+    When creating object, it should be supplied with the effect parameter, which
+    should be a function accepting actor as a single parameter.
     """
-    def __init__(self, name='Unnamed item', effect=lambda a: None, **kwargs):
-        super(SpendableItem, self).__init__(kwargs)
+    def __init__(self, effect=lambda a: None, **kwargs):
+        super(PotionTypeItem, self).__init__(**kwargs)
         self.effect = effect
 
     def use(self):
