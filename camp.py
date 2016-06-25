@@ -6,8 +6,7 @@ from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
-from kivy.uix.label import Label
+from kivy.properties import StringProperty
 from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.uix.image import Image
@@ -43,14 +42,19 @@ class GameWidget(RelativeLayout):
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
         self._keyboard.bind(on_key_down=self._on_key_down)
         #  Keys not in this list are ignored by _on_key_down
-        self.allowed_keys = ['spacebar', '.',
+        self.allowed_keys = [#  Movement
+                             'spacebar', '.',
                              'w', 'a', 's', 'd',
                              'h', 'j', 'k', 'l',
                              'y', 'u', 'b', 'n',
                              'up', 'down', 'left', 'right',
                              'numpad1', 'numpad2', 'numpad3', 'numpad4', 'numpad5',
-                             'numpad6', 'numpad7', 'numpad8', 'numpad9',
-                             'c', 'i']
+                             'numpad6', 'numpad7', 'numpad8', 'numpad9', 'numpad0',
+                             #  Window calls
+                             'c', 'i',
+                             #  Used for inventory & spell systems
+                             '0', '1', '2', '3', '4', '5',
+                             '6', '7', '8', '9']
         #  Keys in this list are processed by self.map_widget.map
         self.map_keys = ['spacebar', '.',
                          'w', 'a', 's', 'd',
@@ -62,6 +66,18 @@ class GameWidget(RelativeLayout):
         #  Game state
         self.game_state = 'playing'
 
+    @staticmethod
+    def key_to_number(key):
+        """
+        Return a number that corresponds to a given key.
+        If key is numerical or numpad, the last char is passed to int(). Otherwise, ValueError is raised
+        :param key: str
+        :return:
+        """
+        if 'numpad' in key or key in '1234567890':
+            return int(key[-1])
+        else:
+            raise ValueError('Non-numerical key passed to key_to_number')
 
     def _on_key_down(self, keyboard, keycode, text, modifier):
         """
@@ -110,6 +126,16 @@ class GameWidget(RelativeLayout):
                 if 'window' in self.game_state and keycode[1] in ('i', 'c'):
                     self.remove_widget(self.window_widget)
                     self.game_state = 'playing'
+                elif self.game_state == 'inv_window':
+                    #  Try to use keycode as inventory command
+                    try:
+                        n = self.key_to_number(keycode[1])
+                        print(n)
+                        self.map_widget.map.actors[0].inventory[n].use()
+                        #  Update inventory window
+                        self.window_widget.text = self.map_widget.map.actors[0].inventory.get_string()
+                    except ValueError:
+                        pass
 
 
     def _keyboard_closed(self):

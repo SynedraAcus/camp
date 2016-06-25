@@ -21,13 +21,14 @@ class Item(object):
 
 class PotionTypeItem(Item):
     """
-    Single-use items that affect whoever uses them.
+    Single-use items that affect whoever uses them and vanishes.
     When creating object, it should be supplied with the effect parameter, which
-    should be a function accepting actor as a single parameter.
+    should be a function accepting inventory as a single parameter.
     """
     def __init__(self, effect=lambda a: None, **kwargs):
         super(PotionTypeItem, self).__init__(**kwargs)
         self.effect = effect
 
     def use(self):
+        self.owner.remove(self)
         self.effect(self.owner)

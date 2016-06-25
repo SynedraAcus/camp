@@ -67,6 +67,10 @@ class InventoryComponent(Component):
         self.actor = None
         for a in initial_items:
             self.append(a)
+    #  List-like behaviour
+
+    def __getitem__(self, item):
+        return self.items[item]
 
     def append(self, item):
         """
