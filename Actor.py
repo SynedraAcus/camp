@@ -38,6 +38,7 @@ class GameEvent(object):
 class Actor(MapItem):
     def __init__(self, player=False, name='Unnamed actor',
                  controller=None, fighter=None, descriptor=None,
+                 inventory=None,
                  **kwargs):
         #  Actors should be impassable by default. The 'passable' should be in kwargs to be passed to
         #  superclass constructor, so a simple default value in signature won't work here
@@ -47,6 +48,7 @@ class Actor(MapItem):
         #  Set to true if this is a player-controlled actor
         self.player = player
         self.attach_controller(controller)
+        #  Combat component
         self.fighter = fighter
         if self.fighter: #  Might be None
             self.fighter.actor = self
@@ -56,7 +58,8 @@ class Actor(MapItem):
             self.descriptor.actor = self
         else:
             self.descriptor = DescriptorComponent()
-        self.name = name
+        #  Inventory component
+        self.inventory = inventory
         #  These attributes are not set by constructor: it is only defined when map factory
         # places the actor on the map
         self.map = None
@@ -165,15 +168,15 @@ class Actor(MapItem):
                                                   actor=other, location=self.location))
             if a > d:
                 self.fighter.hp -= a-d
-                self.map.extend_log('{1} hit {0} for {2} damage ({3}/{4})'.format(self.name,
-                                                                                  other.name,
+                self.map.extend_log('{1} hit {0} for {2} damage ({3}/{4})'.format(self.descriptor.name,
+                                                                                  other.descriptor.name,
                                                                                   a-d, a, d))
             else:
-                self.map.extend_log('{1} missed {0}({3}/{4})'.format(self.name,
-                                                                     other.name,
+                self.map.extend_log('{1} missed {0}({3}/{4})'.format(self.descriptor.name,
+                                                                     other.descriptor.name,
                                                                      a, d))
             if self.fighter.hp <= 0:
-                self.map.extend_log('{} was killed'.format(self.name))
+                self.map.extend_log('{} was killed'.format(self.descriptor.name))
                 self.map.game_events.append(GameEvent(event_type='was_destroyed',
                                                       actor=self))
                 self.map.delete_item(layer='actors', location=self.location)

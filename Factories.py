@@ -91,8 +91,12 @@ class MapFactory(object):
                                 descriptor=DescriptorComponent(name='PC',
                                                                 description='Player-controlled dude')),
                      location=(5, 5), layer='actors')
-        map.add_item(item=Actor(player=False, name='NPC1', controller=AIController(), fighter=FighterComponent()),
+        map.add_item(item=Actor(player=False, name='NPC1', controller=AIController(),
+                                fighter=FighterComponent(),
+                                descriptor=DescriptorComponent(name='NPC1')
+                                ),
                      location=(2, 2), layer='actors')
-        map.add_item(item=Actor(player=False, name='NPC2', controller=AIController(), fighter=FighterComponent()),
+        map.add_item(item=Actor(player=False, name='NPC2', controller=AIController(), fighter=FighterComponent(),
+                                descriptor=DescriptorComponent(name='NPC2')),
                      location=(3, 5), layer='actors')
         return map

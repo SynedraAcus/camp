@@ -114,9 +114,6 @@ class AIController(Controller):
         :return:
         """
         neighbours = self.actor.map.get_neighbours(layer='actors', location=self.actor.location)
-        sys.stderr.write('{0} has {1} neighbors\n'.format(self.actor.name,
-                                                          str(len(self.actor.map.get_neighbours(layer='actors',
-                                                                                                location=self.actor.location)))))
         if len(neighbours) > 0:
             victim = random.choice(neighbours)
             return self.actor.move(victim.location)

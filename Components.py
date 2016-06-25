@@ -3,6 +3,7 @@ Component classes that add various functionality to Actors
 """
 
 from random import choice
+from Items import Item
 
 class Component(object):
     """
@@ -58,6 +59,33 @@ class DescriptorComponent(Component):
 
 class InventoryComponent(Component):
     """
-    Component that allows to carry stuff
+    Component that allows Actor to carry stuff
     """
-    pass
+    def __init__(self, volume=10, initial_items=[]):
+        self.volume = volume #  Inventories of more than ten slots not supported by the interface
+        self.items = []
+        for a in initial_items:
+            self.append(a)
+
+    def append(self, item):
+        """
+        Add a single item to the inventory
+        :param item: instance of the Item subclass
+        :return:
+        """
+        assert isinstance(item, Item)
+        if len(self.items) < self.volume:
+            item.owner = self.actor
+            self.items.append(item)
+            return True
+        else:
+            return False
+
+    def remove(self, item):
+        """
+        Remove a single item from the inventory
+        :param item: instance of the Item subclass
+        :return:
+        """
+        #  Let list raise exceptions, if needed
+        self.items.remove(item)
