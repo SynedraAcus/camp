@@ -93,21 +93,17 @@ class GameWidget(RelativeLayout):
                 if keycode[1] in ('c'):
                     if self.game_state == 'playing':
                         #  Displaying player stats window
-                        self.game_state = 'window'
+                        self.game_state = 'stat_window'
                         self.stat_widget = LogWindow(pos=(200, 200),
                                                      size=(200, 200),
                                                      size_hint=(None, None),
                                                      text=self.map_widget.map.actors[0].description.get_description(
-                                                         combat=True)
-                                                     # text='Health {0}\nAttacks {1}'.format(
-                                                     #     str(self.map_widget.map.actors[0].fighter.hp),
-                                                     #     '|'.join((str(x) for x in
-                                                     #               self.map_widget.map.actors[0].fighter.attacks))
-                                                     )
+                                                         combat=True))
                         self.add_widget(self.stat_widget)
-                    else:
+                    elif self.game_state == 'stat_window':
                         self.remove_widget(self.stat_widget)
                         self.game_state = 'playing'
+
 
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_key_down)
