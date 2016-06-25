@@ -5,7 +5,7 @@ functioning, but are not, strictly speaking, related to graphics
 
 from Controller import Controller, PlayerController, AIController
 from MapItem import MapItem
-from Components import FighterComponent, InventoryComponent
+from Components import FighterComponent, InventoryComponent, DescriptorComponent
 from random import choice
 # from Map import GameEvent
 
@@ -37,7 +37,8 @@ class GameEvent(object):
 
 class Actor(MapItem):
     def __init__(self, player=False, name='Unnamed actor',
-                 controller=None, fighter=None, **kwargs):
+                 controller=None, fighter=None, description=None,
+                 **kwargs):
         #  Actors should be impassable by default. The 'passable' should be in kwargs to be passed to
         #  superclass constructor, so a simple default value in signature won't work here
         if 'passable' not in kwargs.keys():
@@ -47,8 +48,16 @@ class Actor(MapItem):
         self.player = player
         self.attach_controller(controller)
         self.fighter = fighter
+        if self.fighter: #  Might be None
+            self.fighter.actor = self
+        #  Description component
+        if description:
+            self.description = description
+            self.description.actor = self
+        else:
+            self.description = DescriptorComponent()
         self.name = name
-        #  Here will be data that not set by constructor: it is only defined when map factory
+        #  These attributes are not set by constructor: it is only defined when map factory
         # places the actor on the map
         self.map = None
         self.location = []

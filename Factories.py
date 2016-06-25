@@ -8,7 +8,7 @@ from kivy.graphics import Rectangle, BindTexture
 #  Importing my own stuff
 from Map import RLMap
 from MapItem import GroundTile
-from Actor import Actor, FighterComponent
+from Actor import Actor, FighterComponent, DescriptorComponent
 from Controller import PlayerController, AIController
 
 class ActorWidget(Widget):
@@ -86,7 +86,9 @@ class MapFactory(object):
                 map.add_item(item=GroundTile(passable=True, image_source='Tmp_frame.png'),
                              layer='bg',
                              location=(x, y))
-        map.add_item(item=Actor(player=True, name='PC', controller=PlayerController(), fighter=FighterComponent()),
+        map.add_item(item=Actor(player=True, controller=PlayerController(),
+                                fighter=FighterComponent(),
+                                description=DescriptorComponent(name='PC')),
                      location=(5, 5), layer='actors')
         map.add_item(item=Actor(player=False, name='NPC1', controller=AIController(), fighter=FighterComponent()),
                      location=(2, 2), layer='actors')

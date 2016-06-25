@@ -27,7 +27,7 @@ from Actor import Actor
 class GameWidget(RelativeLayout):
     """
     Main game widget. Includes map, as well as various other widgets, as children.
-    The game state is contained in this widget's self.state
+    The game state is tracked by this widget's self.state
     """
     def __init__(self, map_widget=None, log_widget=None, **kwargs):
         super(GameWidget, self).__init__(**kwargs)
@@ -97,11 +97,13 @@ class GameWidget(RelativeLayout):
                         self.stat_widget = LogWindow(pos=(200, 200),
                                                      size=(200, 200),
                                                      size_hint=(None, None),
-                                                     text='Health {0}\nAttacks {1}'.format(
-                                                         str(self.map_widget.map.actors[0].fighter.hp),
-                                                         '|'.join((str(x) for x in
-                                                                   self.map_widget.map.actors[0].fighter.attacks))
-                                                     ))
+                                                     text=self.map_widget.map.actors[0].description.get_description(
+                                                         combat=True)
+                                                     # text='Health {0}\nAttacks {1}'.format(
+                                                     #     str(self.map_widget.map.actors[0].fighter.hp),
+                                                     #     '|'.join((str(x) for x in
+                                                     #               self.map_widget.map.actors[0].fighter.attacks))
+                                                     )
                         self.add_widget(self.stat_widget)
                     else:
                         self.remove_widget(self.stat_widget)
