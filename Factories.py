@@ -88,7 +88,8 @@ class MapFactory(object):
                              location=(x, y))
         map.add_item(item=Actor(player=True, controller=PlayerController(),
                                 fighter=FighterComponent(),
-                                description=DescriptorComponent(name='PC')),
+                                descriptor=DescriptorComponent(name='PC',
+                                                                description='Player-controlled dude')),
                      location=(5, 5), layer='actors')
         map.add_item(item=Actor(player=False, name='NPC1', controller=AIController(), fighter=FighterComponent()),
                      location=(2, 2), layer='actors')

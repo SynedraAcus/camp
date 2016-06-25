@@ -97,7 +97,7 @@ class GameWidget(RelativeLayout):
                         self.stat_widget = LogWindow(pos=(200, 200),
                                                      size=(200, 200),
                                                      size_hint=(None, None),
-                                                     text=self.map_widget.map.actors[0].description.get_description(
+                                                     text=self.map_widget.map.actors[0].descriptor.get_description(
                                                          combat=True))
                         self.add_widget(self.stat_widget)
                     elif self.game_state == 'stat_window':

@@ -37,7 +37,7 @@ class GameEvent(object):
 
 class Actor(MapItem):
     def __init__(self, player=False, name='Unnamed actor',
-                 controller=None, fighter=None, description=None,
+                 controller=None, fighter=None, descriptor=None,
                  **kwargs):
         #  Actors should be impassable by default. The 'passable' should be in kwargs to be passed to
         #  superclass constructor, so a simple default value in signature won't work here
@@ -51,11 +51,11 @@ class Actor(MapItem):
         if self.fighter: #  Might be None
             self.fighter.actor = self
         #  Description component
-        if description:
-            self.description = description
-            self.description.actor = self
+        if descriptor:
+            self.descriptor = descriptor
+            self.descriptor.actor = self
         else:
-            self.description = DescriptorComponent()
+            self.descriptor = DescriptorComponent()
         self.name = name
         #  These attributes are not set by constructor: it is only defined when map factory
         # places the actor on the map

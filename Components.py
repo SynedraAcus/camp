@@ -7,7 +7,7 @@ from random import choice
 class Component(object):
     """
     Base class for components.
-    Currently only allows component to remember which actor it's attached to.
+    Currently only defines actor attribute.
     """
     def __init__(self):
         self.actor = None
@@ -26,6 +26,7 @@ class FighterComponent(Component):
 
     def defense(self):
         return choice(self.defenses)
+
 
 class DescriptorComponent(Component):
     """
