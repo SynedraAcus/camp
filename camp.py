@@ -24,6 +24,60 @@ from Factories import TileWidgetFactory, MapFactory
 from Actor import Actor
 from Controller import Command
 
+
+class KeyParser(object):
+    """
+    A class that contains methods for converting keycodes to Controller-compatible Commands, numbers
+    and other interface commands. Keyboard layout is stored here as well.
+    Currently class is little more than stub for later moving controls to separate file
+    """
+    #  Obsolete command dict, purely for reference
+    command_dict = {'wait': ('spacebar', '.', 'numpad5'),
+                #  Walking in cardinal directions
+                'walk_8': ('w', 'h', 'numpad8', 'up'),
+                'walk_2': ('s', 'l', 'numpad2', 'down'),
+                'walk_4': ('a', 'j', 'numpad4', 'left'),
+                'walk_6': ('d', 'k', 'numpad6', 'right'),
+                #  Diagonal movement
+                'walk_7': ('y', 'numpad7', ),
+                'walk_9': ('u', 'numpad9', ),
+                'walk_1': ('b', 'numpad1', ),
+                'walk_3': ('n', 'numpad3', )}
+
+    command_type_dict = {'walk': ('w', 'h', 'numpad8', 'up', # Up
+                                  's', 'l', 'numpad2', 'down',
+                                  'a', 'j', 'numpad4', 'left',
+                                  'd', 'k', 'numpad6', 'right',
+                                  'y', 'numpad7',  #NW
+                                  'u', 'numpad9',  #NE
+                                  'b', 'numpad1',  #SW
+                                  'n', 'numpad3'), #SE
+                         'wait': ('spacebar', '.', 'numpad5')}
+
+    #  Values for travel commands are (dx, dy)
+    #  For some commands value may be None, if there is no target associated with them
+    command_value_dict = {(0, 1): ('w', 'h', 'numpad8', 'up'),
+                          (0, -1): ('s', 'l', 'numpad2', 'down'),
+                          (-1, 0): ('a', 'j', 'numpad4', 'left'),
+                          (1, 0): ('d', 'k', 'numpad6', 'right'),
+                          (-1, 1): ('y', 'numpad7'),
+                          (1, 1): ('u', 'numpad9'),
+                          (-1, -1): ('b', 'numpad1'),
+                          (1, -1): ('n', 'numpad3'),
+                          None: ('spacebar', '.', 'numpad5')}
+
+    def __init__(self):
+        self.command_types = {}
+        self.command_values = {}
+        #  Initializing commands
+        for a in self.command_type_dict.items():
+            self.command_types.update({x: a[0] for x in a[1]})
+        for a in self.command_value_dict.items():
+            self.command_values.update({x: a[0] for x in a[1]})
+
+    def get_command(self, keycode):
+        return Command(command_type=self.command_types[keycode[1]], command_value=self.command_values[keycode[1]])
+
 class GameWidget(RelativeLayout):
     """
     Main game widget. Includes map, as well as various other widgets, as children.
@@ -64,6 +118,7 @@ class GameWidget(RelativeLayout):
                          'up', 'down', 'left', 'right',
                          'numpad1', 'numpad2', 'numpad3', 'numpad4', 'numpad5',
                          'numpad6', 'numpad7', 'numpad8', 'numpad9']
+        self.key_parser = KeyParser()
         #  Game state
         self.game_state = 'playing'
 

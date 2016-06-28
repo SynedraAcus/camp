@@ -21,7 +21,7 @@ class Command(object):
     The command for PlayerController. This is purely a data class without any logic. Like Effect class,
     it contains only two attributes: command type and command value.
     command_type should be one of the string values defined in Command.acceptable_commands
-    command_value should be an iterable, but it's not checked
+    command_value should be an iterable or None
     """
     acceptable_commands = ('walk', 'use_item')
     def __init__(self, command_type=None, command_value=None):
