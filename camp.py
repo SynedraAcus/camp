@@ -140,29 +140,6 @@ class GameWidget(RelativeLayout):
         #  Game state
         self.game_state = 'playing'
 
-    #  A few keypress processing methods. Perhaps they may be later moved to a separate object or something.
-
-    # @staticmethod
-    # def key_to_number(keycode):
-    #     """
-    #     Return a number that corresponds to a given keycode.
-    #     If keycode[-1] is numerical or numpad, the last char is passed to int(). Otherwise, ValueError is raised
-    #     :param key: str
-    #     :return:
-    #     """
-    #     if 'numpad' in keycode[1] or keycode[1] in '1234567890':
-    #         return int(keycode[1][-1])
-    #     else:
-    #         raise ValueError('Non-numerical key passed to key_to_number')
-
-    @staticmethod
-    def key_to_command(keycode):
-        """
-        Return a command that corresponds to a given key
-        :param key:
-        :return:
-        """
-        pass
 
     def _on_key_down(self, keyboard, keycode, text, modifier):
         """
@@ -181,16 +158,16 @@ class GameWidget(RelativeLayout):
                 #  Either make a turn or show one of windows
                 if keycode[1] in self.map_keys :
                     #  If the key is a 'map-controlling' one, ie uses a turn
-                    if self.map_widget.map.actors[0].controller.take_keycode(keycode):
-                        #  If this button is not used by player controller, it is silently ignored
-                        r = self.map_widget.map.actors[0].make_turn()
-                        if r:
-                            #  If the player has managed to do something, draw results and let others work.
-                            #  If not for this check, the player attempting to do impossible things will have
-                            #  wasted a turn
-                            for actor in self.map_widget.map.actors[1:]:
-                                actor.make_turn()
-                        self.map_widget.process_game_event()
+                    command = self.key_parser.key_to_command(keycode)
+                    self.map_widget.map.actors[0].controller.accept_command(command)
+                    r = self.map_widget.map.actors[0].make_turn()
+                    if r:
+                        #  If the player has managed to do something, draw results and let others work.
+                        #  If not for this check, the player attempting to do impossible things will have
+                        #  wasted a turn
+                        for actor in self.map_widget.map.actors[1:]:
+                            actor.make_turn()
+                    self.map_widget.process_game_event()
                 elif keycode[1] in 'c':
                     #  Displaying player stats window
                     self.game_state = 'stat_window'

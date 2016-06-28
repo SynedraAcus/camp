@@ -23,7 +23,7 @@ class Command(object):
     command_type should be one of the string values defined in Command.acceptable_commands
     command_value should be an iterable or None
     """
-    acceptable_commands = ('walk', 'use_item')
+    acceptable_commands = ('walk', 'use_item', 'wait')
     def __init__(self, command_type=None, command_value=None):
         assert command_type in self.acceptable_commands
         self.command_type = command_type
@@ -86,8 +86,10 @@ class PlayerController(Controller):
         self.accept_command(self.commands[keycode[1]])
         return True
 
+    accepted_command_types = ('walk', 'use_item', 'wait')
+
     def accept_command(self, command):
-        if command not in command_dict.keys():
+        if command.command_type not in self.accepted_command_types:
             raise ValueError('Invalid command passed to Controller instance')
         else:
             self.last_command = command
@@ -96,29 +98,12 @@ class PlayerController(Controller):
     def call_actor_method(self):
         if not self.actor:
                 raise AttributeError('Controller cannot be used when not attached to actor')
-        #  Methods to call for every action are defined here. Later I'll build some more complex system
-        #  using getattr, loading commands, their methods and arguments from external source and so on
-        #  Boilerplate will do for now
-        if self.last_command == 'wait':
+        if self.last_command.command_type == 'wait':
             r = self.actor.pause()
         #  Cardinal movement
-        elif self.last_command == 'walk_8':
-            r = self.actor.move(location=(self.actor.location[0], self.actor.location[1]+1))
-        elif self.last_command == 'walk_6':
-            r = self.actor.move(location=(self.actor.location[0]+1, self.actor.location[1]))
-        elif self.last_command == 'walk_2':
-            r = self.actor.move(location=(self.actor.location[0], self.actor.location[1]-1))
-        elif self.last_command == 'walk_4':
-            r = self.actor.move(location=(self.actor.location[0]-1, self.actor.location[1]))
-        #  Diagonal movement
-        elif self.last_command == 'walk_7':
-            r = self.actor.move(location=(self.actor.location[0]-1, self.actor.location[1]+1))
-        elif self.last_command == 'walk_9':
-            r = self.actor.move(location=(self.actor.location[0]+1, self.actor.location[1]+1))
-        elif self.last_command == 'walk_1':
-            r = self.actor.move(location=(self.actor.location[0]-1, self.actor.location[1]-1))
-        elif self.last_command == 'walk_3':
-            r = self.actor.move(location=(self.actor.location[0]+1, self.actor.location[1]-1))
+        elif self.last_command.command_type == 'walk':
+            r = self.actor.move(location=(self.actor.location[0]+self.last_command.command_value[0],
+                                          self.actor.location[1]+self.last_command.command_value[1]))
         self.last_command = None
         return r
 
