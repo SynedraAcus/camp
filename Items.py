@@ -13,7 +13,8 @@ class Item(object):
 
     def use(self):
         """
-        This method uses the item. It should be overloaded in child classes.
+        This method uses the item. It should be overridden in child classes.
+        The override should return True upon successfully using an item
         :return:
         """
         raise NotImplementedError('use should be overloaded in Item\'s child')
@@ -32,3 +33,4 @@ class PotionTypeItem(Item):
     def use(self):
         self.effect.affect(self.owner.actor)
         self.owner.remove(self)
+        return True

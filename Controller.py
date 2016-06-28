@@ -104,6 +104,9 @@ class PlayerController(Controller):
         elif self.last_command.command_type == 'walk':
             r = self.actor.move(location=(self.actor.location[0]+self.last_command.command_value[0],
                                           self.actor.location[1]+self.last_command.command_value[1]))
+        #  Item usage
+        elif self.last_command.command_type == 'use_item':
+            r = self.actor.inventory[self.last_command.command_value[0]].use()
         self.last_command = None
         return r
 

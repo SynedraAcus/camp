@@ -192,9 +192,17 @@ class GameWidget(RelativeLayout):
                     #  Try to use keycode as inventory command
                     try:
                         n = self.key_parser.key_to_number(keycode)
-                        self.map_widget.map.actors[0].inventory[n].use()
                         #  Update inventory window
-                        self.window_widget.text = self.map_widget.map.actors[0].inventory.get_string()
+                        command = Command(command_type='use_item', command_value=(n, ))
+                        self.map_widget.map.actors[0].controller.accept_command(command)
+                        r = self.map_widget.map.actors[0].make_turn()
+                        if r:
+                            for actor in self.map_widget.map.actors[1:]:
+                                actor.make_turn()
+                        #  Remove inventory widget upon using item
+                        self.remove_widget(self.window_widget)
+                        self.game_state = 'playing'
+                        self.map_widget.process_game_event()
                     except ValueError:  #  This ValueError is expected to be raised by key_to_number if the keycode
                         #  is not numeric
                         pass
