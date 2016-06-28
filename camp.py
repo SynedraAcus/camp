@@ -75,7 +75,25 @@ class KeyParser(object):
         for a in self.command_value_dict.items():
             self.command_values.update({x: a[0] for x in a[1]})
 
-    def get_command(self, keycode):
+    @staticmethod
+    def key_to_number(keycode):
+        """
+        Return a number that corresponds to this key. The number is passed to int() after optional numpad_ removed.
+        ValueError is raised if key is not numerical
+        :param keycode: kivy keycode
+        :return:
+        """
+        if 'numpad' in keycode[1] or keycode[1] in '1234567890':
+            return int(keycode[1][-1])
+        else:
+            raise ValueError('Non-numerical key passed to key_to_number')
+
+    def key_to_command(self, keycode):
+        """
+        Return command that corresponds to a given keycode
+        :param keycode:
+        :return:
+        """
         return Command(command_type=self.command_types[keycode[1]], command_value=self.command_values[keycode[1]])
 
 class GameWidget(RelativeLayout):
@@ -124,18 +142,18 @@ class GameWidget(RelativeLayout):
 
     #  A few keypress processing methods. Perhaps they may be later moved to a separate object or something.
 
-    @staticmethod
-    def key_to_number(keycode):
-        """
-        Return a number that corresponds to a given keycode.
-        If keycode[-1] is numerical or numpad, the last char is passed to int(). Otherwise, ValueError is raised
-        :param key: str
-        :return:
-        """
-        if 'numpad' in keycode[1] or keycode[1] in '1234567890':
-            return int(keycode[1][-1])
-        else:
-            raise ValueError('Non-numerical key passed to key_to_number')
+    # @staticmethod
+    # def key_to_number(keycode):
+    #     """
+    #     Return a number that corresponds to a given keycode.
+    #     If keycode[-1] is numerical or numpad, the last char is passed to int(). Otherwise, ValueError is raised
+    #     :param key: str
+    #     :return:
+    #     """
+    #     if 'numpad' in keycode[1] or keycode[1] in '1234567890':
+    #         return int(keycode[1][-1])
+    #     else:
+    #         raise ValueError('Non-numerical key passed to key_to_number')
 
     @staticmethod
     def key_to_command(keycode):
@@ -196,8 +214,7 @@ class GameWidget(RelativeLayout):
                 elif self.game_state == 'inv_window':
                     #  Try to use keycode as inventory command
                     try:
-                        n = self.key_to_number(keycode)
-                        print(n)
+                        n = self.key_parser.key_to_number(keycode)
                         self.map_widget.map.actors[0].inventory[n].use()
                         #  Update inventory window
                         self.window_widget.text = self.map_widget.map.actors[0].inventory.get_string()
