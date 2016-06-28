@@ -70,20 +70,20 @@ class GameWidget(RelativeLayout):
     #  A few keypress processing methods. Perhaps they may be later moved to a separate object or something.
 
     @staticmethod
-    def key_to_number(key):
+    def key_to_number(keycode):
         """
-        Return a number that corresponds to a given key.
-        If key is numerical or numpad, the last char is passed to int(). Otherwise, ValueError is raised
+        Return a number that corresponds to a given keycode.
+        If keycode[-1] is numerical or numpad, the last char is passed to int(). Otherwise, ValueError is raised
         :param key: str
         :return:
         """
-        if 'numpad' in key or key in '1234567890':
-            return int(key[-1])
+        if 'numpad' in keycode[1] or keycode[1] in '1234567890':
+            return int(keycode[1][-1])
         else:
             raise ValueError('Non-numerical key passed to key_to_number')
 
     @staticmethod
-    def key_to_command(key):
+    def key_to_command(keycode):
         """
         Return a command that corresponds to a given key
         :param key:
@@ -141,7 +141,7 @@ class GameWidget(RelativeLayout):
                 elif self.game_state == 'inv_window':
                     #  Try to use keycode as inventory command
                     try:
-                        n = self.key_to_number(keycode[1])
+                        n = self.key_to_number(keycode)
                         print(n)
                         self.map_widget.map.actors[0].inventory[n].use()
                         #  Update inventory window
