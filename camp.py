@@ -22,6 +22,7 @@ import sys
 #  My own stuff
 from Factories import TileWidgetFactory, MapFactory
 from Actor import Actor
+from Controller import Command
 
 class GameWidget(RelativeLayout):
     """
@@ -66,6 +67,8 @@ class GameWidget(RelativeLayout):
         #  Game state
         self.game_state = 'playing'
 
+    #  A few keypress processing methods. Perhaps they may be later moved to a separate object or something.
+
     @staticmethod
     def key_to_number(key):
         """
@@ -78,6 +81,15 @@ class GameWidget(RelativeLayout):
             return int(key[-1])
         else:
             raise ValueError('Non-numerical key passed to key_to_number')
+
+    @staticmethod
+    def key_to_command(key):
+        """
+        Return a command that corresponds to a given key
+        :param key:
+        :return:
+        """
+        pass
 
     def _on_key_down(self, keyboard, keycode, text, modifier):
         """
@@ -134,7 +146,8 @@ class GameWidget(RelativeLayout):
                         self.map_widget.map.actors[0].inventory[n].use()
                         #  Update inventory window
                         self.window_widget.text = self.map_widget.map.actors[0].inventory.get_string()
-                    except ValueError:
+                    except ValueError:  #  This ValueError is expected to be raised by key_to_number if the keycode
+                        #  is not numeric
                         pass
 
 

@@ -16,6 +16,19 @@ command_dict = {'wait': ('spacebar', '.', 'numpad5'),
                 'walk_1': ('b', 'numpad1', ),
                 'walk_3': ('n', 'numpad3', )}
 
+class Command(object):
+    """
+    The command for PlayerController. This is purely a data class without any logic. Like Effect class,
+    it contains only two attributes: command type and command value.
+    command_type should be one of the string values defined in Command.acceptable_commands
+    command_value should be an iterable, but it's not checked
+    """
+    acceptable_commands = ('walk', 'use_item')
+    def __init__(self, command_type=None, command_value=None):
+        assert command_type in self.acceptable_commands
+        self.command_type = command_type
+        self.command_value = command_value
+
 
 class Controller(object):
     """
@@ -65,11 +78,20 @@ class PlayerController(Controller):
         :param keycode: keycode
         :return: bool
         """
-        try:
-            self.last_command = self.commands[keycode[1]]
+        # try:
+        #     self.last_command = self.commands[keycode[1]]
+        #     return True
+        # except KeyError:
+        #     return False
+        self.accept_command(self.commands[keycode[1]])
+        return True
+
+    def accept_command(self, command):
+        if command not in command_dict.keys():
+            raise ValueError('Invalid command passed to Controller instance')
+        else:
+            self.last_command = command
             return True
-        except KeyError:
-            return False
 
     def call_actor_method(self):
         if not self.actor:
