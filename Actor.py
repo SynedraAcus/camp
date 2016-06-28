@@ -7,7 +7,6 @@ from Controller import Controller, PlayerController, AIController
 from MapItem import MapItem
 from Components import FighterComponent, InventoryComponent, DescriptorComponent
 from random import choice
-# from Map import GameEvent
 
 
 class GameEvent(object):

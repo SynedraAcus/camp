@@ -2,6 +2,7 @@
 Item classes for the stuff that may be put in the inventories
 """
 
+
 class Item(object):
     """
     Base class for the inventory item
@@ -31,6 +32,12 @@ class PotionTypeItem(Item):
         self.effect = effect
 
     def use(self):
+        """
+        Spend this item: apply effect, remove it from inventory and send a message to game log
+        :return:
+        """
         self.effect.affect(self.owner.actor)
+        self.owner.actor.map.extend_log('{0} used {1}'.format(self.owner.actor.descriptor.name,
+                                                              self.name))
         self.owner.remove(self)
         return True

@@ -202,6 +202,7 @@ class GameWidget(RelativeLayout):
                         #  Remove inventory widget upon using item
                         self.remove_widget(self.window_widget)
                         self.game_state = 'playing'
+                        #  Draw stuff
                         self.map_widget.process_game_event()
                     except ValueError:  #  This ValueError is expected to be raised by key_to_number if the keycode
                         #  is not numeric
