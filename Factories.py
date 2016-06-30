@@ -20,7 +20,7 @@ class ActorWidget(Widget):
     """
     def __init__(self, source='PC.png', **kwargs):
         super(ActorWidget, self).__init__(**kwargs)
-        self.img = Image(source=source, size=(64, 64), allow_stretch=True)
+        self.img = Image(source=source, size=(32, 32), allow_stretch=True)
         self.add_widget(self.img)
         self.bind(pos=self.update_img)
         self.bind(size=self.update_img)
@@ -44,7 +44,7 @@ class TileWidget(Widget):
     """
     def __init__(self, source='PC.png', **kwargs):
         super(TileWidget, self).__init__(**kwargs)
-        self.img = Image(source=source, size=(64, 64))
+        self.img = Image(source=source, size=(32, 32))
         self.add_widget(self.img)
         self.bind(pos=self.update_img)
 
@@ -77,15 +77,15 @@ class MapFactory(object):
         pass
 
     def create_test_map(self):
-        map = RLMap(size=(10, 10), layers=['bg', 'actors'])
-        for x in range(10):
+        map = RLMap(size=(20, 20), layers=['bg', 'actors'])
+        for x in range(20):
             map.add_item(item=GroundTile(passable=False, image_source='Tmp_frame.png'),
                          layer='bg',
                          location=(x, 0))
             map.add_item(item=GroundTile(passable=False, image_source='Tmp_frame.png'),
                          layer='bg',
-                         location=(x, 9))
-            for y in range(1, 9):
+                         location=(x, 19))
+            for y in range(1, 19):
                 map.add_item(item=GroundTile(passable=True, image_source='Tmp_frame.png'),
                              layer='bg',
                              location=(x, y))

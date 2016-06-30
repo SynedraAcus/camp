@@ -349,9 +349,9 @@ class CampApp(App):
         root = BoxLayout(orientation='vertical')
         map_factory = MapFactory()
         map = map_factory.create_test_map()
-        Window.size = (map.size[0]*64, map.size[1]*64+50)
+        Window.size = (map.size[0]*32, map.size[1]*32+50)
         map_widget = RLMapWidget(map=map,
-                                 size=(map.size[0]*64, map.size[1]*64),
+                                 size=(map.size[0]*32, map.size[1]*32),
                                  size_hint=(None, None),
                                  pos=(0, 50))
         log_widget = LogWindow(id='log_window',
