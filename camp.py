@@ -162,7 +162,7 @@ class GameWidget(RelativeLayout):
             if self.game_state == 'playing':
                 #  Either make a turn or show one of windows
                 if keycode[1] in self.map_keys:
-                    #  If the key is a 'map-controlling' one, ie uses a turn
+                    #  If the key is a 'map-controlling' one, ie uses a turn without calling windows
                     command = self.key_parser.key_to_command(keycode)
                     self.map_widget.map.actors[0].controller.accept_command(command)
                     r = self.map_widget.map.actors[0].make_turn()
@@ -314,6 +314,7 @@ class RLMapWidget(RelativeLayout):
             elif event.event_type == 'picked_up':
                 #  It's assumed that newly added item will be the last in player inventory
                 self.remove_widget(self.map.actors[0].inventory[-1].widget)
+                self.process_game_event()
         else:
             #  Reactivating keyboard after finishing animation
             self.animating = False

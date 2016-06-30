@@ -95,6 +95,7 @@ class InventoryComponent(Component):
         :return:
         """
         #  Let list raise exceptions, if needed
+        item.owner = None
         self.items.remove(item)
 
     def get_string(self):
