@@ -61,13 +61,13 @@ class TileWidgetFactory(object):
 
     def create_tile_widget(self, tile):
         s = 'Tile_passable.png' if tile.passable else 'Tile_impassable.png'
-        tile.widget = TileWidget(source=s, size=(64, 64),
+        tile.widget = TileWidget(source=s, size=(32, 32),
                                  size_hint=(None, None))
         return tile.widget
 
     def create_actor_widget(self, actor):
         s = 'PC.png' if actor.player else 'NPC.png'
-        widget = ActorWidget(source=s, size=(64, 64),
+        widget = ActorWidget(source=s, size=(32, 32),
                              size_hint=(None, None))
         actor.widget = widget
         return widget

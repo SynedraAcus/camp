@@ -235,7 +235,7 @@ class RLMapWidget(RelativeLayout):
         #  Connecting to map, factories and other objects this class should know about
         self.tile_factory = TileWidgetFactory()
         self.map = map
-        self.size = [self.map.size[0]*64, self.map.size[1]*64]
+        self.size = [self.map.size[0]*32, self.map.size[1]*32]
         #  Initializing tile widgets for BG layer and adding them as children
         for x in range(self.map.size[0]):
             for y in range(self.map.size[1]):
@@ -320,7 +320,7 @@ class RLMapWidget(RelativeLayout):
         :param location: int tuple
         :return: int tuple
         """
-        return (location[0]*64, location[1]*64)
+        return (location[0]*32, location[1]*32)
 
 ############################################################
     #
