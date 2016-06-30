@@ -42,7 +42,8 @@ class KeyParser(object):
                 'walk_7': ('y', 'numpad7', ),
                 'walk_9': ('u', 'numpad9', ),
                 'walk_1': ('b', 'numpad1', ),
-                'walk_3': ('n', 'numpad3', )}
+                'walk_3': ('n', 'numpad3', ),
+                'grab': (',', 'g')}
 
     command_type_dict = {'walk': ('w', 'h', 'numpad8', 'up', # Up
                                   's', 'l', 'numpad2', 'down',
@@ -52,7 +53,8 @@ class KeyParser(object):
                                   'u', 'numpad9',  #NE
                                   'b', 'numpad1',  #SW
                                   'n', 'numpad3'), #SE
-                         'wait': ('spacebar', '.', 'numpad5')}
+                         'wait': ('spacebar', '.', 'numpad5'),
+                         'grab': ('g', ',')}
 
     #  Values for travel commands are (dx, dy)
     #  For some commands value may be None, if there is no target associated with them
@@ -64,7 +66,7 @@ class KeyParser(object):
                           (1, 1): ('u', 'numpad9'),
                           (-1, -1): ('b', 'numpad1'),
                           (1, -1): ('n', 'numpad3'),
-                          None: ('spacebar', '.', 'numpad5')}
+                          None: ('spacebar', '.', 'numpad5', 'g', ',')}
 
     def __init__(self):
         self.command_types = {}
@@ -127,7 +129,9 @@ class GameWidget(RelativeLayout):
                              'c', 'i',
                              #  Used for inventory & spell systems
                              '0', '1', '2', '3', '4', '5',
-                             '6', '7', '8', '9']
+                             '6', '7', '8', '9',
+                             #  Grabbing stuff
+                             'g', ',']
         #  Keys in this list are processed by self.map_widget.map
         self.map_keys = ['spacebar', '.',
                          'w', 'a', 's', 'd',
@@ -135,7 +139,8 @@ class GameWidget(RelativeLayout):
                          'y', 'u', 'b', 'n',
                          'up', 'down', 'left', 'right',
                          'numpad1', 'numpad2', 'numpad3', 'numpad4', 'numpad5',
-                         'numpad6', 'numpad7', 'numpad8', 'numpad9']
+                         'numpad6', 'numpad7', 'numpad8', 'numpad9',
+                         'g', ',']
         self.key_parser = KeyParser()
         #  Game state
         self.game_state = 'playing'
@@ -156,7 +161,7 @@ class GameWidget(RelativeLayout):
             #  Ignore unknown keys
             if self.game_state == 'playing':
                 #  Either make a turn or show one of windows
-                if keycode[1] in self.map_keys :
+                if keycode[1] in self.map_keys:
                     #  If the key is a 'map-controlling' one, ie uses a turn
                     command = self.key_parser.key_to_command(keycode)
                     self.map_widget.map.actors[0].controller.accept_command(command)
@@ -306,6 +311,9 @@ class RLMapWidget(RelativeLayout):
             elif event.event_type == 'log_updated':
                 self.parent.update_log()
                 self.process_game_event()
+            elif event.event_type == 'picked_up':
+                #  It's assumed that newly added item will be the last in player inventory
+                self.remove_widget(self.map.actors[0].inventory[-1].widget)
         else:
             #  Reactivating keyboard after finishing animation
             self.animating = False

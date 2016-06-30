@@ -23,7 +23,7 @@ class Command(object):
     command_type should be one of the string values defined in Command.acceptable_commands
     command_value should be an iterable or None
     """
-    acceptable_commands = ('walk', 'use_item', 'wait')
+    acceptable_commands = ('walk', 'use_item', 'wait', 'grab')
     def __init__(self, command_type=None, command_value=None):
         assert command_type in self.acceptable_commands
         self.command_type = command_type
@@ -86,7 +86,7 @@ class PlayerController(Controller):
         self.accept_command(self.commands[keycode[1]])
         return True
 
-    accepted_command_types = ('walk', 'use_item', 'wait')
+    accepted_command_types = ('walk', 'use_item', 'wait', 'grab')
 
     def accept_command(self, command):
         if command.command_type not in self.accepted_command_types:
@@ -107,6 +107,9 @@ class PlayerController(Controller):
         #  Item usage
         elif self.last_command.command_type == 'use_item':
             r = self.actor.inventory[self.last_command.command_value[0]].use()
+        #  Grabbing
+        elif self.last_command.command_type == 'grab':
+            r = self.actor.grab()
         self.last_command = None
         return r
 

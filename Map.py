@@ -87,7 +87,7 @@ class RLMap(object):
 
     def delete_item(self, layer='default', location=(None, None)):
         """
-        Delete the item at a given location, removing all references to it that map knows about
+        Delete the item at a given location, removing all references to it in the map object
         :param layer: str
         :param location: int tuple
         :return:
@@ -100,6 +100,7 @@ class RLMap(object):
         #  If no other references exist (when this executes, one should probably be in GameEvent)
         #  Actor object will be garbage-collected. Please note that this method does not handle
         #  widget deletion. That one should be called according to GameEvent somehow
+        #  Actor objects remain briefly within Controller method and are then kept in the inventory
 
     def get_neighbours(self, layer='default', location=(None, None)):
         """

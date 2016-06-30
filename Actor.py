@@ -21,12 +21,12 @@ class GameEvent(object):
     acceptable_types = ('moved',
                         'was_destroyed',
                         'attacked',
-                        'log_updated')
+                        'log_updated',
+                        'picked_up')
 
     def __init__(self, event_type=None, actor=None, location=None):
         assert isinstance(event_type, str) and event_type in self.acceptable_types
         self.event_type = event_type
-
         self.actor = actor
         if location:
             self.location = location
@@ -159,6 +159,25 @@ class Actor(MapItem):
         :return:
         """
         return True
+
+    def grab(self):
+        """
+        Spend one turn to grab item from the ground, if there is one, and report to game_events
+        and game_log
+        Return True if there was an item, False otherwise
+        :return:
+        """
+        i = self.map.get_item(location=self.location, layer='items')
+        if i:
+            self.inventory.append(i)
+            self.map.delete_item(location=self.location, layer='items')
+            self.map.game_events.append(GameEvent(event_type='picked_up', actor=self,
+                                                  location=self.location))
+            self.map.extend_log('{0} picked up {1}'.format(self.descriptor.name,
+                                                           i.name))
+            return True
+        else:
+            return False
 
     def collide(self, other):
         """ Collision callback: get bumped into by some other actor.

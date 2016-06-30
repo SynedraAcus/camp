@@ -132,5 +132,5 @@ class MapFactory(object):
         map.add_item(item=PotionTypeItem(name='Health bottle 2|3',
                                          effect=FighterTargetedEffect(effect_type='heal',
                                                                       effect_value=[2,3])),
-                     location=(10, 10), layer='items')
+                     location=(8, 5), layer='items')
         return map
