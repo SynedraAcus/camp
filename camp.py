@@ -236,13 +236,18 @@ class RLMapWidget(RelativeLayout):
         self.tile_factory = TileWidgetFactory()
         self.map = map
         self.size = [self.map.size[0]*32, self.map.size[1]*32]
-        #  Initializing tile widgets for BG layer and adding them as children
+        #  Initializing tile widgets for bg and item layers and adding them as children
         for x in range(self.map.size[0]):
             for y in range(self.map.size[1]):
                 tile_widget = self.tile_factory.create_tile_widget(self.map.get_item(layer='bg',
                                                                                     location=(x, y)))
                 tile_widget.pos = self._get_screen_pos((x, y))
                 self.add_widget(tile_widget)
+                thingie = self.map.get_item(layer='items', location=(x, y))
+                if thingie:
+                    thingie_widget = self.tile_factory.create_item_widget(thingie)
+                    thingie_widget.pos = self._get_screen_pos((x, y))
+                    self.add_widget(thingie_widget)
         #  Initializing widgets for actor layers
         for x in range(self.map.size[0]):
             for y in range(self.map.size[1]):

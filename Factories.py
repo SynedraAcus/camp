@@ -39,7 +39,7 @@ class ActorWidget(Widget):
     #     self.rect.pos = self.pos
 
 class TileWidget(Widget):
-    """
+    """widget
     The tile widget that currently contains only an image.
     """
     def __init__(self, source='PC.png', **kwargs):
@@ -55,6 +55,20 @@ class TileWidget(Widget):
         self.rect.size = self.size
         self.rect.pos = self.pos
 
+class ItemWidget(Widget):
+    """
+    Widget for an item. Used both for item on the ground and item in the inventory
+    """
+    def __init__(self, source='Bottle.png', **kwargs):
+        super(ItemWidget, self).__init__(**kwargs)
+        self.img = Image(source=source, size=(32, 32))
+        self.add_widget(self.img)
+        self.bind(pos=self.update_img)
+
+    def update_img(self, a, b):
+        self.img.pos = self.pos
+
+
 class TileWidgetFactory(object):
     def __init__(self):
         pass
@@ -66,18 +80,24 @@ class TileWidgetFactory(object):
         return tile.widget
 
     def create_actor_widget(self, actor):
-        s = 'PC.png' if actor.player else 'NPC.png'
+        s = actor.image_source
         widget = ActorWidget(source=s, size=(32, 32),
                              size_hint=(None, None))
         actor.widget = widget
         return widget
+
+    def create_item_widget(self, item):
+        s = 'Bottle.png'
+        item.widget = ItemWidget(source=s, size=(32, 32),
+                                 size_hint=(None, None))
+        return item.widget
 
 class MapFactory(object):
     def __init__(self):
         pass
 
     def create_test_map(self):
-        map = RLMap(size=(20, 20), layers=['bg', 'actors'])
+        map = RLMap(size=(20, 20), layers=['bg', 'items', 'actors'])
         for x in range(20):
             map.add_item(item=GroundTile(passable=False, image_source='Tmp_frame.png'),
                          layer='bg',
@@ -96,14 +116,21 @@ class MapFactory(object):
                                 inventory=InventoryComponent(initial_items=[PotionTypeItem(
                                     name='Health Bottle 2|3',
                                     effect=FighterTargetedEffect(effect_type='heal',
-                                                                 effect_value=[2, 3]))])),
+                                                                 effect_value=[2, 3]))]),
+                                image_source='PC.png'),
                      location=(5, 5), layer='actors')
+        map.add_item(item=Actor(player=False, name='NPC2', controller=AIController(), fighter=FighterComponent(),
+                                descriptor=DescriptorComponent(name='NPC2'),
+                                image_source='NPC.png'),
+                     location=(3, 5), layer='actors')
         map.add_item(item=Actor(player=False, name='NPC1', controller=AIController(),
                                 fighter=FighterComponent(),
-                                descriptor=DescriptorComponent(name='NPC1')
+                                descriptor=DescriptorComponent(name='NPC1'),
+                                image_source='NPC.png'
                                 ),
                      location=(2, 2), layer='actors')
-        map.add_item(item=Actor(player=False, name='NPC2', controller=AIController(), fighter=FighterComponent(),
-                                descriptor=DescriptorComponent(name='NPC2')),
-                     location=(3, 5), layer='actors')
+        map.add_item(item=PotionTypeItem(name='Health bottle 2|3',
+                                         effect=FighterTargetedEffect(effect_type='heal',
+                                                                      effect_value=[2,3])),
+                     location=(10, 10), layer='items')
         return map

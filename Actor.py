@@ -36,6 +36,7 @@ class GameEvent(object):
 
 class Actor(MapItem):
     def __init__(self, player=False, name='Unnamed actor',
+                 image_source='NPC.png',
                  controller=None, fighter=None, descriptor=None,
                  inventory=None,
                  **kwargs):
@@ -63,6 +64,8 @@ class Actor(MapItem):
             self.inventory.actor = self
         #  These attributes are not set by constructor: it is only defined when map factory
         # places the actor on the map
+        self.image_source=image_source
+        self.widget = None
         self.map = None
         self.location = []
 

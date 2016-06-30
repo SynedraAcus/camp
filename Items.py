@@ -2,12 +2,14 @@
 Item classes for the stuff that may be put in the inventories
 """
 
+from MapItem import MapItem
 
-class Item(object):
+class Item(MapItem):
     """
-    Base class for the inventory item
+    Base class for the inventory item. Inherits from MapItem to allow placing items on map.
     """
-    def __init__(self, name='Item', owner=None):
+    def __init__(self, name='Item', image_source='Bottle.png', owner=None, **kwargs):
+        super(Item, self).__init__(**kwargs)
         self.name = name
         #  Owner is an inventory component, not an actor
         self.owner = owner
