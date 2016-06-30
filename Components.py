@@ -107,5 +107,5 @@ class InventoryComponent(Component):
             r = 'Inventory is empty'
         else:
             for i in range(0, len(self.items)):
-                r += '{0} - {1}'.format(i, self.items[i].name)
+                r += '{0} - {1}\n'.format(i, self.items[i].name)
         return r

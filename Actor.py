@@ -164,7 +164,7 @@ class Actor(MapItem):
         """
         Spend one turn to grab item from the ground, if there is one, and report to game_events
         and game_log
-        Return True if there was an item, False otherwise
+        Return True if there was an item to grab, False otherwise
         :return:
         """
         i = self.map.get_item(location=self.location, layer='items')

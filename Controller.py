@@ -97,7 +97,7 @@ class PlayerController(Controller):
 
     def call_actor_method(self):
         if not self.actor:
-                raise AttributeError('Controller cannot be used when not attached to actor')
+            raise AttributeError('Controller cannot be used when not attached to actor')
         if self.last_command.command_type == 'wait':
             r = self.actor.pause()
         #  Cardinal movement
