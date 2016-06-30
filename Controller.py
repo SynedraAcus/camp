@@ -2,19 +2,6 @@ import sys
 import random
 
 
-#  Little more than a placeholder. There is only movement, and it allows to use
-#  numpad and nethack-like vim keys. WASD and arrows
-command_dict = {'wait': ('spacebar', '.', 'numpad5'),
-                #  Walking in cardinal directions
-                'walk_8': ('w', 'h', 'numpad8', 'up'),
-                'walk_2': ('s', 'l', 'numpad2', 'down'),
-                'walk_4': ('a', 'j', 'numpad4', 'left'),
-                'walk_6': ('d', 'k', 'numpad6', 'right'),
-                #  Diagonal movement
-                'walk_7': ('y', 'numpad7', ),
-                'walk_9': ('u', 'numpad9', ),
-                'walk_1': ('b', 'numpad1', ),
-                'walk_3': ('n', 'numpad3', )}
 
 class Command(object):
     """
@@ -23,7 +10,7 @@ class Command(object):
     command_type should be one of the string values defined in Command.acceptable_commands
     command_value should be an iterable or None
     """
-    acceptable_commands = ('walk', 'use_item', 'wait', 'grab')
+    acceptable_commands = ('walk', 'use_item', 'wait', 'grab', 'drop_item')
     def __init__(self, command_type=None, command_value=None):
         assert command_type in self.acceptable_commands
         self.command_type = command_type
@@ -53,23 +40,23 @@ class Controller(object):
 
 class PlayerController(Controller):
     """
-    Controller subclass that allows passing keycode to the actor.
+    Controller subclass that allows processing Commands.
     It also parses the keys
     """
-    def __init__(self, commands=command_dict):
+    def __init__(self):
         super(Controller, self).__init__()
         self.commands = {}
-        self.load_commands(commands)
-
-    def load_commands(self, d):
-        """
-        Load the command dictionary. It should be in a {'command': [button1, button2]} form.
-        List of available commands is predefined
-        :param commands:
-        :return:
-        """
-        for command in d.items():
-            self.commands.update({x: command[0] for x in command[1]})
+        # self.load_commands(commands)
+    #
+    # def load_commands(self, d):
+    #     """
+    #     Load the command dictionary. It should be in a {'command': [button1, button2]} form.
+    #     List of available commands is predefined
+    #     :param commands:
+    #     :return:
+    #     """
+    #     for command in d.items():
+    #         self.commands.update({x: command[0] for x in command[1]})
 
     def take_keycode(self, keycode):
         """
@@ -86,7 +73,7 @@ class PlayerController(Controller):
         self.accept_command(self.commands[keycode[1]])
         return True
 
-    accepted_command_types = ('walk', 'use_item', 'wait', 'grab')
+    accepted_command_types = ('walk', 'use_item', 'wait', 'grab', 'drop_item')
 
     def accept_command(self, command):
         if command.command_type not in self.accepted_command_types:
@@ -106,10 +93,12 @@ class PlayerController(Controller):
                                           self.actor.location[1]+self.last_command.command_value[1]))
         #  Item usage
         elif self.last_command.command_type == 'use_item':
-            r = self.actor.inventory[self.last_command.command_value[0]].use()
-        #  Grabbing
+            r = self.actor.use_item(self.last_command.command_value[0])
+        #  Grabbing & Dropping
         elif self.last_command.command_type == 'grab':
             r = self.actor.grab()
+        elif self.last_command.command_type == 'drop_item':
+            r = self.actor.drop_item(self.last_command.command_value[0])
         self.last_command = None
         return r
 

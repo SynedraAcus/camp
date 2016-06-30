@@ -22,7 +22,8 @@ class GameEvent(object):
                         'was_destroyed',
                         'attacked',
                         'log_updated',
-                        'picked_up')
+                        'picked_up',
+                        'dropped')
 
     def __init__(self, event_type=None, actor=None, location=None):
         assert isinstance(event_type, str) and event_type in self.acceptable_types
@@ -118,6 +119,9 @@ class Actor(MapItem):
             return False
         return self.controller.call_actor_method()
 
+    #  These methods are expected to be called by Controller. They all return True if action could be performed
+    #  (not necessarily successfully!!!), False otherwise
+
     def move(self, location=(None, None)):
         """
         Move self to a location. Returns True after a successful movement
@@ -176,6 +180,40 @@ class Actor(MapItem):
             self.map.extend_log('{0} picked up {1}'.format(self.descriptor.name,
                                                            i.name))
             return True
+        else:
+            return False
+
+    def use_item(self, item_number):
+        """
+        Spend one turn to use item from inventory.
+        Return True if use was successful, False otherwise
+        :param item:
+        :return:
+        """
+        try:
+            return self.inventory[item_number].use()
+        except IndexError:
+            return False
+
+    def drop_item(self, item_number):
+        """
+        Spend one turn to drop item from inventory
+        Item can only be dropped to a tile where there isn't item already.
+        :param item_number:
+        :return:
+        """
+        if not self.map.get_item(location=self.location, layer='items'):
+            try:
+                self.map.add_item(item=self.inventory[item_number], location=self.location, layer='items')
+                self.map.extend_log('{0} dropped {1}'.format(self.descriptor.name,
+                                                             self.inventory[item_number].name))
+                self.inventory.remove(self.inventory[item_number])
+                self.map.game_events.append(GameEvent(event_type='dropped', actor=self,
+                                                      location=self.location))
+                return True
+            except IndexError:
+                #  No attempts to drop non-existent items!
+                return False
         else:
             return False
 

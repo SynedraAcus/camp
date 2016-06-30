@@ -34,10 +34,10 @@ class KeyParser(object):
     #  Obsolete command dict, purely for reference
     command_dict = {'wait': ('spacebar', '.', 'numpad5'),
                 #  Walking in cardinal directions
-                'walk_8': ('w', 'h', 'numpad8', 'up'),
-                'walk_2': ('s', 'l', 'numpad2', 'down'),
-                'walk_4': ('a', 'j', 'numpad4', 'left'),
-                'walk_6': ('d', 'k', 'numpad6', 'right'),
+                'walk_8': ('h', 'numpad8', 'up'),
+                'walk_2': ('l', 'numpad2', 'down'),
+                'walk_4': ('j', 'numpad4', 'left'),
+                'walk_6': ('k', 'numpad6', 'right'),
                 #  Diagonal movement
                 'walk_7': ('y', 'numpad7', ),
                 'walk_9': ('u', 'numpad9', ),
@@ -45,16 +45,17 @@ class KeyParser(object):
                 'walk_3': ('n', 'numpad3', ),
                 'grab': (',', 'g')}
 
-    command_type_dict = {'walk': ('w', 'h', 'numpad8', 'up', # Up
-                                  's', 'l', 'numpad2', 'down',
-                                  'a', 'j', 'numpad4', 'left',
-                                  'd', 'k', 'numpad6', 'right',
+    command_type_dict = {'walk': ('h', 'numpad8', 'up', # Up
+                                  'l', 'numpad2', 'down',
+                                  'j', 'numpad4', 'left',
+                                  'k', 'numpad6', 'right',
                                   'y', 'numpad7',  #NW
                                   'u', 'numpad9',  #NE
                                   'b', 'numpad1',  #SW
                                   'n', 'numpad3'), #SE
                          'wait': ('spacebar', '.', 'numpad5'),
-                         'grab': ('g', ',')}
+                         'grab': ('g', ','),
+                         'drop': ('d')}
 
     #  Values for travel commands are (dx, dy)
     #  For some commands value may be None, if there is no target associated with them
@@ -119,7 +120,6 @@ class GameWidget(RelativeLayout):
         #  Keys not in this list are ignored by _on_key_down
         self.allowed_keys = [#  Movement
                              'spacebar', '.',
-                             'w', 'a', 's', 'd',
                              'h', 'j', 'k', 'l',
                              'y', 'u', 'b', 'n',
                              'up', 'down', 'left', 'right',
@@ -130,11 +130,10 @@ class GameWidget(RelativeLayout):
                              #  Used for inventory & spell systems
                              '0', '1', '2', '3', '4', '5',
                              '6', '7', '8', '9',
-                             #  Grabbing stuff
-                             'g', ',']
+                             #  Grabbing and dropping stuff
+                             'g', ',', 'd']
         #  Keys in this list are processed by self.map_widget.map
         self.map_keys = ['spacebar', '.',
-                         'w', 'a', 's', 'd',
                          'h', 'j', 'k', 'l',
                          'y', 'u', 'b', 'n',
                          'up', 'down', 'left', 'right',
@@ -189,15 +188,21 @@ class GameWidget(RelativeLayout):
                                                    size_hint=(None, None),
                                                    text=self.map_widget.map.actors[0].inventory.get_string())
                     self.add_widget(self.window_widget)
+                elif keycode[1] in 'd':
+                    self.game_state = 'drop_window'
+                    self.window_widget = LogWindow(pos=(200, 200),
+                                                   size=(200, 200),
+                                                   size_hint=(None, None),
+                                                   text=self.map_widget.map.actors[0].inventory.get_string())
+                    self.add_widget(self.window_widget)
             else:
-                if 'window' in self.game_state and keycode[1] in ('i', 'c'):
+                if 'window' in self.game_state and keycode[1] in ('i', 'c', 'g', 'd'):
                     self.remove_widget(self.window_widget)
                     self.game_state = 'playing'
                 elif self.game_state == 'inv_window':
                     #  Try to use keycode as inventory command
                     try:
                         n = self.key_parser.key_to_number(keycode)
-                        #  Update inventory window
                         command = Command(command_type='use_item', command_value=(n, ))
                         self.map_widget.map.actors[0].controller.accept_command(command)
                         r = self.map_widget.map.actors[0].make_turn()
@@ -211,6 +216,23 @@ class GameWidget(RelativeLayout):
                         self.map_widget.process_game_event()
                     except ValueError:  #  This ValueError is expected to be raised by key_to_number if the keycode
                         #  is not numeric
+                        pass
+                elif self.game_state == 'drop_window':
+                    #  Try to use keycode as inventory command
+                    try:
+                        n = self.key_parser.key_to_number(keycode)
+                        command = Command(command_type='drop_item', command_value=(n, ))
+                        self.map_widget.map.actors[0].controller.accept_command(command)
+                        r = self.map_widget.map.actors[0].make_turn()
+                        if r:
+                            for actor in self.map_widget.map.actors[1:]:
+                                actor.make_turn()
+                        #  Remove inventory widget upon using item
+                        self.remove_widget(self.window_widget)
+                        self.game_state = 'playing'
+                        #  Draw stuff
+                        self.map_widget.process_game_event()
+                    except ValueError:
                         pass
 
 
@@ -314,6 +336,13 @@ class RLMapWidget(RelativeLayout):
             elif event.event_type == 'picked_up':
                 #  It's assumed that newly added item will be the last in player inventory
                 self.remove_widget(self.map.actors[0].inventory[-1].widget)
+                self.process_game_event()
+            elif event.event_type == 'dropped':
+                item = self.map.get_item(location=event.location, layer='items')
+                if not item.widget:
+                    TileWidgetFactory().create_item_widget(item)
+                    item.widget.pos = self._get_screen_pos(event.location)
+                self.add_widget(item.widget)
                 self.process_game_event()
         else:
             #  Reactivating keyboard after finishing animation

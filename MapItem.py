@@ -9,6 +9,7 @@ class MapItem(object):
     """
     def __init__(self, passable=True, image_source=None):
         self.passable = passable
+        self.widget = None
 
     def collide(self, other):
         """ Collisions are expected to be overridden if they are to actually do something.
