@@ -15,12 +15,11 @@ class Construction(MapItem):
     """
     def __init__(self,
                  image_source = 'DownStairs.png',
-                 passable = True,
                  fighter = None,
                  descriptor = None,
                  inventory = None,
                  controller = None):
-        self.passable=passable
+        super(Construction, self).__init__(**kwargs)
         #  Components
         self.fighter = fighter
         self.descriptor = descriptor
