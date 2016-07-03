@@ -58,13 +58,13 @@ class Spawner(Construction):
     def __init__(self, spawn_frequency=5, **kwargs):
         super(Spawner, self).__init__(**kwargs)
         self.spawn_frequency = spawn_frequency
-        self.spawn_counter = 0
+        self.spawn_counter = 1
 
     def make_turn(self):
         if self.spawn_counter < self.spawn_frequency:
             self.spawn_counter += 1
         else:
-            self.spawn_counter = 0
+            self.spawn_counter = 1
             if not self.map.get_item(location=self.location,
                                      layer='actors'):
                 #  Only spawn if the tile is empty
