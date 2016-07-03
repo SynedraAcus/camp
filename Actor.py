@@ -6,7 +6,6 @@ functioning, but are not, strictly speaking, related to graphics
 from Controller import Controller, PlayerController, AIController
 from MapItem import MapItem
 from Components import FighterComponent, InventoryComponent, DescriptorComponent
-from random import choice
 
 
 class GameEvent(object):
@@ -64,12 +63,14 @@ class Actor(MapItem):
         if inventory:
             self.inventory = inventory
             self.inventory.actor = self
+        #  Faction component
         self.faction = faction
         #  These attributes are not set by constructor: it is only defined when map factory
         # places the actor on the map
-        self.image_source=image_source
+        self.image_source = image_source
         self.widget = None
         self.map = None
+        self.controller = None
         self.location = []
 
     def connect_to_map(self, map=None, layer=None, location=(None, None)):
@@ -191,7 +192,7 @@ class Actor(MapItem):
         """
         Spend one turn to use item from inventory.
         Return True if use was successful, False otherwise
-        :param item:
+        :param item_number: int
         :return:
         """
         try:

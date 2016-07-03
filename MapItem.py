@@ -16,6 +16,7 @@ class MapItem(object):
         This method returns False indicating that nothing happened."""
         return False
 
+
 class GroundTile(MapItem):
     def __init__(self, passable=True, image_source='Tmp_frame.png', **kwargs):
         super(GroundTile, self).__init__(**kwargs)

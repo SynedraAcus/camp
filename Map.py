@@ -6,6 +6,7 @@ from Actor import Actor, GameEvent
 from Constructions import Construction
 from math import sqrt
 
+
 class RLMap(object):
     def __init__(self, size=(10, 10), layers = ['default']):
         self.size=size
@@ -135,19 +136,6 @@ class RLMap(object):
         """
         return sqrt((location1[0]-location2[0])**2+(location1[1]-location2[1])**2)
 
-    def extend_log(self, item):
-        """
-        Add item to self.game_log
-        Adds a string to the log (the one to be displayed on the screen) and emit a GameEvent
-        so that a game widget will know to update it.
-        :param item: string to be added
-        :return:
-        """
-        assert isinstance(item, str)
-        self.game_log.append(item)
-        self.game_events.append(GameEvent(event_type='log_updated'))
-    #  Game logic-related actions
-
     def entrance_possible(self, location):
         """
         Return true, if a given coordinates correspond to a valid move destination (ie passable tile
@@ -169,3 +157,16 @@ class RLMap(object):
                 break
         return ret
 
+    #  Displayable log
+
+    def extend_log(self, item):
+        """
+        Add item to self.game_log
+        Adds a string to the log (the one to be displayed on the screen) and emit a GameEvent
+        so that a game widget will know to update it.
+        :param item: string to be added
+        :return:
+        """
+        assert isinstance(item, str)
+        self.game_log.append(item)
+        self.game_events.append(GameEvent(event_type='log_updated'))

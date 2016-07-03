@@ -5,6 +5,7 @@ Component classes that add various functionality to Actors
 from random import choice
 from Items import Item
 
+
 class Component(object):
     """
     Base class for components.
@@ -13,11 +14,12 @@ class Component(object):
     def __init__(self):
         self.actor = None
 
+
 class FighterComponent(Component):
     """
     The component that provides the actor with combat capabilities
     """
-    def __init__(self, hp=5, attacks=[1, 2, 3], defenses=[0, 0, 1], **kwargs):
+    def __init__(self, hp=5, attacks=(1, 2, 3), defenses=(0, 0, 1), **kwargs):
         super(FighterComponent, self).__init__(**kwargs)
         self.hp = hp
         self.attacks = attacks
@@ -32,7 +34,7 @@ class FighterComponent(Component):
 
 class DescriptorComponent(Component):
     """
-    The component that contains various data about this actor
+    The component that contains various displayable data about this actor
     """
     def __init__(self, name='Unnamed actor', description='No description', **kwargs):
         super(DescriptorComponent, self).__init__(**kwargs)
@@ -58,14 +60,13 @@ class DescriptorComponent(Component):
         return r
 
 
-
 class InventoryComponent(Component):
     """
     Component that allows Actor to carry stuff
     """
     def __init__(self, volume=10, initial_items=[], **kwargs):
         super(InventoryComponent, self).__init__(**kwargs)
-        self.volume = volume #  Inventories of more than ten slots not supported by the interface
+        self.volume = volume  #  Inventories of more than ten slots not supported by the interface
         self.items = []
         self.actor = None
         for a in initial_items:
@@ -113,6 +114,7 @@ class InventoryComponent(Component):
             for i in range(0, len(self.items)):
                 r += '{0} - {1}\n'.format(i, self.items[i].name)
         return r
+
 
 class FactionComponent(Component):
     """

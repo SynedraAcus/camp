@@ -12,6 +12,7 @@ class Effect(object):
         self.effect_type = effect_type
         self.effect_value = effect_value
 
+
 class FighterTargetedEffect(Effect):
     """
     Effect that affects the FighterComponent of an Actor

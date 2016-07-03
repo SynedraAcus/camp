@@ -1,4 +1,3 @@
-import sys
 import random
 
 
@@ -50,7 +49,6 @@ class Controller(object):
         return r
 
 
-
 class PlayerController(Controller):
     """
     Controller subclass that allows processing Commands.
@@ -59,17 +57,6 @@ class PlayerController(Controller):
     def __init__(self):
         super(Controller, self).__init__()
         self.commands = {}
-        # self.load_commands(commands)
-    #
-    # def load_commands(self, d):
-    #     """
-    #     Load the command dictionary. It should be in a {'command': [button1, button2]} form.
-    #     List of available commands is predefined
-    #     :param commands:
-    #     :return:
-    #     """
-    #     for command in d.items():
-    #         self.commands.update({x: command[0] for x in command[1]})
 
     def take_keycode(self, keycode):
         """
@@ -78,11 +65,6 @@ class PlayerController(Controller):
         :param keycode: keycode
         :return: bool
         """
-        # try:
-        #     self.last_command = self.commands[keycode[1]]
-        #     return True
-        # except KeyError:
-        #     return False
         self.accept_command(self.commands[keycode[1]])
         return True
 
@@ -94,26 +76,6 @@ class PlayerController(Controller):
         else:
             self.last_command = command
             return True
-
-    # def call_actor_method(self):
-    #     if not self.actor:
-    #         raise AttributeError('Controller cannot be used when not attached to actor')
-    #     if self.last_command.command_type == 'wait':
-    #         r = self.actor.pause()
-    #     #  Cardinal movement
-    #     elif self.last_command.command_type == 'walk':
-    #         r = self.actor.move(location=(self.actor.location[0]+self.last_command.command_value[0],
-    #                                       self.actor.location[1]+self.last_command.command_value[1]))
-    #     #  Item usage
-    #     elif self.last_command.command_type == 'use_item':
-    #         r = self.actor.use_item(self.last_command.command_value[0])
-    #     #  Grabbing & Dropping
-    #     elif self.last_command.command_type == 'grab':
-    #         r = self.actor.grab()
-    #     elif self.last_command.command_type == 'drop_item':
-    #         r = self.actor.drop_item(self.last_command.command_value[0])
-    #     self.last_command = None
-    #     return r
 
 
 class AIController(Controller):

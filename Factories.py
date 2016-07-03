@@ -160,19 +160,12 @@ class MapFactory(object):
         map.add_item(item=Actor(player=False, controller=AIController(), fighter=FighterComponent(),
                                 descriptor=DescriptorComponent(name='NPC2'), faction=npc_faction,
                                 image_source='NPC.png'),
-                     location=(3, 3), layer='actors')
-        map.add_item(item=Actor(player=False, controller=AIController(),
-                                fighter=FighterComponent(),
-                                descriptor=DescriptorComponent(name='NPC1'),
-                                faction=npc_faction,
-                                image_source='NPC.png'
-                                ),
-                     location=(4, 4), layer='actors')
+                     location=(16, 15), layer='actors')
         map.add_item(item=PotionTypeItem(name='Health bottle 2|3',
                                          effect=FighterTargetedEffect(effect_type='heal',
-                                                                      effect_value=[2,3])),
+                                                                      effect_value=[2, 3])),
                      location=(8, 5), layer='items')
         map.add_item(item=Spawner(image_source='DownStairs.png',
                                   faction=npc_faction),
-                     location=(10, 10), layer='constructions')
+                     location=(17, 17), layer='constructions')
         return map

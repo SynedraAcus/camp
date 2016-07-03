@@ -4,6 +4,7 @@ Item classes for the stuff that may be put in the inventories
 
 from MapItem import MapItem
 
+
 class Item(MapItem):
     """
     Base class for the inventory item. Inherits from MapItem to allow placing items on map.

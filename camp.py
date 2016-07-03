@@ -6,22 +6,15 @@ from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.boxlayout import BoxLayout
-from kivy.properties import StringProperty
 from kivy.uix.widget import Widget
 from kivy.uix.label import Label
-from kivy.uix.image import Image
 from kivy.graphics import Color, Rectangle
 from kivy.core.window import Window
 from kivy.animation import Animation
-from kivy.clock import Clock
 from kivy.core.audio import SoundLoader
-
-#  Other imports
-import sys
 
 #  My own stuff
 from Factories import TileWidgetFactory, MapFactory
-from Actor import Actor
 from Controller import Command
 
 
@@ -31,7 +24,8 @@ class KeyParser(object):
     and other interface commands. Keyboard layout is stored here as well.
     Currently class is little more than stub for later moving controls to separate file
     """
-    #  Obsolete command dict, purely for reference
+    #  Obsolete human-readable command dict, actually not used by any methods.
+    #  Kept purely for reference.
     command_dict = {'wait': ('spacebar', '.', 'numpad5'),
                 #  Walking in cardinal directions
                 'walk_8': ('h', 'numpad8', 'up'),
@@ -58,6 +52,7 @@ class KeyParser(object):
                          'drop': ('d')}
 
     #  Values for travel commands are (dx, dy)
+    #  Values for inventory use and drop are not kept here, as those are used from window
     #  For some commands value may be None, if there is no target associated with them
     command_value_dict = {(0, 1): ('w', 'h', 'numpad8', 'up'),
                           (0, -1): ('s', 'l', 'numpad2', 'down'),
@@ -98,6 +93,7 @@ class KeyParser(object):
         :return:
         """
         return Command(command_type=self.command_types[keycode[1]], command_value=self.command_values[keycode[1]])
+
 
 class GameWidget(RelativeLayout):
     """
@@ -143,7 +139,6 @@ class GameWidget(RelativeLayout):
         self.key_parser = KeyParser()
         #  Game state
         self.game_state = 'playing'
-
 
     def _on_key_down(self, keyboard, keycode, text, modifier):
         """
@@ -241,7 +236,6 @@ class GameWidget(RelativeLayout):
                     except ValueError:
                         pass
 
-
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_key_down)
         self._keyboard = None
@@ -282,7 +276,7 @@ class LayerWidget(RelativeLayout):
                     tile_widget.pos = parent.get_screen_pos((x, y))
                     self.add_widget(tile_widget)
 
-#  Map widget (using RelativeLayout)
+
 class RLMapWidget(RelativeLayout):
     """
     Game map widget. Mostly is busy displaying character widgets and such.
@@ -374,7 +368,6 @@ class RLMapWidget(RelativeLayout):
             #  Reactivating keyboard after finishing animation
             self.animating = False
 
-
     def remember_anim(self):
         '''
         This is a separate method because lambdas cannot into assignment, and animation queue
@@ -383,7 +376,8 @@ class RLMapWidget(RelativeLayout):
         '''
         self.animating = True
 
-    def get_screen_pos(self, location):
+    @staticmethod
+    def get_screen_pos(location):
         """
         Return screen coordinates (in pixels) for a given location
         :param location: int tuple
@@ -391,17 +385,10 @@ class RLMapWidget(RelativeLayout):
         """
         return (location[0]*32, location[1]*32)
 
-############################################################
-    #
-    #  Keyboard-related methods
-    #  The turn is made here, inside _on_key_down
-    #
-############################################################
-
-
     def update_rect(self, pos, size):
         self.rect.pos = self.pos
         self.rect.size = self.size
+
 
 class LogWindow(Label):
     """ Text widget that shows the last 3 items from game_log
@@ -412,8 +399,11 @@ class LogWindow(Label):
             Color(1, 0, 0)
             Rectangle(size=self.size, pos=self.pos)
 
-class CampApp(App):
 
+class CampApp(App):
+    """
+    Main app class.
+    """
     def build(self):
         root = BoxLayout(orientation='vertical')
         map_factory = MapFactory()

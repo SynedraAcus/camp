@@ -11,6 +11,7 @@ from Actor import Actor, GameEvent
 from Controller import AIController
 from Components import FighterComponent, DescriptorComponent
 
+
 class Construction(MapItem):
     """
     Base constructor class. Registers fighter, descriptor, controller and inventory components, if such are
@@ -52,6 +53,7 @@ class Construction(MapItem):
         self.map = map
         self.layer = layer
         self.location = location
+
 
 class Spawner(Construction):
     """
