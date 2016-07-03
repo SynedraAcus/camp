@@ -61,7 +61,6 @@ class Spawner(Construction):
         self.spawn_counter = 0
 
     def make_turn(self):
-        print('I AM ALIVE')
         if self.spawn_counter < self.spawn_frequency:
             self.spawn_counter += 1
         else:
