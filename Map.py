@@ -13,6 +13,7 @@ class RLMap(object):
         self.items = {l: [[None for x in range(size[1])] for y in range(size[0])] for l in layers}
         #  Actors list
         self.actors = []
+        self.constructions = []
         #  Log list. Initial values allow not to have empty log at the startup
         self.game_log = ['Игра начинается', 'Если вы видите этот текст, то кириллический лог работает',
                          'All the text below will be in English, so I guess Latin log works as well']
@@ -64,6 +65,8 @@ class RLMap(object):
             item.connect_to_map(map=self, location=location, layer=layer)
         if isinstance(item, Actor):
             self.actors.append(item)
+        if isinstance(item, Construction):
+            self.constructions.append(item)
 
     def has_item(self, layer='default', location=(None, None)):
         """

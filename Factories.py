@@ -9,7 +9,7 @@ from kivy.graphics import Rectangle, BindTexture
 from Map import RLMap
 from MapItem import GroundTile, MapItem
 from Actor import Actor
-from Constructions import Construction
+from Constructions import Construction, Spawner
 from Components import FighterComponent, DescriptorComponent, InventoryComponent
 from Controller import PlayerController, AIController
 from Items import PotionTypeItem, Item
@@ -167,6 +167,6 @@ class MapFactory(object):
                                          effect=FighterTargetedEffect(effect_type='heal',
                                                                       effect_value=[2,3])),
                      location=(8, 5), layer='items')
-        map.add_item(item=Construction(image_source='DownStairs.png'),
+        map.add_item(item=Spawner(image_source='DownStairs.png'),
                      location=(10, 10), layer='constructions')
         return map

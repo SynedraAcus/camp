@@ -171,6 +171,8 @@ class GameWidget(RelativeLayout):
                         #  wasted a turn
                         for actor in self.map_widget.map.actors[1:]:
                             actor.make_turn()
+                        for construction in self.map_widget.map.constructions:
+                            construction.make_turn()
                     self.map_widget.process_game_event()
                 elif keycode[1] in 'c':
                     #  Displaying player stats window
@@ -209,6 +211,8 @@ class GameWidget(RelativeLayout):
                         if r:
                             for actor in self.map_widget.map.actors[1:]:
                                 actor.make_turn()
+                            for construction in self.map_widget.map.constructions:
+                                construction.make_turn()
                         #  Remove inventory widget upon using item
                         self.remove_widget(self.window_widget)
                         self.game_state = 'playing'
@@ -227,6 +231,8 @@ class GameWidget(RelativeLayout):
                         if r:
                             for actor in self.map_widget.map.actors[1:]:
                                 actor.make_turn()
+                            for construction in self.map_widget.map.constructions:
+                                construction.make_turn()
                         #  Remove inventory widget upon using item
                         self.remove_widget(self.window_widget)
                         self.game_state = 'playing'
@@ -353,9 +359,16 @@ class RLMapWidget(RelativeLayout):
             elif event.event_type == 'dropped':
                 item = self.map.get_item(location=event.location, layer='items')
                 if not item.widget:
-                    TileWidgetFactory().create_item_widget(item)
+                    self.tile_factory.create_widget(item)
                     item.widget.pos = self.get_screen_pos(event.location)
                 self.layer_widgets['items'].add_widget(item.widget)
+                self.process_game_event()
+            elif event.event_type == 'spawned':
+                a = event.actor
+                if not a.widget:
+                    self.tile_factory.create_widget(a)
+                    a.widget.pos = self.get_screen_pos(event.location)
+                self.layer_widgets['actors'].add_widget(a.widget)
                 self.process_game_event()
         else:
             #  Reactivating keyboard after finishing animation

@@ -7,6 +7,9 @@ Typical constructions are immobile interactive stuff: traps, chests, stairs and 
 """
 
 from MapItem import MapItem
+from Actor import Actor, GameEvent
+from Controller import AIController
+from Components import FighterComponent, DescriptorComponent
 
 class Construction(MapItem):
     """
@@ -47,3 +50,28 @@ class Construction(MapItem):
         self.map = map
         self.layer = layer
         self.location = location
+
+class Spawner(Construction):
+    """
+    A construction that spawns enemies every few turns
+    """
+    def __init__(self, spawn_frequency=5, **kwargs):
+        super(Spawner, self).__init__(**kwargs)
+        self.spawn_frequency = spawn_frequency
+        self.spawn_counter = 0
+
+    def make_turn(self):
+        print('I AM ALIVE')
+        if self.spawn_counter < self.spawn_frequency:
+            self.spawn_counter += 1
+        else:
+            self.spawn_counter = 0
+            if not self.map.get_item(location=self.location,
+                                     layer='actors'):
+                #  Only spawn if the tile is empty
+                baby=Actor(player=False, controller=AIController(), fighter=FighterComponent(),
+                           descriptor=DescriptorComponent(name='NPC2'),
+                           image_source='NPC.png')
+                self.map.add_item(item=baby, location=self.location, layer='actors')
+                self.map.game_events.append(GameEvent(event_type='spawned', location=self.location,
+                                                      actor=baby))
