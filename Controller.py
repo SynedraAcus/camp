@@ -30,11 +30,24 @@ class Controller(object):
         self.actor = None
 
     def call_actor_method(self):
-        """
-        Call the actor method that corresponds to self.last_command and return its result
-        :return: bool
-        """
-        raise NotImplementedError('Base Controller class does not actually call actor methods')
+        if not self.actor:
+            raise AttributeError('Controller cannot be used when not attached to actor')
+        if self.last_command.command_type == 'wait':
+            r = self.actor.pause()
+        #  Cardinal movement
+        elif self.last_command.command_type == 'walk':
+            r = self.actor.move(location=(self.actor.location[0]+self.last_command.command_value[0],
+                                          self.actor.location[1]+self.last_command.command_value[1]))
+        #  Item usage
+        elif self.last_command.command_type == 'use_item':
+            r = self.actor.use_item(self.last_command.command_value[0])
+        #  Grabbing & Dropping
+        elif self.last_command.command_type == 'grab':
+            r = self.actor.grab()
+        elif self.last_command.command_type == 'drop_item':
+            r = self.actor.drop_item(self.last_command.command_value[0])
+        self.last_command = None
+        return r
 
 
 
@@ -82,25 +95,25 @@ class PlayerController(Controller):
             self.last_command = command
             return True
 
-    def call_actor_method(self):
-        if not self.actor:
-            raise AttributeError('Controller cannot be used when not attached to actor')
-        if self.last_command.command_type == 'wait':
-            r = self.actor.pause()
-        #  Cardinal movement
-        elif self.last_command.command_type == 'walk':
-            r = self.actor.move(location=(self.actor.location[0]+self.last_command.command_value[0],
-                                          self.actor.location[1]+self.last_command.command_value[1]))
-        #  Item usage
-        elif self.last_command.command_type == 'use_item':
-            r = self.actor.use_item(self.last_command.command_value[0])
-        #  Grabbing & Dropping
-        elif self.last_command.command_type == 'grab':
-            r = self.actor.grab()
-        elif self.last_command.command_type == 'drop_item':
-            r = self.actor.drop_item(self.last_command.command_value[0])
-        self.last_command = None
-        return r
+    # def call_actor_method(self):
+    #     if not self.actor:
+    #         raise AttributeError('Controller cannot be used when not attached to actor')
+    #     if self.last_command.command_type == 'wait':
+    #         r = self.actor.pause()
+    #     #  Cardinal movement
+    #     elif self.last_command.command_type == 'walk':
+    #         r = self.actor.move(location=(self.actor.location[0]+self.last_command.command_value[0],
+    #                                       self.actor.location[1]+self.last_command.command_value[1]))
+    #     #  Item usage
+    #     elif self.last_command.command_type == 'use_item':
+    #         r = self.actor.use_item(self.last_command.command_value[0])
+    #     #  Grabbing & Dropping
+    #     elif self.last_command.command_type == 'grab':
+    #         r = self.actor.grab()
+    #     elif self.last_command.command_type == 'drop_item':
+    #         r = self.actor.drop_item(self.last_command.command_value[0])
+    #     self.last_command = None
+    #     return r
 
 
 class AIController(Controller):
@@ -110,26 +123,30 @@ class AIController(Controller):
     def __init__(self):
         super(AIController, self).__init__()
 
-    def call_actor_method(self):
+    def _should_attack(self, other):
         """
-        The primitive AI routine. If there are neighbours, attack a random one, otherwise walk_9
+        Decide whether actor should attack other in melee
+        :param other:
         :return:
         """
-        neighbours = self.actor.map.get_neighbours(layer='actors', location=self.actor.location)
-        if len(neighbours) > 0:
-            victim = random.choice(neighbours)
-            return self.actor.move(victim.location)
-        else:
-            return self.actor.move((self.actor.location[0]+1, self.actor.location[1]+1))
+        if other.fighter:
+            print('Is fighter')
+            if self.actor.faction.is_enemy(other.faction):
+                print ('Should be attacked')
+                return True
+        return False
 
     def choose_actor_action(self):
         #  Fight combat-capable neighbours from enemy factions, if any
         neighbours = self.actor.map.get_neighbours(layer='actors', location=self.actor.location)
-        neighbours = list(filter(lambda a: a.fighter and self.actor.faction.is_enemy(a.faction), neighbours))
+        neighbours = list(filter(self._should_attack, neighbours))
         if len(neighbours) > 0:
+            print('Entered attack lines')
             victim = random.choice(neighbours)
             self.last_command = Command(command_type='walk',
-                                        command_value=victim.location)
+                                        command_value=(victim.location[0]-self.actor.location[0],
+                                                       victim.location[1]-self.actor.location[1]))
         else:
+            print('Entered peaceful lines')
             self.last_command = Command(command_type='walk',
-                                        command_value=(self.actor.location[0]+1, self.actor.location[1]+1))
+                                        command_value=(1, 1))

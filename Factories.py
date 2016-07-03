@@ -164,7 +164,7 @@ class MapFactory(object):
         map.add_item(item=Actor(player=False, controller=AIController(),
                                 fighter=FighterComponent(),
                                 descriptor=DescriptorComponent(name='NPC1'),
-                                faction=pc_faction,
+                                faction=npc_faction,
                                 image_source='NPC.png'
                                 ),
                      location=(2, 2), layer='actors')
@@ -173,6 +173,6 @@ class MapFactory(object):
                                                                       effect_value=[2,3])),
                      location=(8, 5), layer='items')
         map.add_item(item=Spawner(image_source='DownStairs.png',
-                                  faction=pc_faction),
+                                  faction=npc_faction),
                      location=(10, 10), layer='constructions')
         return map
