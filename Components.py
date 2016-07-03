@@ -113,3 +113,35 @@ class InventoryComponent(Component):
             for i in range(0, len(self.items)):
                 r += '{0} - {1}\n'.format(i, self.items[i].name)
         return r
+
+class FactionComponent(Component):
+    """
+    A component that is responsible for (N)PC relationships. Actors with the same
+    faction do not attack each other (and maybe even help, if they are able),
+    and there may be interparty peace treaties and allies and stuff
+    """
+    def __init__(self, faction=None, enemies=[], allies=[], **kwargs):
+        super(FactionComponent, self).__init__(**kwargs)
+        self.faction = faction
+        self.enemies = enemies
+        self.allies = allies
+
+    def is_friendly(self, other):
+        """
+        Return True if other faction is a friend and should be supported
+        :param other: FactionComponent
+        :return:
+        """
+        if other.faction == self.faction or other.faction in self.allies:
+            return True
+        return False
+
+    def is_enemy(self, other):
+        """
+        Return True if other faction is an enemy and should be attacked
+        :param other: FactionComponent
+        :return:
+        """
+        if other.faction in self.enemies:
+            return True
+        return False

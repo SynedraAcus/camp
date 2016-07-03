@@ -17,11 +17,12 @@ class Construction(MapItem):
     provided to constructor. Pretty similar to Actor.
     """
     def __init__(self,
-                 image_source = 'DownStairs.png',
-                 fighter = None,
-                 descriptor = None,
-                 inventory = None,
-                 controller = None,
+                 image_source='DownStairs.png',
+                 fighter=None,
+                 descriptor=None,
+                 inventory=None,
+                 controller=None,
+                 faction=None,
                  **kwargs):
         super(Construction, self).__init__(**kwargs)
         #  Components
@@ -29,6 +30,7 @@ class Construction(MapItem):
         self.descriptor = descriptor
         self.inventory = inventory
         self.controller = controller
+        self.faction=faction
         #  Image
         self.image_source = image_source
         #  These are to be set by self.connect_to_map

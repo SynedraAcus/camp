@@ -40,7 +40,7 @@ class Actor(MapItem):
     def __init__(self, player=False,
                  image_source='NPC.png',
                  controller=None, fighter=None, descriptor=None,
-                 inventory=None,
+                 inventory=None, faction=None,
                  **kwargs):
         #  Actors should be impassable by default. The 'passable' should be in kwargs to be passed to
         #  superclass constructor, so a simple default value in signature won't work here
@@ -64,6 +64,7 @@ class Actor(MapItem):
         if inventory:
             self.inventory = inventory
             self.inventory.actor = self
+        self.faction = faction
         #  These attributes are not set by constructor: it is only defined when map factory
         # places the actor on the map
         self.image_source=image_source
