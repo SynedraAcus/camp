@@ -167,7 +167,7 @@ class MapFactory(object):
                                 faction=npc_faction,
                                 image_source='NPC.png'
                                 ),
-                     location=(2, 2), layer='actors')
+                     location=(4, 4), layer='actors')
         map.add_item(item=PotionTypeItem(name='Health bottle 2|3',
                                          effect=FighterTargetedEffect(effect_type='heal',
                                                                       effect_value=[2,3])),

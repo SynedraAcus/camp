@@ -125,28 +125,45 @@ class AIController(Controller):
 
     def _should_attack(self, other):
         """
-        Decide whether actor should attack other in melee
+        Decide whether Actor should attack other Actor in melee
         :param other:
         :return:
         """
         if other.fighter:
-            print('Is fighter')
             if self.actor.faction.is_enemy(other.faction):
-                print ('Should be attacked')
                 return True
         return False
+
+    def _should_walk(self, location):
+        """
+        Decide whether actor should walk into a tile
+        Only the coordinates for a tile are supplied
+        :param location: tuple
+        :return:
+        """
+        #  Check if there is a non-enemy fighter on the tile that Actor wants to enter
+        for item in self.actor.map.get_column(location):
+            print('Checking {0}'.format(item))
+            try:
+                if item.fighter and not self._should_attack(item):
+                    return False
+            except AttributeError:
+                #  There may not even be a fighter attribute
+                pass
+        return True
 
     def choose_actor_action(self):
         #  Fight combat-capable neighbours from enemy factions, if any
         neighbours = self.actor.map.get_neighbours(layer='actors', location=self.actor.location)
         neighbours = list(filter(self._should_attack, neighbours))
         if len(neighbours) > 0:
-            print('Entered attack lines')
             victim = random.choice(neighbours)
             self.last_command = Command(command_type='walk',
                                         command_value=(victim.location[0]-self.actor.location[0],
                                                        victim.location[1]-self.actor.location[1]))
         else:
-            print('Entered peaceful lines')
-            self.last_command = Command(command_type='walk',
-                                        command_value=(1, 1))
+            if self._should_walk((self.actor.location[0]+1, self.actor.location[1]+1)):
+                self.last_command = Command(command_type='walk',
+                                            command_value=(1, 1))
+            else:
+                self.last_command = Command(command_type='wait')
