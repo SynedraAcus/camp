@@ -123,4 +123,13 @@ class AIController(Controller):
             return self.actor.move((self.actor.location[0]+1, self.actor.location[1]+1))
 
     def choose_actor_action(self):
-        self.last_command = 'walk_9'
+        neighbours = self.actor.map.get_neighbours(layer='actors', location=self.actor.location)
+        #  Only fight combat-capable neighbours
+        neighbours = tuple(filter(lambda a: a.fighter, neighbours))
+        if len(neighbours) > 0:
+            victim = random.choice(neighbours)
+            self.last_command = Command(command_type='walk',
+                                        command_value=victim.location)
+        else:
+            self.last_command = Command(command_type='walk',
+                                        command_value=(self.actor.location[0]+1, self.actor.location[1]+1))

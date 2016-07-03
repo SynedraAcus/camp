@@ -118,6 +118,8 @@ class Actor(MapItem):
         #  this is a potential memory leak.
         if self.fighter and self.fighter.hp <= 0:
             return False
+        if not isinstance(self.controller, PlayerController):
+            self.controller.choose_actor_action()
         return self.controller.call_actor_method()
 
     #  These methods are expected to be called by Controller. They all return True if action could be performed
