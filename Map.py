@@ -9,6 +9,7 @@ class RLMap(object):
     def __init__(self, size=(10, 10), layers = ['default']):
         self.size=size
         #  Initializing items container
+        self.layers = layers
         self.items = {l: [[None for x in range(size[1])] for y in range(size[0])] for l in layers}
         #  Actors list
         self.actors = []

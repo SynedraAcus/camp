@@ -248,41 +248,54 @@ class GameWidget(RelativeLayout):
         pass
         self.log_widget.text = '\n'.join(self.map_widget.map.game_log[-3:])
 
+
+class LayerWidget(RelativeLayout):
+    """
+    A map layer widget.
+    Displays a single layer of a map: items, or actors, or bg, or something.
+    Depends on its parent having the following attributes:
+    self.parent.map  a Map instance with a layer corresponding to this widget
+    tile_factory  a TileWidgetFactory instance
+    """
+    def __init__(self, layer='layer', parent=None, **kwargs):
+        super(LayerWidget, self).__init__(**kwargs)
+        self.layer = layer
+        #  Parent is used only temporarily in a constructor.
+        #  When the widget is in use, it'll be self.parent, but the widget cannot be attached before
+        #  it is constructed
+        self.size = parent.size
+        #  Initializing tile widgets
+        for x in range(parent.map.size[0]):
+            for y in range(parent.map.size[1]):
+                item = parent.map.get_item(layer=self.layer, location=(x, y))
+                if item:
+                    tile_widget = parent.tile_factory.create_widget(
+                        parent.map.get_item(layer=self.layer,
+                                            location=(x, y))
+                                    )
+                    tile_widget.pos = parent.get_screen_pos((x, y))
+                    self.add_widget(tile_widget)
+
 #  Map widget (using RelativeLayout)
 class RLMapWidget(RelativeLayout):
     """
     Game map widget. Mostly is busy displaying character widgets and such.
-    Depends on its' parent having the following attributes:
+    Depends on its parent having the following attributes:
     self.parent.boombox  a dict of SoundLoader instances with correct sounds
     and the following methods:
     self.parent.update_log()  Update the visible game log with this object's self.map.game_log
     """
     def __init__(self, map=None, **kwargs):
-        super(FloatLayout, self).__init__(**kwargs)
+        super(RLMapWidget, self).__init__(**kwargs)
         #  Connecting to map, factories and other objects this class should know about
         self.tile_factory = TileWidgetFactory()
         self.map = map
         self.size = [self.map.size[0]*32, self.map.size[1]*32]
-        #  Initializing tile widgets for bg and item layers and adding them as children
-        for x in range(self.map.size[0]):
-            for y in range(self.map.size[1]):
-                tile_widget = self.tile_factory.create_tile_widget(self.map.get_item(layer='bg',
-                                                                                    location=(x, y)))
-                tile_widget.pos = self._get_screen_pos((x, y))
-                self.add_widget(tile_widget)
-                thingie = self.map.get_item(layer='items', location=(x, y))
-                if thingie:
-                    thingie_widget = self.tile_factory.create_item_widget(thingie)
-                    thingie_widget.pos = self._get_screen_pos((x, y))
-                    self.add_widget(thingie_widget)
-        #  Initializing widgets for actor layers
-        for x in range(self.map.size[0]):
-            for y in range(self.map.size[1]):
-                if self.map.has_item(layer='actors', location=(x, y)):
-                    actor_widget = self.tile_factory.create_actor_widget(self.map.get_item(layer='actors',
-                                                                         location=(x, y)))
-                    actor_widget.pos = self._get_screen_pos(location=(x, y))
-                    self.add_widget(actor_widget)
+        #  Adding LayerWidgets for every layer of the map
+        self.layer_widgets = {}
+        for layer in self.map.layers:
+            self.layer_widgets.update({layer: LayerWidget(layer=layer, parent=self)})
+            self.add_widget(self.layer_widgets[layer])
         #  This is set to True during animation to avoid mistakes
         self.animating = False
 
@@ -309,14 +322,14 @@ class RLMapWidget(RelativeLayout):
         if not self.map.game_events == []:
             event = self.map.game_events.pop(0)
             if event.event_type == 'moved':
-                final = self._get_screen_pos(event.actor.location)
+                final = self.get_screen_pos(event.actor.location)
                 a = Animation(x=final[0], y=final[1], duration=anim_duration)
                 a.bind(on_start=lambda x, y: self.remember_anim(),
                        on_complete=lambda x, y: self.process_game_event(y))
                 a.start(event.actor.widget)
             elif event.event_type == 'attacked':
-                current = self._get_screen_pos(event.actor.location)
-                target = self._get_screen_pos(event.location)
+                current = self.get_screen_pos(event.actor.location)
+                target = self.get_screen_pos(event.location)
                 a = Animation(x=current[0]+int((target[0]-current[0])/2),
                               y=current[1]+int((target[1]-current[1])/2),
                               duration=anim_duration/2)
@@ -335,14 +348,14 @@ class RLMapWidget(RelativeLayout):
                 self.process_game_event()
             elif event.event_type == 'picked_up':
                 #  It's assumed that newly added item will be the last in player inventory
-                self.remove_widget(self.map.actors[0].inventory[-1].widget)
+                self.layer_widgets['items'].remove_widget(self.map.actors[0].inventory[-1].widget)
                 self.process_game_event()
             elif event.event_type == 'dropped':
                 item = self.map.get_item(location=event.location, layer='items')
                 if not item.widget:
                     TileWidgetFactory().create_item_widget(item)
-                    item.widget.pos = self._get_screen_pos(event.location)
-                self.add_widget(item.widget)
+                    item.widget.pos = self.get_screen_pos(event.location)
+                self.layer_widgets['items'].add_widget(item.widget)
                 self.process_game_event()
         else:
             #  Reactivating keyboard after finishing animation
@@ -357,7 +370,7 @@ class RLMapWidget(RelativeLayout):
         '''
         self.animating = True
 
-    def _get_screen_pos(self, location):
+    def get_screen_pos(self, location):
         """
         Return screen coordinates (in pixels) for a given location
         :param location: int tuple

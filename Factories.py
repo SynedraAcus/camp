@@ -7,11 +7,11 @@ from kivy.graphics import Rectangle, BindTexture
 
 #  Importing my own stuff
 from Map import RLMap
-from MapItem import GroundTile
+from MapItem import GroundTile, MapItem
 from Actor import Actor
 from Components import FighterComponent, DescriptorComponent, InventoryComponent
 from Controller import PlayerController, AIController
-from Items import PotionTypeItem
+from Items import PotionTypeItem, Item
 from Effects import FighterTargetedEffect
 
 class ActorWidget(Widget):
@@ -71,7 +71,22 @@ class ItemWidget(Widget):
 
 class TileWidgetFactory(object):
     def __init__(self):
-        pass
+        # The dictionary that implements dispatching correct methods for any MapItem class
+        self.type_methods = {GroundTile: self.create_tile_widget,
+                             Actor: self.create_actor_widget,
+                             Item: self.create_item_widget}
+
+    def create_widget(self, item):
+        """
+        Create a MapItem widget.
+        Calls the correct method of self depending on what the class of MapItem is
+        :param item:
+        :return:
+        """
+        assert isinstance(item, MapItem)
+        for t in self.type_methods.keys():
+            if isinstance(item, t):
+                return self.type_methods[t](item)
 
     def create_tile_widget(self, tile):
         s = 'Tile_passable.png' if tile.passable else 'Tile_impassable.png'
