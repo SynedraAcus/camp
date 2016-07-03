@@ -143,7 +143,6 @@ class AIController(Controller):
         """
         #  Check if there is a non-enemy fighter on the tile that Actor wants to enter
         for item in self.actor.map.get_column(location):
-            print('Checking {0}'.format(item))
             try:
                 if item.fighter and not self._should_attack(item):
                     return False
@@ -151,6 +150,28 @@ class AIController(Controller):
                 #  There may not even be a fighter attribute
                 pass
         return True
+
+    def get_visible_items(self, layer='actors', filter_function=None):
+        """
+        Get all the visible items on a given layer.
+        Return an iterable of all items, filtered if filter argument is supplied.
+        If filter is supplied, it should be a one-argument function that accepts MapItem (or a subclass)
+        as the only argument. It should return True for MapItems of interest, exactly like a filter()
+        1st argument
+        :param layer:
+        :param filter:
+        :return:
+        """
+        #  For now no LoS is calculated and every NPC can see the entire map
+        l = []
+        for x in range(self.actor.map.size[0]):
+            for y in range(self.actor.map.size[1]):
+                i = self.actor.map.get_item(layer=layer, location=(x, y))
+                if i:
+                    l.append(i)
+        l = tuple(filter(filter_function, l))
+        return l
+
 
     def choose_actor_action(self):
         #  Fight combat-capable neighbours from enemy factions, if any
