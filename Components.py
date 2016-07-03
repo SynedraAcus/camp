@@ -46,7 +46,7 @@ class DescriptorComponent(Component):
         r = '{0}\n{1}'.format(self.name, self.description)
         if combat:
             if self.actor.fighter:
-                r += '\nThis actor has {0} hp.\nIts attacks are {1}\nIts defenses are {2}'.format(
+                r += '\nThis Actor has {0} hp.\nIts attacks are {1}\nIts defenses are {2}'.format(
                     self.actor.fighter.hp,
                     '|'.join((str(x) for x in self.actor.fighter.attacks)),
                     '|'.join((str(x) for x in self.actor.fighter.defenses))

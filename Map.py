@@ -3,7 +3,7 @@
 #  any of Kivy classes. MVC and all that.
 
 from Actor import Actor, GameEvent
-
+from Constructions import Construction
 
 class RLMap(object):
     def __init__(self, size=(10, 10), layers = ['default']):
@@ -60,7 +60,7 @@ class RLMap(object):
         :return:
         """
         self.items[layer][location[0]][location[1]] = item
-        if type(item) is Actor:
+        if isinstance(item, Actor) or isinstance(item, Construction):
             self.actors.append(item)
             item.connect_to_map(map=self, location=location, layer=layer)
 

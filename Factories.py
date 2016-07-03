@@ -9,6 +9,7 @@ from kivy.graphics import Rectangle, BindTexture
 from Map import RLMap
 from MapItem import GroundTile, MapItem
 from Actor import Actor
+from Constructions import Construction
 from Components import FighterComponent, DescriptorComponent, InventoryComponent
 from Controller import PlayerController, AIController
 from Items import PotionTypeItem, Item
@@ -68,13 +69,26 @@ class ItemWidget(Widget):
     def update_img(self, a, b):
         self.img.pos = self.pos
 
+class ConstructionWidget(Widget):
+    """
+    Widget for a construction
+    """
+    def __init__(self, source='DownStairs.png', **kwargs):
+        super(ConstructionWidget, self).__init__(**kwargs)
+        self.img = Image(source=source, size=(32, 32))
+        self.add_widget(self.img)
+        self.bind(pos=self.update_img)
+
+    def update_img(self, a, b):
+        self.img.pos = self.pos
 
 class TileWidgetFactory(object):
     def __init__(self):
         # The dictionary that implements dispatching correct methods for any MapItem class
         self.type_methods = {GroundTile: self.create_tile_widget,
                              Actor: self.create_actor_widget,
-                             Item: self.create_item_widget}
+                             Item: self.create_item_widget,
+                             Construction: self.create_construction_widget}
 
     def create_widget(self, item):
         """
@@ -107,12 +121,17 @@ class TileWidgetFactory(object):
                                  size_hint=(None, None))
         return item.widget
 
+    def create_construction_widget(self, constr):
+        constr.widget = ConstructionWidget(source=constr.image_source, size=(32, 32),
+                                           size_hint=(None, None))
+        return constr.widget
+
 class MapFactory(object):
     def __init__(self):
         pass
 
     def create_test_map(self):
-        map = RLMap(size=(20, 20), layers=['bg', 'items', 'actors'])
+        map = RLMap(size=(20, 20), layers=['bg', 'constructions', 'items', 'actors'])
         for x in range(20):
             map.add_item(item=GroundTile(passable=False, image_source='Tmp_frame.png'),
                          layer='bg',
@@ -134,11 +153,11 @@ class MapFactory(object):
                                                                  effect_value=[2, 3]))]),
                                 image_source='PC.png'),
                      location=(5, 5), layer='actors')
-        map.add_item(item=Actor(player=False, name='NPC2', controller=AIController(), fighter=FighterComponent(),
+        map.add_item(item=Actor(player=False, controller=AIController(), fighter=FighterComponent(),
                                 descriptor=DescriptorComponent(name='NPC2'),
                                 image_source='NPC.png'),
                      location=(3, 5), layer='actors')
-        map.add_item(item=Actor(player=False, name='NPC1', controller=AIController(),
+        map.add_item(item=Actor(player=False, controller=AIController(),
                                 fighter=FighterComponent(),
                                 descriptor=DescriptorComponent(name='NPC1'),
                                 image_source='NPC.png'
@@ -148,4 +167,6 @@ class MapFactory(object):
                                          effect=FighterTargetedEffect(effect_type='heal',
                                                                       effect_value=[2,3])),
                      location=(8, 5), layer='items')
+        map.add_item(item=Construction(image_source='DownStairs.png'),
+                     location=(10, 10), layer='constructions')
         return map

@@ -36,7 +36,7 @@ class GameEvent(object):
 
 
 class Actor(MapItem):
-    def __init__(self, player=False, name='Unnamed actor',
+    def __init__(self, player=False,
                  image_source='NPC.png',
                  controller=None, fighter=None, descriptor=None,
                  inventory=None,
@@ -79,7 +79,7 @@ class Actor(MapItem):
         """
         self.map = map
         self.layer = layer
-        #  Cast the type: location attribute was a tuple
+        #  Cast the type: location attribute was possibly a tuple
         self.location = list(location)
 
     def attach_controller(self, controller):
