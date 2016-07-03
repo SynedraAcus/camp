@@ -181,9 +181,27 @@ class AIController(Controller):
         :param location:
         :return:
         """
-        pass
+        dx = self.actor.location[0]-location[0]
+        dy = self.actor.location[1]-location[1]
+        #  Walk horizontally or vertically if dx and dy differ twofold or more
+        #  Diagonally otherwise
+        if abs(dx) > 2*abs(dy):
+            c = Command(command_type='walk', command_value=(1 if dx < 0 else -1, 0))
+        elif abs(dy) > 2*abs(dx):
+            c = Command(command_type='walk', command_value=(0, 1 if dy < 0 else -1))
+        else:
+            c = Command(command_type='walk', command_value=(1 if dx < 0 else -1,
+                                                            1 if dy < 0 else -1))
+        if not self._should_walk((self.actor.location[0]+c.command_value[0],
+                                  self.actor.location[1]+c.command_value[1])):
+            c = Command(command_type='wait')
+        return c
 
     def choose_actor_action(self):
+        """
+        Main AI routine. Currently is terribly crude and inefficient.
+        :return:
+        """
         #  Fight combat-capable neighbours from enemy factions, if any
         neighbours = self.actor.map.get_neighbours(layer='actors', location=self.actor.location)
         neighbours = list(filter(self._should_attack, neighbours))
@@ -193,8 +211,13 @@ class AIController(Controller):
                                         command_value=(victim.location[0]-self.actor.location[0],
                                                        victim.location[1]-self.actor.location[1]))
         else:
-            if self._should_walk((self.actor.location[0]+1, self.actor.location[1]+1)):
-                self.last_command = Command(command_type='walk',
-                                            command_value=(1, 1))
-            else:
-                self.last_command = Command(command_type='wait')
+            #  Find all visible actors of 'pc' faction and walk towards closest
+            enemies = self.get_visible_items(layer='actors', filter_function=lambda a: a.faction.faction=='pc')
+            #  Select closest one
+            min_dist = 10000 #  Just a magic number obviously higher than any distance
+            closest_loc = (0, 0)
+            for a in enemies:
+                if self.actor.map.distance(self.actor.location, a.location) < min_dist:
+                    closest_loc = a.location
+                    min_dist = self.actor.map.distance(self.actor.location, a.location)
+            self.last_command = self.get_command_towards(closest_loc)

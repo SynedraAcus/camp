@@ -4,6 +4,7 @@
 
 from Actor import Actor, GameEvent
 from Constructions import Construction
+from math import sqrt
 
 class RLMap(object):
     def __init__(self, size=(10, 10), layers = ['default']):
@@ -106,6 +107,9 @@ class RLMap(object):
         #  Actor object will be garbage-collected. Please note that this method does not handle
         #  widget deletion. That one should be called according to GameEvent somehow
         #  Actor objects remain briefly within Controller method and are then kept in the inventory
+        #  via Item.owner.actor
+
+    #  Some primitive map analysis
 
     def get_neighbours(self, layer='default', location=(None, None)):
         """
@@ -119,6 +123,17 @@ class RLMap(object):
         # Filter out Nones and the item at (x, y)
         l = list(filter(lambda x: x is not None and not x.location == location, l))
         return l
+
+    #  This isn't static method, because I intend to replace it by some proper distance calculation
+    #  with pathfinding instead of a current euclidean placeholder sometime in the future
+    def distance(self, location1=(None, None), location2=(None, None)):
+        """
+        Calculate distance between two locations
+        :param location1:
+        :param location2:
+        :return:
+        """
+        return sqrt((location1[0]-location2[0])**2+(location1[1]-location2[1])**2)
 
     def extend_log(self, item):
         """

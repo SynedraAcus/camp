@@ -144,7 +144,6 @@ class FactionComponent(Component):
         :return:
         """
         if other.faction in self.enemies:
-            print(self.enemies)
             return True
         else:
             return False
