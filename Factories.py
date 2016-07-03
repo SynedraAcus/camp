@@ -10,7 +10,7 @@ from Map import RLMap
 from MapItem import GroundTile, MapItem
 from Actor import Actor
 from Constructions import Construction, Spawner
-from Components import FighterComponent, DescriptorComponent, InventoryComponent
+from Components import FighterComponent, DescriptorComponent, InventoryComponent, FactionComponent
 from Controller import PlayerController, AIController
 from Items import PotionTypeItem, Item
 from Effects import FighterTargetedEffect
@@ -143,6 +143,9 @@ class MapFactory(object):
                 map.add_item(item=GroundTile(passable=True, image_source='Tile_passable.png'),
                              layer='bg',
                              location=(x, y))
+        #  Adding PC and NPCs
+        pc_faction = FactionComponent(faction='pc', enemies=['npc'])
+        npc_faction = FactionComponent(faction='npc', enemies=['pc'])
         map.add_item(item=Actor(player=True, controller=PlayerController(),
                                 fighter=FighterComponent(),
                                 descriptor=DescriptorComponent(name='PC',
@@ -151,15 +154,17 @@ class MapFactory(object):
                                     name='Health Bottle 2|3',
                                     effect=FighterTargetedEffect(effect_type='heal',
                                                                  effect_value=[2, 3]))]),
+                                faction = pc_faction,
                                 image_source='PC.png'),
                      location=(5, 5), layer='actors')
         map.add_item(item=Actor(player=False, controller=AIController(), fighter=FighterComponent(),
-                                descriptor=DescriptorComponent(name='NPC2'),
+                                descriptor=DescriptorComponent(name='NPC2'), faction=npc_faction,
                                 image_source='NPC.png'),
-                     location=(3, 5), layer='actors')
+                     location=(3, 3), layer='actors')
         map.add_item(item=Actor(player=False, controller=AIController(),
                                 fighter=FighterComponent(),
                                 descriptor=DescriptorComponent(name='NPC1'),
+                                faction=pc_faction,
                                 image_source='NPC.png'
                                 ),
                      location=(2, 2), layer='actors')
@@ -167,6 +172,7 @@ class MapFactory(object):
                                          effect=FighterTargetedEffect(effect_type='heal',
                                                                       effect_value=[2,3])),
                      location=(8, 5), layer='items')
-        map.add_item(item=Spawner(image_source='DownStairs.png'),
+        map.add_item(item=Spawner(image_source='DownStairs.png',
+                                  faction=pc_faction),
                      location=(10, 10), layer='constructions')
         return map

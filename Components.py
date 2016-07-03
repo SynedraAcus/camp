@@ -134,7 +134,8 @@ class FactionComponent(Component):
         """
         if other.faction == self.faction or other.faction in self.allies:
             return True
-        return False
+        else:
+            return False
 
     def is_enemy(self, other):
         """
@@ -142,6 +143,8 @@ class FactionComponent(Component):
         :param other: FactionComponent
         :return:
         """
-        if other.faction in self.enemies:
+        print('Checking')
+        if not other.faction == self.faction and other.faction in self.enemies:
             return True
-        return False
+        else:
+            return False

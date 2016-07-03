@@ -71,7 +71,7 @@ class Spawner(Construction):
                                      layer='actors'):
                 #  Only spawn if the tile is empty
                 baby = Actor(player=False, controller=AIController(), fighter=FighterComponent(),
-                             descriptor=DescriptorComponent(name='NPC2'),
+                             descriptor=DescriptorComponent(name='NPC2'), faction=self.faction,
                              image_source='NPC.png')
                 self.map.add_item(item=baby, location=self.location, layer='actors')
                 self.map.game_events.append(GameEvent(event_type='spawned', location=self.location,
