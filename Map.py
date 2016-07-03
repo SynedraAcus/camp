@@ -61,8 +61,9 @@ class RLMap(object):
         """
         self.items[layer][location[0]][location[1]] = item
         if isinstance(item, Actor) or isinstance(item, Construction):
-            self.actors.append(item)
             item.connect_to_map(map=self, location=location, layer=layer)
+        if isinstance(item, Actor):
+            self.actors.append(item)
 
     def has_item(self, layer='default', location=(None, None)):
         """

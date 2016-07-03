@@ -133,14 +133,14 @@ class MapFactory(object):
     def create_test_map(self):
         map = RLMap(size=(20, 20), layers=['bg', 'constructions', 'items', 'actors'])
         for x in range(20):
-            map.add_item(item=GroundTile(passable=False, image_source='Tmp_frame.png'),
+            map.add_item(item=Construction(passable=False, image_source='Tile_impassable.png'),
                          layer='bg',
                          location=(x, 0))
-            map.add_item(item=GroundTile(passable=False, image_source='Tmp_frame.png'),
+            map.add_item(item=Construction(passable=False, image_source='Tile_impassable.png'),
                          layer='bg',
                          location=(x, 19))
             for y in range(1, 19):
-                map.add_item(item=GroundTile(passable=True, image_source='Tmp_frame.png'),
+                map.add_item(item=GroundTile(passable=True, image_source='Tile_passable.png'),
                              layer='bg',
                              location=(x, y))
         map.add_item(item=Actor(player=True, controller=PlayerController(),

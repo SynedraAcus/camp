@@ -18,7 +18,8 @@ class Construction(MapItem):
                  fighter = None,
                  descriptor = None,
                  inventory = None,
-                 controller = None):
+                 controller = None,
+                 **kwargs):
         super(Construction, self).__init__(**kwargs)
         #  Components
         self.fighter = fighter
