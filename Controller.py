@@ -172,6 +172,16 @@ class AIController(Controller):
         l = tuple(filter(filter_function, l))
         return l
 
+    def get_command_towards(self, location):
+        """
+        Return Command for a step towards location
+        Return 'walk' command with either dx, dy or both that moves an actor towards desired location.
+        No checks are made, other that coordinates should change in the right direction and there should be
+        no obstacles.
+        :param location:
+        :return:
+        """
+        pass
 
     def choose_actor_action(self):
         #  Fight combat-capable neighbours from enemy factions, if any
