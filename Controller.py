@@ -167,8 +167,9 @@ class AIController(Controller):
         :return:
         """
         #  Fight combat-capable neighbours from enemy factions, if any
-        neighbours = self.actor.map.get_neighbours(layer='actors', location=self.actor.location)
+        neighbours = self.actor.map.get_neighbours(layers=['actors', 'constructions'], location=self.actor.location)
         neighbours = list(filter(self._should_attack, neighbours))
+        # print(len(neighbours))
         if len(neighbours) > 0:
             victim = random.choice(neighbours)
             self.last_command = Command(command_type='walk',

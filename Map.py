@@ -113,15 +113,17 @@ class RLMap(object):
 
     #  Some primitive map analysis
 
-    def get_neighbours(self, layer='default', location=(None, None)):
+    def get_neighbours(self, layers=['default'], location=(None, None)):
         """
-        Get all the items in the cells connected to this one on a given layer
-        :param layer:
-        :param location:
+        Get all the items in the cells connected to this one on given layers
+        :param layers: list of layers of interest
+        :param location: location
         :return:
         """
-        l = [self.get_item(layer=layer, location=(x, y))for x in range(location[0]-1, location[0]+2)
-                                                        for y in range(location[1]-1, location[1]+2)]
+        l = []
+        for layer in layers:
+            l += [self.get_item(layer=layer, location=(x, y))for x in range(location[0]-1, location[0]+2)
+                                                            for y in range(location[1]-1, location[1]+2)]
         # Filter out Nones and the item at (x, y)
         l = list(filter(lambda x: x is not None and not x.location == location, l))
         return l
