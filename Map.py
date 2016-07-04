@@ -67,6 +67,7 @@ class RLMap(object):
             item.connect_to_map(map=self, location=location, layer=layer)
         if isinstance(item, Actor):
             self.actors.append(item)
+            print('Adding')
         if isinstance(item, Construction):
             self.constructions.append(item)
 

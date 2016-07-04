@@ -56,11 +56,11 @@ class PlayerController(Controller):
     """
     def __init__(self):
         super(Controller, self).__init__()
-        self.commands = {}
+        # self.commands = {}
 
     def take_keycode(self, keycode):
         """
-        Take the keycodeis that will be processed during actor's next turn. Return True if the keycode is
+        Take the keycodes that will be processed during actor's next turn. Return True if the keycode is
         recognised, False otherwise.
         :param keycode: keycode
         :return: bool

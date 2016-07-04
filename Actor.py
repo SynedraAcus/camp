@@ -70,7 +70,6 @@ class Actor(MapItem):
         self.image_source = image_source
         self.widget = None
         self.map = None
-        self.controller = None
         self.location = []
 
     def connect_to_map(self, map=None, layer=None, location=(None, None)):
