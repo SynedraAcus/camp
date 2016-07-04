@@ -150,7 +150,7 @@ class RLMap(object):
         for layer in self.items.keys():
             try:
                 tile = self.get_item(layer=layer, location=location)
-                if tile is not None and tile.passable == False:
+                if tile is not None and not tile.passable:
                     #  Empty tiles are no problem: there may be a lot of those in eg actor layers
                     ret = False
                     break

@@ -142,10 +142,10 @@ class Actor(MapItem):
         collision_occured = False
         try:
             for item in self.map.get_column(location):
-                if type(item) is Actor:
-                    #  No need to collide with tiles or something
-                    if item.collide(self):
-                        collision_occured = True
+                # if type(item) is Actor:
+                #     #  No need to collide with tiles or something
+                if item.collide(self):
+                    collision_occured = True
         except IndexError:
             #  Attempts to collide with something outside map boundaries are silently ignored
             pass
