@@ -54,6 +54,34 @@ class Construction(MapItem):
         self.layer = layer
         self.location = location
 
+    def collide(self, other):
+        """ Collision callback: get bumped into by some other actor.
+        :param other: Actor
+        :return:
+        """
+        if self.fighter and other.fighter:
+            a = other.fighter.attack()
+            d = self.fighter.defense()
+            self.map.game_events.append(GameEvent(event_type='attacked',
+                                                  actor=other, location=self.location))
+            if a > d:
+                self.fighter.hp -= a-d
+                self.map.extend_log('{1} hit {0} for {2} damage ({3}/{4})'.format(self.descriptor.name,
+                                                                                  other.descriptor.name,
+                                                                                  a-d, a, d))
+            else:
+                self.map.extend_log('{1} missed {0}({3}/{4})'.format(self.descriptor.name,
+                                                                     other.descriptor.name,
+                                                                     a, d))
+            if self.fighter.hp <= 0:
+                self.map.extend_log('{} was destroyed'.format(self.descriptor.name))
+                self.map.game_events.append(GameEvent(event_type='was_destroyed',
+                                                      actor=self))
+                self.map.delete_item(layer='constructions', location=self.location)
+                #  By this moment GameEvent should be the only thing holding the actor reference.
+                #  When it is animated and then removed, Actor instance will be forgotten
+            return True
+
 
 class Spawner(Construction):
     """

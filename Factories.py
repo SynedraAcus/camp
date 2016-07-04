@@ -165,7 +165,8 @@ class MapFactory(object):
                                                                       image_source='Headless.png',
                                                                       passable=False,
                                                                       fighter=FighterComponent(),
-                                                                      faction=pc_faction)
+                                                                      faction=pc_faction,
+                                                                      descriptor=DescriptorComponent(name='Headless dude'))
                                                                   ))
                                 ]),
                                 faction = pc_faction,
