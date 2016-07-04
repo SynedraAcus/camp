@@ -163,7 +163,9 @@ class MapFactory(object):
                                                                   map=map,
                                                                   effect_value=Construction(
                                                                       image_source='Headless.png',
-                                                                      passable=False)
+                                                                      passable=False,
+                                                                      fighter=FighterComponent(),
+                                                                      faction=pc_faction)
                                                                   ))
                                 ]),
                                 faction = pc_faction,
@@ -173,7 +175,7 @@ class MapFactory(object):
                                 fighter=FighterComponent(),
                                 descriptor=DescriptorComponent(name='NPC2'), faction=npc_faction,
                                 image_source='NPC.png'),
-                     location=(6, 6), layer='actors')
+                     location=(16, 16), layer='actors')
         map.add_item(item=PotionTypeItem(name='Health bottle 2|3',
                                          effect=FighterTargetedEffect(effect_type='heal',
                                                                       effect_value=[2, 3])),
