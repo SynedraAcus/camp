@@ -31,16 +31,14 @@ class Construction(MapItem):
         self.descriptor = descriptor
         self.inventory = inventory
         self.controller = controller
-        self.faction=faction
+        self.faction = faction
         #  Image
         self.image_source = image_source
         #  These are to be set by self.connect_to_map
         self.map = None
         self.location = None
         self.layer = None
-
-    def make_turn(self):
-        pass
+        print(self.controller)
 
     def connect_to_map(self, layer='constructions', map=None, location=None):
         """
@@ -81,6 +79,9 @@ class Construction(MapItem):
                 #  By this moment GameEvent should be the only thing holding the actor reference.
                 #  When it is animated and then removed, Actor instance will be forgotten
             return True
+
+    def make_turn(self):
+        pass
 
 
 class Spawner(Construction):

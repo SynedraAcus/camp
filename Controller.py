@@ -187,6 +187,7 @@ class AIController(Controller):
                     min_dist = self.actor.map.distance(self.actor.location, a.location)
             self.last_command = self.get_command_towards(closest_loc)
 
+
 class FighterSpawnController(Controller):
     """
     A controller for immobile melee fighter. Basically a stripped-down AIController.

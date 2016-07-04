@@ -11,7 +11,7 @@ from MapItem import GroundTile, MapItem
 from Actor import Actor
 from Constructions import Construction, Spawner
 from Components import FighterComponent, DescriptorComponent, InventoryComponent, FactionComponent
-from Controller import PlayerController, AIController
+from Controller import PlayerController, AIController, FighterSpawnController
 from Items import PotionTypeItem, Item
 from Effects import FighterTargetedEffect, TileTargetedEffect
 
@@ -166,7 +166,9 @@ class MapFactory(object):
                                                                       passable=False,
                                                                       fighter=FighterComponent(),
                                                                       faction=pc_faction,
-                                                                      descriptor=DescriptorComponent(name='Headless dude'))
+                                                                      descriptor=DescriptorComponent(name='Headless dude'),
+                                                                      controller=FighterSpawnController()),
+
                                                                   ))
                                 ]),
                                 faction = pc_faction,
