@@ -82,6 +82,7 @@ class ConstructionWidget(Widget):
     def update_img(self, a, b):
         self.img.pos = self.pos
 
+
 class TileWidgetFactory(object):
     def __init__(self):
         # The dictionary that implements dispatching correct methods for any MapItem class
@@ -126,6 +127,7 @@ class TileWidgetFactory(object):
                                            size_hint=(None, None))
         return constr.widget
 
+
 class MapFactory(object):
     def __init__(self):
         pass
@@ -157,10 +159,11 @@ class MapFactory(object):
                                 faction = pc_faction,
                                 image_source='PC.png'),
                      location=(5, 5), layer='actors')
-        map.add_item(item=Actor(player=False, controller=AIController(), fighter=FighterComponent(),
+        map.add_item(item=Actor(player=False, controller=AIController(),
+                                fighter=FighterComponent(),
                                 descriptor=DescriptorComponent(name='NPC2'), faction=npc_faction,
                                 image_source='NPC.png'),
-                     location=(16, 15), layer='actors')
+                     location=(6, 6), layer='actors')
         map.add_item(item=PotionTypeItem(name='Health bottle 2|3',
                                          effect=FighterTargetedEffect(effect_type='heal',
                                                                       effect_value=[2, 3])),

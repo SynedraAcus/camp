@@ -185,3 +185,20 @@ class AIController(Controller):
                     closest_loc = a.location
                     min_dist = self.actor.map.distance(self.actor.location, a.location)
             self.last_command = self.get_command_towards(closest_loc)
+
+class FighterSpawnController(Controller):
+    """
+    A controller for immobile melee fighter. Basically a stripped-down AIController.
+    It attacks any enemy that gets nearby, but does nothing else.
+    """
+    def choose_actor_action(self):
+        #  Fight combat-capable neighbours from enemy factions, if any
+        neighbours = self.actor.map.get_neighbours(layer='actors', location=self.actor.location)
+        neighbours = list(filter(self._should_attack, neighbours))
+        if len(neighbours) > 0:
+            victim = random.choice(neighbours)
+            self.last_command = Command(command_type='walk',
+                                        command_value=(victim.location[0]-self.actor.location[0],
+                                                       victim.location[1]-self.actor.location[1]))
+        else:
+            self.last_command = Command(command_type='wait')
