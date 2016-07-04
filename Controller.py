@@ -80,7 +80,9 @@ class PlayerController(Controller):
 
 class AIController(Controller):
     """
-    Controller subclass that just orders walk_9 at every turn
+    Controller subclass that controls a generic AI enemy.
+    Is blindly rushes towards nearest visible enemy (ie someone of player faction)
+    and charges them in melee
     """
     def __init__(self):
         super(AIController, self).__init__()
