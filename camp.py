@@ -315,7 +315,7 @@ class RLMapWidget(RelativeLayout):
         :return:
         """
         if widget.height < 1:
-            print('ASD')
+            print(widget.parent)
             #  If the widget was given zero size, this means it should be removed
             #  This entire affair, including creating placeholder widget on every iteration,
             #  is kinda inefficient and should be rebuilt later
