@@ -48,45 +48,6 @@ class Controller(object):
         self.last_command = None
         return r
 
-
-class PlayerController(Controller):
-    """
-    Controller subclass that allows processing Commands.
-    It also parses the keys
-    """
-    def __init__(self):
-        super(Controller, self).__init__()
-        # self.commands = {}
-
-    def take_keycode(self, keycode):
-        """
-        Take the keycodes that will be processed during actor's next turn. Return True if the keycode is
-        recognised, False otherwise.
-        :param keycode: keycode
-        :return: bool
-        """
-        self.accept_command(self.commands[keycode[1]])
-        return True
-
-    accepted_command_types = ('walk', 'use_item', 'wait', 'grab', 'drop_item')
-
-    def accept_command(self, command):
-        if command.command_type not in self.accepted_command_types:
-            raise ValueError('Invalid command passed to Controller instance')
-        else:
-            self.last_command = command
-            return True
-
-
-class AIController(Controller):
-    """
-    Controller subclass that controls a generic AI enemy.
-    Is blindly rushes towards nearest visible enemy (ie someone of player faction)
-    and charges them in melee
-    """
-    def __init__(self):
-        super(AIController, self).__init__()
-
     def _should_attack(self, other):
         """
         Decide whether Actor should attack other Actor in melee
@@ -160,6 +121,45 @@ class AIController(Controller):
                                   self.actor.location[1]+c.command_value[1])):
             c = Command(command_type='wait')
         return c
+
+
+class PlayerController(Controller):
+    """
+    Controller subclass that allows processing Commands.
+    It also parses the keys
+    """
+    def __init__(self):
+        super(Controller, self).__init__()
+        # self.commands = {}
+
+    def take_keycode(self, keycode):
+        """
+        Take the keycodes that will be processed during actor's next turn. Return True if the keycode is
+        recognised, False otherwise.
+        :param keycode: keycode
+        :return: bool
+        """
+        self.accept_command(self.commands[keycode[1]])
+        return True
+
+    accepted_command_types = ('walk', 'use_item', 'wait', 'grab', 'drop_item')
+
+    def accept_command(self, command):
+        if command.command_type not in self.accepted_command_types:
+            raise ValueError('Invalid command passed to Controller instance')
+        else:
+            self.last_command = command
+            return True
+
+
+class AIController(Controller):
+    """
+    Controller subclass that controls a generic AI enemy.
+    Is blindly rushes towards nearest visible enemy (ie someone of player faction)
+    and charges them in melee
+    """
+    def __init__(self, **kwargs):
+        super(AIController, self).__init__(**kwargs)
 
     def choose_actor_action(self):
         """
