@@ -77,7 +77,7 @@ class Construction(MapItem):
                 self.map.extend_log('{} was destroyed'.format(self.descriptor.name))
                 self.map.game_events.append(GameEvent(event_type='was_destroyed',
                                                       actor=self))
-                self.map.delete_item(layer='constructions', location=self.location)
+                self.map.delete_item(layer=self.layer, location=self.location)
                 #  By this moment GameEvent should be the only thing holding the actor reference.
                 #  When it is animated and then removed, Actor instance will be forgotten
             return True
