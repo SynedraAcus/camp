@@ -3,6 +3,7 @@ Item classes for the stuff that may be put in the inventories
 """
 
 from MapItem import MapItem
+from Effects import FighterTargetedEffect, TileTargetedEffect
 
 
 class Item(MapItem):
@@ -37,10 +38,20 @@ class PotionTypeItem(Item):
     def use(self):
         """
         Spend this item: apply effect, remove it from inventory and send a message to game log
+        Returns True if using item was possible (not necessary successful!)
         :return:
         """
-        self.effect.affect(self.owner.actor)
-        self.owner.actor.map.extend_log('{0} used {1}'.format(self.owner.actor.descriptor.name,
-                                                              self.name))
-        self.owner.remove(self)
-        return True
+        #  Use effect on an appropriate target
+        if isinstance(self.effect, FighterTargetedEffect):
+            r = self.effect.affect(self.owner.actor)
+        elif isinstance(self.effect, TileTargetedEffect):
+            r = self.effect.affect(self.owner.actor.location)
+        #  Log usage and return result
+        if r:
+            self.owner.actor.map.extend_log('{0} used {1}'.format(self.owner.actor.descriptor.name,
+                                                                  self.name))
+            self.owner.remove(self)
+            return True
+        else:
+            return False
+

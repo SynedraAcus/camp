@@ -13,7 +13,7 @@ from Constructions import Construction, Spawner
 from Components import FighterComponent, DescriptorComponent, InventoryComponent, FactionComponent
 from Controller import PlayerController, AIController
 from Items import PotionTypeItem, Item
-from Effects import FighterTargetedEffect
+from Effects import FighterTargetedEffect, TileTargetedEffect
 
 class ActorWidget(Widget):
     """
@@ -152,10 +152,20 @@ class MapFactory(object):
                                 fighter=FighterComponent(),
                                 descriptor=DescriptorComponent(name='PC',
                                                                 description='Player-controlled dude'),
-                                inventory=InventoryComponent(initial_items=[PotionTypeItem(
-                                    name='Health Bottle 2|3',
-                                    effect=FighterTargetedEffect(effect_type='heal',
-                                                                 effect_value=[2, 3]))]),
+                                inventory=InventoryComponent(initial_items=[
+                                    PotionTypeItem(
+                                        name='Health Bottle 2|3',
+                                        effect=FighterTargetedEffect(effect_type='heal',
+                                                                     effect_value=[2, 3])),
+                                    PotionTypeItem(
+                                        name='Spawning flag',
+                                        effect=TileTargetedEffect(effect_type='spawn_construction',
+                                                                  map=map,
+                                                                  effect_value=Construction(
+                                                                      image_source='Headless.png',
+                                                                      passable=False)
+                                                                  ))
+                                ]),
                                 faction = pc_faction,
                                 image_source='PC.png'),
                      location=(5, 5), layer='actors')
