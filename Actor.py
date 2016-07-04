@@ -5,7 +5,6 @@ functioning, but are not, strictly speaking, related to graphics
 
 from Controller import Controller, PlayerController, AIController
 from MapItem import MapItem
-from Components import FighterComponent, InventoryComponent, DescriptorComponent
 
 
 class GameEvent(object):
@@ -23,7 +22,8 @@ class GameEvent(object):
                         'log_updated',
                         'picked_up',
                         'dropped',
-                        'spawned')
+                        'actor_spawned',
+                        'construction_spawned')
 
     def __init__(self, event_type=None, actor=None, location=None):
         assert isinstance(event_type, str) and event_type in self.acceptable_types
@@ -57,8 +57,8 @@ class Actor(MapItem):
         if descriptor:
             self.descriptor = descriptor
             self.descriptor.actor = self
-        else:
-            self.descriptor = DescriptorComponent()
+        # else:
+        #     self.descriptor = DescriptorComponent()
         #  Inventory component
         if inventory:
             self.inventory = inventory

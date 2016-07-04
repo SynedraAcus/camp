@@ -76,5 +76,5 @@ class Spawner(Construction):
                              descriptor=DescriptorComponent(name='NPC2'), faction=self.faction,
                              image_source='NPC.png')
                 self.map.add_item(item=baby, location=self.location, layer='actors')
-                self.map.game_events.append(GameEvent(event_type='spawned', location=self.location,
+                self.map.game_events.append(GameEvent(event_type='actor_spawned', location=self.location,
                                                       actor=baby))

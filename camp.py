@@ -357,12 +357,19 @@ class RLMapWidget(RelativeLayout):
                     item.widget.pos = self.get_screen_pos(event.location)
                 self.layer_widgets['items'].add_widget(item.widget)
                 self.process_game_event()
-            elif event.event_type == 'spawned':
+            elif event.event_type == 'actor_spawned':
                 a = event.actor
                 if not a.widget:
                     self.tile_factory.create_widget(a)
                     a.widget.pos = self.get_screen_pos(event.location)
                 self.layer_widgets['actors'].add_widget(a.widget)
+                self.process_game_event()
+            elif event.event_type == 'construction_spawned':
+                a = event.actor
+                if not a.widget:
+                    self.tile_factory.create_widget(a)
+                    a.widget.pos = self.get_screen_pos(event.location)
+                self.layer_widgets['constructions'].add_widget(a.widget)
                 self.process_game_event()
         else:
             #  Reactivating keyboard after finishing animation

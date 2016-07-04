@@ -2,7 +2,7 @@
 Various effects for potions, spells, events and so on
 """
 
-# from Actor import GameEvent
+from Actor import GameEvent
 from random import choice
 
 class Effect(object):
@@ -40,6 +40,9 @@ class TileTargetedEffect(Effect):
             #  Spawn something in construction layer unless there already is something
             if not self.map.get_item(location=location, layer='constructions'):
                 self.map.add_item(item=self.effect_value, location=location, layer='constructions')
+                self.map.game_events.append(GameEvent(event_type='construction_spawned',
+                                                      actor=self.effect_value,
+                                                      location=location))
                 return True
             else:
                 return False
