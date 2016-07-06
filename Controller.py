@@ -132,16 +132,6 @@ class PlayerController(Controller):
         super(Controller, self).__init__()
         # self.commands = {}
 
-    def take_keycode(self, keycode):
-        """
-        Take the keycodes that will be processed during actor's next turn. Return True if the keycode is
-        recognised, False otherwise.
-        :param keycode: keycode
-        :return: bool
-        """
-        self.accept_command(self.commands[keycode[1]])
-        return True
-
     accepted_command_types = ('walk', 'use_item', 'wait', 'grab', 'drop_item')
 
     def accept_command(self, command):
