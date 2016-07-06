@@ -9,7 +9,7 @@ from kivy.graphics import Rectangle, BindTexture
 from Map import RLMap
 from MapItem import GroundTile, MapItem
 from Actor import Actor
-from Constructions import Construction, Spawner
+from Constructions import Construction, FighterConstruction, Spawner
 from Components import FighterComponent, DescriptorComponent, InventoryComponent, FactionComponent
 from Controller import PlayerController, AIController, FighterSpawnController
 from Items import PotionTypeItem, Item
@@ -161,7 +161,7 @@ class MapFactory(object):
                                         name='Spawning flag',
                                         effect=TileTargetedEffect(effect_type='spawn_construction',
                                                                   map=map,
-                                                                  effect_value=Construction(
+                                                                  effect_value=FighterConstruction(
                                                                       image_source='Headless.png',
                                                                       passable=False,
                                                                       fighter=FighterComponent(),

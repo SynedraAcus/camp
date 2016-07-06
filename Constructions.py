@@ -31,6 +31,8 @@ class Construction(MapItem):
         self.descriptor = descriptor
         self.inventory = inventory
         self.controller = controller
+        if self.controller:
+            self.controller.actor = self
         self.faction = faction
         #  Image
         self.image_source = image_source
@@ -107,3 +109,49 @@ class Spawner(Construction):
                 self.map.add_item(item=baby, location=self.location, layer='actors')
                 self.map.game_events.append(GameEvent(event_type='actor_spawned', location=self.location,
                                                       actor=baby))
+
+class FighterConstruction(Construction):
+    """
+    Melee fighter construction. Supports 'move' method to enable melee combat
+    """
+    def make_turn(self):
+        self.controller.choose_actor_action()
+        self.controller.call_actor_method()
+
+    def move(self, location=(None, None)):
+        """
+        Move self to a location. Returns True after a successful movement
+        and False if it turns out to be impossible. Movement is considered successful if
+        collision occured even if the actor didn't actually move.
+        :param location: tuple
+        :return: bool
+        """
+        # Passability should be detected before collision. In general these two concepts are unrelated
+        # but collision may change passability. In that case actor should enter the tile only on the next
+        # turn, having wasted current one on cleaning the obstacle or killing enemy
+        passability = self.map.entrance_possible(location)
+        # Check if collision has occured
+        collision_occured = False
+        try:
+            for item in self.map.get_column(location):
+                # if type(item) is Actor:
+                #     #  No need to collide with tiles or something
+                if item.collide(self):
+                    collision_occured = True
+        except IndexError:
+            #  Attempts to collide with something outside map boundaries are silently ignored
+            pass
+        moved = False
+        if passability:
+            self.map.move_item(layer=self.layer,
+                               old_location=self.location,
+                               new_location=location)
+            self.location = location
+            self.map.game_events.append(GameEvent(event_type='moved',
+                                                  actor=self))
+            moved = True
+            self.widget.last_move_animated = False
+        return moved or collision_occured
+
+    def pause(self):
+        pass

@@ -185,9 +185,10 @@ class FighterSpawnController(Controller):
     """
     def choose_actor_action(self):
         #  Fight combat-capable neighbours from enemy factions, if any
-        neighbours = self.actor.map.get_neighbours(layer='actors', location=self.actor.location)
+        neighbours = self.actor.map.get_neighbours(layers=['actors', 'constructions'], location=self.actor.location)
         neighbours = list(filter(self._should_attack, neighbours))
         if len(neighbours) > 0:
+            print('Wanna fight')
             victim = random.choice(neighbours)
             self.last_command = Command(command_type='walk',
                                         command_value=(victim.location[0]-self.actor.location[0],
