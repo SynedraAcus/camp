@@ -19,11 +19,23 @@ class FighterComponent(Component):
     """
     The component that provides the actor with combat capabilities
     """
-    def __init__(self, hp=5, attacks=(1, 2, 3), defenses=(0, 0, 1), **kwargs):
+    def __init__(self, max_hp=5, attacks=(1, 2, 3), defenses=(0, 0, 1), **kwargs):
         super(FighterComponent, self).__init__(**kwargs)
-        self.hp = hp
+        self.max_hp = max_hp
+        self._hp = max_hp
         self.attacks = attacks
         self.defenses = defenses
+
+    @property
+    def hp(self):
+        return self._hp
+
+    @hp.setter
+    def hp(self, hp):
+        if hp > self.max_hp:
+            self._hp = self.max_hp
+        else:
+            self._hp = hp
 
     def attack(self):
         return choice(self.attacks)
