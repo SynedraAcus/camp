@@ -4,6 +4,7 @@ Component classes that add various functionality to Actors
 
 from random import choice
 from Items import Item
+from GameEvent import GameEvent
 
 
 class Component(object):

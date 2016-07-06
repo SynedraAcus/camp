@@ -2,9 +2,10 @@
 #  These contain only the information about things in game and some gameplay logic, so they don't inherit from
 #  any of Kivy classes. MVC and all that.
 
-from Actor import Actor, GameEvent
+from Actor import Actor
 from Constructions import Construction
 from math import sqrt
+from GameEvent import GameEvent
 
 
 class RLMap(object):
