@@ -128,6 +128,7 @@ class Actor(MapItem):
                 #     #  No need to collide with tiles or something
                 if item.collide(self):
                     collision_occured = True
+                    break
         except IndexError:
             #  Attempts to collide with something outside map boundaries are silently ignored
             pass
