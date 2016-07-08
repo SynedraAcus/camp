@@ -1,4 +1,7 @@
-#  This file contains various Factory classes for the Expedition Camp project
+"""
+Various factories, generating functions and other things.
+Creates both Widgets and MapItems
+"""
 
 from kivy.uix.image import Image
 from kivy.core.image import Image as CoreImage
@@ -131,7 +134,8 @@ class TileWidgetFactory(object):
 
 def make_random_item():
     """
-    Return a random item from a list defined inside the procedure
+    Return a random item from a list defined inside the procedure.
+    Some items cannot be created when map is not available, so a RLMap instance should be supplied
     :return:
     """
     items = [PotionTypeItem(name='Bottle',
@@ -139,16 +143,41 @@ def make_random_item():
                                                          effect_value=[2, 3])),
              PotionTypeItem(name='Spawning flag',
                             effect=TileTargetedEffect(effect_type='spawn_construction',
-                                                      map=map,
+                                                      map=None,
                                                       effect_value=FighterConstruction(
+                                                          passable=False,
                                                           image_source='Headless.png',
                                                           fighter=FighterComponent(),
                                                           faction=FactionComponent(faction='pc',
-                                                                                   enemies='npc'),
+                                                                                   enemies=['npc']),
                                                           descriptor=DescriptorComponent(name='Headless dude'),
-                                                          controller=FighterSpawnController
+                                                          controller=FighterSpawnController(),
                                                       )))]
     return choice(items)
+
+
+class ActorFactory(object):
+    """
+    Factory that produces Actors of a given faction
+    """
+    def __init__(self, faction):
+        assert isinstance(faction, FactionComponent)
+        self.faction = faction
+
+    def create_thug(self):
+        """
+        Creates a simple melee combatant. It has default FighterComponent
+        and all the other components are (temporarily?) hardcoded
+        :return:
+        """
+        return Actor(player=False, image_source='NPC.png',
+                     controller=AIController(),
+                     fighter=FighterComponent(),
+                     descriptor=DescriptorComponent(name='A regular thug',
+                                                    description='Not particularly smart, but also rarely alone'),
+                     inventory=InventoryComponent(volume=1,
+                                                  initial_items=[make_random_item()]),
+                     faction=self.faction)
 
 
 class MapFactory(object):
@@ -171,6 +200,7 @@ class MapFactory(object):
         #  Adding PC and NPCs
         pc_faction = FactionComponent(faction='pc', enemies=['npc'])
         npc_faction = FactionComponent(faction='npc', enemies=['pc'])
+        thug_factory = ActorFactory(faction=npc_faction)
         map.add_item(item=Actor(player=True, controller=PlayerController(),
                                 fighter=FighterComponent(),
                                 descriptor=DescriptorComponent(name='PC',
@@ -180,19 +210,22 @@ class MapFactory(object):
                                 faction = pc_faction,
                                 image_source='PC.png'),
                      location=(5, 5), layer='actors')
-        map.add_item(item=Actor(player=False, controller=AIController(),
-                                fighter=FighterComponent(),
-                                descriptor=DescriptorComponent(name='NPC2'),
-                                faction=npc_faction,
-                                inventory=InventoryComponent(volume=1,
-                                                             initial_items=[make_random_item()]),
-                                image_source='NPC.png'),
+        # map.add_item(item=Actor(player=False, controller=AIController(),
+        #                         fighter=FighterComponent(),
+        #                         descriptor=DescriptorComponent(name='NPC2'),
+        #                         faction=npc_faction,
+        #                         inventory=InventoryComponent(volume=1,
+        #                                                      initial_items=[make_random_item()]),
+        #                         image_source='NPC.png'),
+        #              location=(16, 16), layer='actors')
+        map.add_item(item=ActorFactory(faction=npc_faction).create_thug(),
                      location=(16, 16), layer='actors')
         map.add_item(item=PotionTypeItem(name='Health bottle 2|3',
                                          effect=FighterTargetedEffect(effect_type='heal',
                                                                       effect_value=[2, 3])),
                      location=(8, 5), layer='items')
         map.add_item(item=Spawner(image_source='DownStairs.png',
-                                  faction=npc_faction),
+                                  faction=npc_faction,
+                                  spawn_factory=thug_factory),
                      location=(17, 17), layer='constructions')
         return map

@@ -7,8 +7,6 @@ from Effects import FighterTargetedEffect, TileTargetedEffect
 from Components import *
 
 
-
-
 class Item(MapItem):
     """
     Base class for the inventory item. Inherits from MapItem to allow placing items on map.

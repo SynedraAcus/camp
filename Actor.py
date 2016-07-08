@@ -59,6 +59,12 @@ class Actor(MapItem):
         self.layer = layer
         #  Cast the type: location attribute was possibly a tuple
         self.location = list(location)
+        #  Effects of Items in actor's can possibly need to know about the map as well
+        #  Items themselves don't need it because they can look in self.owner.actor.map
+        if self.inventory and len(self.inventory)>0:
+            for i in self.inventory:
+                if hasattr(i.effect, 'map'):
+                    i.effect.map = map
 
     def attach_controller(self, controller):
         """
