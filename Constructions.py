@@ -40,7 +40,6 @@ class Construction(MapItem):
         self.map = None
         self.location = None
         self.layer = None
-        print(self.controller)
 
     def connect_to_map(self, layer='constructions', map=None, location=None):
         """
