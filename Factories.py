@@ -14,6 +14,7 @@ from Components import FighterComponent, DescriptorComponent, InventoryComponent
 from Controller import PlayerController, AIController, FighterSpawnController
 from Items import PotionTypeItem, Item
 from Effects import FighterTargetedEffect, TileTargetedEffect
+from random import choice
 
 class ActorWidget(Widget):
     """
@@ -128,6 +129,28 @@ class TileWidgetFactory(object):
         return constr.widget
 
 
+def make_random_item():
+    """
+    Return a random item from a list defined inside the procedure
+    :return:
+    """
+    items = [PotionTypeItem(name='Bottle',
+                            effect=FighterTargetedEffect(effect_type='heal',
+                                                         effect_value=[2, 3])),
+             PotionTypeItem(name='Spawning flag',
+                            effect=TileTargetedEffect(effect_type='spawn_construction',
+                                                      map=map,
+                                                      effect_value=FighterConstruction(
+                                                          image_source='Headless.png',
+                                                          fighter=FighterComponent(),
+                                                          faction=FactionComponent(faction='pc',
+                                                                                   enemies='npc'),
+                                                          descriptor=DescriptorComponent(name='Headless dude'),
+                                                          controller=FighterSpawnController
+                                                      )))]
+    return choice(items)
+
+
 class MapFactory(object):
     def __init__(self):
         pass
@@ -152,25 +175,8 @@ class MapFactory(object):
                                 fighter=FighterComponent(),
                                 descriptor=DescriptorComponent(name='PC',
                                                                 description='Player-controlled dude'),
-                                inventory=InventoryComponent(initial_items=[
-                                    PotionTypeItem(
-                                        name='Health Bottle 2|3',
-                                        effect=FighterTargetedEffect(effect_type='heal',
-                                                                     effect_value=[2, 3])),
-                                    PotionTypeItem(
-                                        name='Spawning flag',
-                                        effect=TileTargetedEffect(effect_type='spawn_construction',
-                                                                  map=map,
-                                                                  effect_value=FighterConstruction(
-                                                                      image_source='Headless.png',
-                                                                      passable=False,
-                                                                      fighter=FighterComponent(),
-                                                                      faction=pc_faction,
-                                                                      descriptor=DescriptorComponent(name='Headless dude'),
-                                                                      controller=FighterSpawnController()),
-
-                                                                  ))
-                                ]),
+                                inventory=InventoryComponent(initial_items=[make_random_item(),
+                                                                            make_random_item()]),
                                 faction = pc_faction,
                                 image_source='PC.png'),
                      location=(5, 5), layer='actors')
@@ -179,11 +185,7 @@ class MapFactory(object):
                                 descriptor=DescriptorComponent(name='NPC2'),
                                 faction=npc_faction,
                                 inventory=InventoryComponent(volume=1,
-                                                             initial_items=[PotionTypeItem(
-                                                                 name='Bottle 2|3',
-                                                                 effect=FighterTargetedEffect(effect_type='heal',
-                                                                                              effect_value=[2,3])
-                                                             )]),
+                                                             initial_items=[make_random_item()]),
                                 image_source='NPC.png'),
                      location=(16, 16), layer='actors')
         map.add_item(item=PotionTypeItem(name='Health bottle 2|3',

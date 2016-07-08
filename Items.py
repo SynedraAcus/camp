@@ -4,6 +4,9 @@ Item classes for the stuff that may be put in the inventories
 
 from MapItem import MapItem
 from Effects import FighterTargetedEffect, TileTargetedEffect
+from Components import *
+
+
 
 
 class Item(MapItem):
