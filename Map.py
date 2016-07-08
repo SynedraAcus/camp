@@ -100,13 +100,15 @@ class RLMap(object):
         :param location: int tuple
         :return:
         """
-        self.items[layer][location[0]][location[1]] = None
         #  If the item deleted is an actor, it should be removed from self.actors as well as
-        #  from self.items.
+        #  from self.items. Same 4 constructions
         if isinstance(self.items[layer][location[0]][location[1]], Actor):
+            print('Removed actor')
             self.actors.remove(self.items[layer][location[0]][location[1]])
         if isinstance(self.items[layer][location[0]][location[1]], Construction):
+            print('Removed construction')
             self.constructions.remove(self.items[layer][location[0]][location[1]])
+        self.items[layer][location[0]][location[1]] = None
         #  If no other references exist (when this executes, one should probably be in GameEvent)
         #  Actor object will be garbage-collected. Please note that this method does not handle
         #  widget deletion. That one should be called according to GameEvent somehow

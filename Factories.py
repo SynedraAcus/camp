@@ -215,6 +215,7 @@ class MapFactory(object):
                      location=(16, 16), layer='actors')
         map.add_item(item=make_random_item(),
                      location=(8, 5), layer='items')
+        map.get_item(location=(8, 5), layer='items').effect.map = map
         map.add_item(item=Spawner(image_source='DownStairs.png',
                                   faction=npc_faction,
                                   spawn_factory=thug_factory),
