@@ -121,7 +121,7 @@ class TileWidgetFactory(object):
         return widget
 
     def create_item_widget(self, item):
-        s = 'Bottle.png'
+        s = item.image_source
         item.widget = ItemWidget(source=s, size=(32, 32),
                                  size_hint=(None, None))
         return item.widget
@@ -142,6 +142,7 @@ def make_random_item():
                             effect=FighterTargetedEffect(effect_type='heal',
                                                          effect_value=[2, 3])),
              PotionTypeItem(name='Spawning flag',
+                            image_source='Flag.png',
                             effect=TileTargetedEffect(effect_type='spawn_construction',
                                                       map=None,
                                                       effect_value=FighterConstruction(
@@ -210,19 +211,9 @@ class MapFactory(object):
                                 faction = pc_faction,
                                 image_source='PC.png'),
                      location=(5, 5), layer='actors')
-        # map.add_item(item=Actor(player=False, controller=AIController(),
-        #                         fighter=FighterComponent(),
-        #                         descriptor=DescriptorComponent(name='NPC2'),
-        #                         faction=npc_faction,
-        #                         inventory=InventoryComponent(volume=1,
-        #                                                      initial_items=[make_random_item()]),
-        #                         image_source='NPC.png'),
-        #              location=(16, 16), layer='actors')
-        map.add_item(item=ActorFactory(faction=npc_faction).create_thug(),
+        map.add_item(thug_factory.create_thug(),
                      location=(16, 16), layer='actors')
-        map.add_item(item=PotionTypeItem(name='Health bottle 2|3',
-                                         effect=FighterTargetedEffect(effect_type='heal',
-                                                                      effect_value=[2, 3])),
+        map.add_item(item=make_random_item(),
                      location=(8, 5), layer='items')
         map.add_item(item=Spawner(image_source='DownStairs.png',
                                   faction=npc_faction,

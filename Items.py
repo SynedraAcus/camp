@@ -16,6 +16,7 @@ class Item(MapItem):
         self.name = name
         #  Owner is an inventory component, not an actor
         self.owner = owner
+        self.image_source=image_source
 
     def use(self):
         """
