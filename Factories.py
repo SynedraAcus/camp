@@ -171,7 +171,7 @@ class ActorFactory(object):
         and all the other components are (temporarily?) hardcoded
         :return:
         """
-        return Actor(player=False, image_source='NPC.png',
+        return Actor(image_source='NPC.png',
                      controller=AIController(),
                      fighter=FighterComponent(),
                      descriptor=DescriptorComponent(name='A regular thug',
@@ -202,7 +202,7 @@ class MapFactory(object):
         pc_faction = FactionComponent(faction='pc', enemies=['npc'])
         npc_faction = FactionComponent(faction='npc', enemies=['pc'])
         thug_factory = ActorFactory(faction=npc_faction)
-        map.add_item(item=Actor(player=True, controller=PlayerController(),
+        map.add_item(item=Actor(controller=PlayerController(),
                                 fighter=FighterComponent(),
                                 descriptor=DescriptorComponent(name='PC',
                                                                 description='Player-controlled dude'),

@@ -245,7 +245,6 @@ class GameWidget(RelativeLayout):
         Updating the log window under the map.
         :return:
         """
-        pass
         self.log_widget.text = '\n'.join(self.map_widget.map.game_log[-3:])
 
 

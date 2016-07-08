@@ -12,7 +12,7 @@ from GameEvent import GameEvent
 
 
 class Actor(MapItem):
-    def __init__(self, player=False,
+    def __init__(self,
                  image_source='NPC.png',
                  controller=None, fighter=None, descriptor=None,
                  inventory=None, faction=None,
@@ -23,7 +23,6 @@ class Actor(MapItem):
             kwargs.update({'passable': False})
         super(Actor, self).__init__(**kwargs)
         #  Set to true if this is a player-controlled actor
-        self.player = player
         self.attach_controller(controller)
         #  Combat component
         self.fighter = fighter
@@ -33,8 +32,6 @@ class Actor(MapItem):
         if descriptor:
             self.descriptor = descriptor
             self.descriptor.actor = self
-        # else:
-        #     self.descriptor = DescriptorComponent()
         #  Inventory component
         self.inventory = inventory
         if inventory:
@@ -76,18 +73,6 @@ class Actor(MapItem):
         self.controller = controller
         self.controller.actor = self
 
-    def pass_command(self, keycode):
-        """
-        Pass the last key that was pressed. This method is intended to be called before make_turn() for
-        a player-controlled Actor, so that the Actor will do whatever player wants instead of making its
-        own decisions.
-        :param keycode: kivy keycode tuple
-        :return:
-        """
-        try:
-            self.controller.take_keycode(keycode)
-        except AttributeError:
-            raise NotImplementedError('Commands to non-player Actors are not implemented')
 
     def make_turn(self):
         """

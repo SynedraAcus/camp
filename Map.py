@@ -35,7 +35,7 @@ class RLMap(object):
         """
         moved_item=self.get_item(layer=layer, location=old_location)
         self.items[layer][new_location[0]][new_location[1]] = moved_item
-        self.empty_map_tile(layer=layer, location=old_location)
+        self.items[layer][old_location[0]][old_location[1]] = None
 
     def get_item(self, layer='default', location=(0, 0)):
         """
@@ -83,16 +83,6 @@ class RLMap(object):
         else:
             return False
 
-    def empty_map_tile(self, layer='default', location=(None, None)):
-        """
-        Remove whatever is at the given layer and location. Do not actually
-        try to remove all references to the object in question, just empty tile
-        :param layer:
-        :param location:
-        :return:
-        """
-        self.items[layer][location[0]][location[1]] = None
-
     def delete_item(self, layer='default', location=(None, None)):
         """
         Delete the item at a given location, removing all references to it in the map object
@@ -103,10 +93,8 @@ class RLMap(object):
         #  If the item deleted is an actor, it should be removed from self.actors as well as
         #  from self.items. Same 4 constructions
         if isinstance(self.items[layer][location[0]][location[1]], Actor):
-            print('Removed actor')
             self.actors.remove(self.items[layer][location[0]][location[1]])
         if isinstance(self.items[layer][location[0]][location[1]], Construction):
-            print('Removed construction')
             self.constructions.remove(self.items[layer][location[0]][location[1]])
         self.items[layer][location[0]][location[1]] = None
         #  If no other references exist (when this executes, one should probably be in GameEvent)
