@@ -106,6 +106,8 @@ class RLMap(object):
         #  from self.items.
         if isinstance(self.items[layer][location[0]][location[1]], Actor):
             self.actors.remove(self.items[layer][location[0]][location[1]])
+        if isinstance(self.items[layer][location[0]][location[1]], Construction):
+            self.constructions.remove(self.items[layer][location[0]][location[1]])
         #  If no other references exist (when this executes, one should probably be in GameEvent)
         #  Actor object will be garbage-collected. Please note that this method does not handle
         #  widget deletion. That one should be called according to GameEvent somehow

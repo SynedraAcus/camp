@@ -79,7 +79,7 @@ class Construction(MapItem):
                                                       actor=self))
                 self.map.delete_item(layer=self.layer, location=self.location)
                 #  By this moment GameEvent should be the only thing holding the actor reference.
-                #  When it is animated and then removed, Actor instance will be forgotten
+                #  When it is animated and then removed, Construction instance will be forgotten
             return True
 
     def make_turn(self):
