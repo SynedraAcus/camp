@@ -217,9 +217,14 @@ class Actor(MapItem):
                                                                      other.descriptor.name,
                                                                      a, d))
             if self.fighter.hp <= 0:
+                #  Death
                 self.map.extend_log('{} was killed'.format(self.descriptor.name))
                 self.map.game_events.append(GameEvent(event_type='was_destroyed',
                                                       actor=self))
+                if self.inventory and len(self.inventory) > 0:
+                    #  Drop the first inventory item if the tile is empty
+                    if not self.map.get_item(layer='items', location=self.location):
+                        self.drop_item(0)
                 self.map.delete_item(layer='actors', location=self.location)
                 #  By this moment GameEvent should be the only thing holding the actor reference.
                 #  When it is animated and then removed, Actor instance will be forgotten

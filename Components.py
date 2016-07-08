@@ -115,6 +115,9 @@ class InventoryComponent(Component):
         item.owner = None
         self.items.remove(item)
 
+    def __len__(self):
+        return len(self.items)
+
     def get_string(self):
         """
         Get a string representation of inventory

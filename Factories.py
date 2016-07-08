@@ -176,7 +176,14 @@ class MapFactory(object):
                      location=(5, 5), layer='actors')
         map.add_item(item=Actor(player=False, controller=AIController(),
                                 fighter=FighterComponent(),
-                                descriptor=DescriptorComponent(name='NPC2'), faction=npc_faction,
+                                descriptor=DescriptorComponent(name='NPC2'),
+                                faction=npc_faction,
+                                inventory=InventoryComponent(volume=1,
+                                                             initial_items=[PotionTypeItem(
+                                                                 name='Bottle 2|3',
+                                                                 effect=FighterTargetedEffect(effect_type='heal',
+                                                                                              effect_value=[2,3])
+                                                             )]),
                                 image_source='NPC.png'),
                      location=(16, 16), layer='actors')
         map.add_item(item=PotionTypeItem(name='Health bottle 2|3',
