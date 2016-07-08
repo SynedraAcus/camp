@@ -304,7 +304,7 @@ class RLMapWidget(RelativeLayout):
     #  Stuff related to animation
     #
 ########################################## ###############
-    def process_game_event(self, widget=Widget(), anim_duration=0.3):
+    def process_game_event(self, widget=None, anim_duration=0.3):
         """
         Process a single event from self.map.game_events.
         Read the event and perform the correct actions on widgets (such as update text of log window,
@@ -314,7 +314,7 @@ class RLMapWidget(RelativeLayout):
         empty.
         :return:
         """
-        if widget.height < 1:
+        if widget and widget.parent and widget.height < 1:
             #  If the widget was given zero size, this means it should be removed
             #  This entire affair, including creating placeholder widget on every iteration,
             #  is kinda inefficient and should be rebuilt later
@@ -333,7 +333,7 @@ class RLMapWidget(RelativeLayout):
                 a = Animation(x=current[0]+int((target[0]-current[0])/2),
                               y=current[1]+int((target[1]-current[1])/2),
                               duration=anim_duration/2)
-                a += Animation(x = current[0], y=current[1], duration=anim_duration/2)
+                a += Animation(x=current[0], y=current[1], duration=anim_duration/2)
                 a.bind(on_start=lambda x, y: self.remember_anim(),
                        on_complete=lambda x, y: self.process_game_event(widget=y))
                 a.start(event.actor.widget)
@@ -343,11 +343,6 @@ class RLMapWidget(RelativeLayout):
                 a.bind(on_start=lambda x, y: self.remember_anim(),
                        on_complete=lambda x, y: self.process_game_event(widget=y))
                 a.start(event.actor.widget)
-            # elif event.event_type == 'construction_destroyed':
-            #     a = Animation(size=(0, 0), duration=anim_duration)
-            #     a.bind(on_start=lambda x, y: self.remember_anim(),
-            #            on_complete=lambda x, y: self.process_game_event(y))
-            #     a.start(event.actor.widget)
             elif event.event_type == 'log_updated':
                 self.parent.update_log()
                 self.process_game_event()
