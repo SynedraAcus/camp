@@ -36,8 +36,8 @@ class Actor(MapItem):
         # else:
         #     self.descriptor = DescriptorComponent()
         #  Inventory component
+        self.inventory = inventory
         if inventory:
-            self.inventory = inventory
             self.inventory.actor = self
         #  Faction component
         self.faction = faction
