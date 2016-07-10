@@ -215,6 +215,12 @@ class MapFactory(object):
                      location=(16, 16), layer='actors')
         map.add_item(Trap(image_source='Mined.png'),
                      layer='constructions', location=(4, 5))
+        map.add_item(PotionTypeItem(name='Landmine',
+                                    image_source='Landmine.png',
+                                    effect=TileTargetedEffect(map=map,
+                                                              effect_type='spawn_construction',
+                                                              effect_value=Trap(image_source='Mined.png'))),
+                     layer='items', location=(4,4))
         map.add_item(item=make_random_item(),
                      location=(8, 5), layer='items')
         map.get_item(location=(8, 5), layer='items').effect.map = map

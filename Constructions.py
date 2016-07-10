@@ -168,7 +168,7 @@ class Trap(Construction):
         self.primed = False
 
     def make_turn(self):
-        if self.map.get_item(layer='actors', location=self.location):
+        if self.map.get_item(layer='actors', location=self.location) and self.primed:
             #  If there is an Actor on top of it
             self.map.game_events.append(GameEvent(event_type='exploded',
                                                   actor=self,
