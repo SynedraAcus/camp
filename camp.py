@@ -6,6 +6,7 @@ from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.image import Image
 from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.graphics import Color, Rectangle
@@ -297,6 +298,8 @@ class RLMapWidget(RelativeLayout):
             self.add_widget(self.layer_widgets[layer])
         #  This is set to True during animation to avoid mistakes
         self.animating = False
+        #  A temporary widget slot for stuff like explosions, spell effects and such
+        self.overlay_widget = None
 
 #########################################################
     #
@@ -370,6 +373,21 @@ class RLMapWidget(RelativeLayout):
                     a.widget.pos = self.get_screen_pos(event.location)
                 self.layer_widgets['constructions'].add_widget(a.widget)
                 self.process_game_event()
+            elif event.event_type == 'exploded':
+                loc = self.get_screen_pos(event.location)
+                loc = (loc[0]+16, loc[1]+16)
+                self.overlay_widget = Image(source='Explosion.png',
+                                            size=(0, 0),
+                                            size_hint=(None, None),
+                                            pos=loc)
+                a = Animation(size=(96, 96), pos=(loc[0]-32, loc[1]-32),
+                              duration=anim_duration)
+                a += Animation(size=(0, 0), pos=loc,
+                               duration=anim_duration)
+                a.bind(on_start=lambda x, y: self.remember_anim(),
+                       on_complete=lambda x, y: self.process_game_event(widget=y))
+                self.add_widget(self.overlay_widget)
+                a.start(self.overlay_widget)
         else:
             #  Reactivating keyboard after finishing animation
             self.animating = False

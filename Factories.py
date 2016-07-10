@@ -12,7 +12,7 @@ from kivy.graphics import Rectangle, BindTexture
 from Map import RLMap
 from MapItem import GroundTile, MapItem
 from Actor import Actor
-from Constructions import Construction, FighterConstruction, Spawner
+from Constructions import Construction, FighterConstruction, Spawner, Trap
 from Components import FighterComponent, DescriptorComponent, InventoryComponent, FactionComponent
 from Controller import PlayerController, AIController, FighterSpawnController
 from Items import PotionTypeItem, Item
@@ -213,6 +213,8 @@ class MapFactory(object):
                      location=(5, 5), layer='actors')
         map.add_item(thug_factory.create_thug(),
                      location=(16, 16), layer='actors')
+        map.add_item(Trap(image_source='Mined.png'),
+                     layer='constructions', location=(4, 5))
         map.add_item(item=make_random_item(),
                      location=(8, 5), layer='items')
         map.get_item(location=(8, 5), layer='items').effect.map = map

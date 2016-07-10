@@ -156,3 +156,30 @@ class FighterConstruction(Construction):
 
     def pause(self):
         pass
+
+
+class Trap(Construction):
+    """
+    A construction that acts if an Actor steps on it.
+    Currently is a hardcoded landmine (deals 5 damage to everything on its tile and neighbours)
+    """
+    def __init__(self, **kwargs):
+        super(Trap, self).__init__(**kwargs)
+        self.primed = False
+
+    def make_turn(self):
+        if self.map.get_item(layer='actors', location=self.location):
+            #  If there is an Actor on top of it
+            self.map.game_events.append(GameEvent(event_type='exploded',
+                                                  actor=self,
+                                                  location=self.location))
+            self.map.extend_log('A mine exploded')
+            self.map.delete_item(location=self.location,
+                                 layer=self.layer)
+            self.map.game_events.append(GameEvent(event_type='was_destroyed',
+                                                  actor=self))
+        else:
+            #  The landmine is primed when there is nobody on top of it.
+            #  This is to prevent landmine exploding under the player right after he used it
+            if not self.primed:
+                self.primed = True
