@@ -246,7 +246,10 @@ class GameWidget(RelativeLayout):
         Updating the log window under the map.
         :return:
         """
-        self.log_widget.text = '\n'.join(self.map_widget.map.game_log[-3:])
+        if len(self.map_widget.map.game_log) > 7:
+            self.log_widget.text = '\n'.join(self.map_widget.map.game_log[-7:])
+        else:
+            self.log_widget.text = '\n'.join(self.map_widget.map.game_log)
 
 
 class LayerWidget(RelativeLayout):
@@ -432,20 +435,21 @@ class CampApp(App):
         root = BoxLayout(orientation='vertical')
         map_factory = MapFactory()
         map = map_factory.create_test_map()
-        Window.size = (map.size[0]*32, map.size[1]*32+50)
         map_widget = RLMapWidget(map=map,
                                  size=(map.size[0]*32, map.size[1]*32),
                                  size_hint=(None, None),
-                                 pos=(0, 50))
+                                 pos=(0, 100))
         log_widget = LogWindow(id='log_window',
                                text='\n'.join(map.game_log[-3:]),
-                               size=(Window.size[0], 50),
+                               size=(map_widget.width, 100),
                                size_hint=(None, None),
                                pos=(0, 0),
-                               text_size=(Window.size[0], 50),
+                               text_size=(map_widget.width, 100),
+                               padding=(20, 5),
                                font_size=10,
                                valign='top',
                                line_height=1)
+        Window.size = (map_widget.width, map_widget.height+log_widget.height)
         game_widget = GameWidget(map_widget=map_widget,
                                  log_widget=log_widget,
                                  size=Window.size,

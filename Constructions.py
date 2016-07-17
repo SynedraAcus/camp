@@ -165,6 +165,9 @@ class Trap(Construction):
                                                   actor=self,
                                                   location=self.location))
             self.map.extend_log('A mine exploded')
+            #  This event should be shot before any other events caused by explosion
+            self.map.game_events.append(GameEvent(event_type='was_destroyed',
+                                                  actor=self))
             #  Damage Actor on the same tile, if any
             victim = self.map.get_item(layer='actors',
                                        location=self.location)
@@ -176,8 +179,7 @@ class Trap(Construction):
                     victim.fighter.get_damaged(5)
             self.map.delete_item(location=self.location,
                                  layer=self.layer)
-            self.map.game_events.append(GameEvent(event_type='was_destroyed',
-                                                  actor=self))
+
         else:
             #  The landmine is primed when there is nobody on top of it.
             #  This is to prevent landmine exploding under the player right after he used it

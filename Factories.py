@@ -153,7 +153,12 @@ def make_random_item():
                                                                                    enemies=['npc']),
                                                           descriptor=DescriptorComponent(name='Headless dude'),
                                                           controller=FighterSpawnController(),
-                                                      )))]
+                                                      ))),
+             PotionTypeItem(name='Landmine',
+                            image_source='Landmine.png',
+                            effect=TileTargetedEffect(effect_type='spawn_construction',
+                                                      map=None,
+                                                      effect_value=Trap(image_source='Mined.png')))]
     return choice(items)
 
 
@@ -186,15 +191,15 @@ class MapFactory(object):
         pass
 
     def create_test_map(self):
-        map = RLMap(size=(20, 20), layers=['bg', 'constructions', 'items', 'actors'])
+        map = RLMap(size=(20, 15), layers=['bg', 'constructions', 'items', 'actors'])
         for x in range(20):
             map.add_item(item=Construction(passable=False, image_source='Tree.png'),
                          layer='constructions',
                          location=(x, 0))
             map.add_item(item=Construction(passable=False, image_source='Tree.png'),
                          layer='constructions',
-                         location=(x, 19))
-            for y in range(20):
+                         location=(x, 14))
+            for y in range(15):
                 map.add_item(item=GroundTile(passable=True, image_source='Tile_passable.png'),
                              layer='bg',
                              location=(x, y))
@@ -212,20 +217,12 @@ class MapFactory(object):
                                 image_source='PC.png'),
                      location=(5, 5), layer='actors')
         map.add_item(thug_factory.create_thug(),
-                     location=(16, 16), layer='actors')
-        map.add_item(Trap(image_source='Mined.png'),
-                     layer='constructions', location=(4, 5))
-        map.add_item(PotionTypeItem(name='Landmine',
-                                    image_source='Landmine.png',
-                                    effect=TileTargetedEffect(map=map,
-                                                              effect_type='spawn_construction',
-                                                              effect_value=Trap(image_source='Mined.png'))),
-                     layer='items', location=(4,4))
+                     location=(16, 12), layer='actors')
         map.add_item(item=make_random_item(),
                      location=(8, 5), layer='items')
         map.get_item(location=(8, 5), layer='items').effect.map = map
         map.add_item(item=Spawner(image_source='DownStairs.png',
                                   faction=npc_faction,
                                   spawn_factory=thug_factory),
-                     location=(17, 17), layer='constructions')
+                     location=(17, 13), layer='constructions')
         return map
