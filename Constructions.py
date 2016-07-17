@@ -165,6 +165,15 @@ class Trap(Construction):
                                                   actor=self,
                                                   location=self.location))
             self.map.extend_log('A mine exploded')
+            #  Damage Actor on the same tile, if any
+            victim = self.map.get_item(layer='actors',
+                                       location=self.location)
+            victim.fighter.get_damaged(5)
+            #  Damage Actors and Constructions on neighbouring tiles
+            for victim in self.map.get_neighbours(location=self.location,
+                                                  layers=['actors', 'constructions']):
+                if victim.fighter:
+                    victim.fighter.get_damaged(5)
             self.map.delete_item(location=self.location,
                                  layer=self.layer)
             self.map.game_events.append(GameEvent(event_type='was_destroyed',
