@@ -227,7 +227,8 @@ class MapFactory(object):
                      location=(16, 12), layer='actors')
         map.add_item(item=Spawner(image_source='DownStairs.png',
                                   faction=npc_faction,
-                                  spawn_factory=thug_factory),
+                                  spawn_factory=thug_factory,
+                                  descriptor=DescriptorComponent(name='Dark hole in the ground')),
                      location=(17, 13), layer='constructions')
         #  Add 7 items in free tiles. Tiles with actors are considered free for this purpose
         for a in range(7):
