@@ -109,7 +109,8 @@ class GameWidget(RelativeLayout):
         self.add_widget(log_widget)
         #  Sound object
         self.boombox = {'moved': SoundLoader.load('dshoof.wav'),
-                        'attacked': SoundLoader.load('dspunch.wav')}
+                        'attacked': SoundLoader.load('dspunch.wav'),
+                        'exploded': SoundLoader.load('dsbarexp.wav')}
         #  Keyboard controls
         #  Initializing keyboard bindings and key lists
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
@@ -308,7 +309,7 @@ class RLMapWidget(RelativeLayout):
     #
     #  Stuff related to animation
     #
-########################################## ###############
+########################################## ###############label
     def process_game_event(self, widget=None, anim_duration=0.3):
         """
         Process a single event from self.map.game_events.
@@ -390,6 +391,7 @@ class RLMapWidget(RelativeLayout):
                 a.bind(on_start=lambda x, y: self.remember_anim(),
                        on_complete=lambda x, y: self.process_game_event(widget=y))
                 self.add_widget(self.overlay_widget)
+                self.parent.boombox['exploded'].play()
                 a.start(self.overlay_widget)
         else:
             #  Reactivating keyboard after finishing animation
