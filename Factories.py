@@ -17,7 +17,10 @@ from Components import FighterComponent, DescriptorComponent, InventoryComponent
 from Controller import PlayerController, AIController, FighterSpawnController
 from Items import PotionTypeItem, Item
 from Effects import FighterTargetedEffect, TileTargetedEffect
-from random import choice
+
+#  Other imports
+from random import choice, randint
+
 
 class ActorWidget(Widget):
     """
@@ -191,6 +194,10 @@ class MapFactory(object):
         pass
 
     def create_test_map(self):
+        """
+        A basic map generator. Places a single enemy spawner and several items.
+        :return:
+        """
         map = RLMap(size=(20, 15), layers=['bg', 'constructions', 'items', 'actors'])
         for x in range(20):
             map.add_item(item=Construction(passable=False, image_source='Tree.png'),
@@ -215,14 +222,22 @@ class MapFactory(object):
                                                                             make_random_item()]),
                                 faction = pc_faction,
                                 image_source='PC.png'),
-                     location=(5, 5), layer='actors')
+                     location=(2, 2), layer='actors')
         map.add_item(thug_factory.create_thug(),
                      location=(16, 12), layer='actors')
-        map.add_item(item=make_random_item(),
-                     location=(8, 5), layer='items')
-        map.get_item(location=(8, 5), layer='items').effect.map = map
         map.add_item(item=Spawner(image_source='DownStairs.png',
                                   faction=npc_faction,
                                   spawn_factory=thug_factory),
                      location=(17, 13), layer='constructions')
+        #  Add 7 items in free tiles. Tiles with actors are considered free for this purpose
+        for a in range(7):
+            while True:
+                pos = (randint(0, map.size[0]-1), randint(0, map.size[1]-1))
+                print(pos)
+                if not map.get_item(layer='items', location=pos)\
+                        and not map.get_item(layer='constructions', location=pos):
+                    map.add_item(item=make_random_item(),
+                                 location=pos, layer='items')
+                    map.get_item(location=pos, layer='items').effect.map = map
+                    break
         return map
