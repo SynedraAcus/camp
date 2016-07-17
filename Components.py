@@ -35,7 +35,7 @@ class FighterComponent(Component):
         """
         damage = attack - self.defense()
         if damage > 0:
-            self.actor.map.extend_log('{0} was hit for {1} damage'.format(self.actor.descriptor.name,
+            self.actor.map.extend_log('{0} was hit'.format(self.actor.descriptor.name,
                                                                           damage))
         else:
             self.actor.map.extend_log('{0} managed to evade the blow'.format(self.actor.descriptor.name))
@@ -63,6 +63,12 @@ class FighterComponent(Component):
         if hp > self.max_hp:
             self._hp = self.max_hp
         else:
+            if hp > self._hp:
+                self.actor.map.extend_log('{0} restored {1} health'.format(self.actor.descriptor.name,
+                                                                           hp-self._hp))
+            elif hp < self._hp:
+                self.actor.map.extend_log('{0} lost {1} health'.format(self.actor.descriptor.name,
+                                                                       self._hp-hp))
             self._hp = hp
 
     def attack(self):
