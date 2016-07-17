@@ -246,8 +246,8 @@ class GameWidget(RelativeLayout):
         Updating the log window under the map.
         :return:
         """
-        if len(self.map_widget.map.game_log) > 7:
-            self.log_widget.text = '\n'.join(self.map_widget.map.game_log[-7:])
+        if len(self.map_widget.map.game_log) > 6:
+            self.log_widget.text = '\n'.join(self.map_widget.map.game_log[-6:])
         else:
             self.log_widget.text = '\n'.join(self.map_widget.map.game_log)
 

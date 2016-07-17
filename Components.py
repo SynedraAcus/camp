@@ -41,11 +41,11 @@ class FighterComponent(Component):
             self.actor.map.extend_log('{0} managed to evade the blow'.format(self.actor.descriptor.name))
         self.hp -= damage
         if self.hp <= 0:
+            self.actor.map.extend_log('{0} was killed'.format(self.actor.descriptor.name))
             if self.actor.inventory and len(self.actor.inventory) > 0:
                 if not self.actor.map.get_item(location=self.actor.location,
                                                layer='items'):
                     self.actor.drop_item(0)
-            self.actor.map.extend_log('{0} was killed'.format(self.actor.descriptor.name))
             self.actor.map.delete_item(location=self.actor.location, layer=self.actor.layer)
             #  Layer is not hardcoded because there are Fighter Constructions
             #  Actor and Component should be garbage collected after this event fires, as there are no more
