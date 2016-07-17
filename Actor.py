@@ -23,18 +23,13 @@ class Actor(MapItem):
             kwargs.update({'passable': False})
         super(Actor, self).__init__(**kwargs)
         self.attach_controller(controller)
-        #  Combat component
         self.fighter = fighter
-        if self.fighter:  #  Might be None
-            self.fighter.actor = self
-        #  Description component
         if descriptor:
             self.descriptor = descriptor
-            self.descriptor.actor = self
-        #  Inventory component
         self.inventory = inventory
-        if inventory:
-            self.inventory.actor = self
+        for a in (self.fighter, self.inventory, self.controller, self.descriptor):
+            if a:
+                a.actor = self
         #  Faction component
         self.faction = faction
         self.image_source = image_source

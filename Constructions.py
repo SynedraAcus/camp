@@ -28,17 +28,12 @@ class Construction(MapItem):
         super(Construction, self).__init__(**kwargs)
         #  Components
         self.fighter = fighter
-        if self.fighter:
-            self.fighter.actor = self
         self.descriptor = descriptor
-        if self.descriptor:
-            self.descriptor.actor = self
         self.inventory = inventory
-        if self.inventory:
-            self.inventory.actor = self
         self.controller = controller
-        if self.controller:
-            self.controller.actor = self
+        for a in (self.fighter, self.inventory, self.controller, self.descriptor):
+            if a:
+                a.actor = self
         self.faction = faction
         #  Image
         self.image_source = image_source
