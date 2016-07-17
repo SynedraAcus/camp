@@ -22,11 +22,10 @@ class Actor(MapItem):
         if 'passable' not in kwargs.keys():
             kwargs.update({'passable': False})
         super(Actor, self).__init__(**kwargs)
-        #  Set to true if this is a player-controlled actor
         self.attach_controller(controller)
         #  Combat component
         self.fighter = fighter
-        if self.fighter: #  Might be None
+        if self.fighter:  #  Might be None
             self.fighter.actor = self
         #  Description component
         if descriptor:
@@ -38,9 +37,9 @@ class Actor(MapItem):
             self.inventory.actor = self
         #  Faction component
         self.faction = faction
+        self.image_source = image_source
         #  These attributes are not set by constructor: it is only defined when map factory
         # places the actor on the map
-        self.image_source = image_source
         self.widget = None
         self.map = None
         self.location = None
@@ -118,7 +117,7 @@ class Actor(MapItem):
             #  Attempts to collide with something outside map boundaries are silently ignored
             pass
         moved = False
-        if passability:
+        if not collision_occured and passability:
             self.map.move_item(layer=self.layer,
                                old_location=self.location,
                                new_location=location)
@@ -195,29 +194,8 @@ class Actor(MapItem):
         :return:
         """
         if self.fighter and other.fighter:
-            a = other.fighter.attack()
-            d = self.fighter.defense()
             self.map.game_events.append(GameEvent(event_type='attacked',
                                                   actor=other, location=self.location))
-            if a > d:
-                self.fighter.hp -= a-d
-                self.map.extend_log('{1} hit {0} for {2} damage ({3}/{4})'.format(self.descriptor.name,
-                                                                                  other.descriptor.name,
-                                                                                  a-d, a, d))
-            else:
-                self.map.extend_log('{1} missed {0}({3}/{4})'.format(self.descriptor.name,
-                                                                     other.descriptor.name,
-                                                                     a, d))
-            if self.fighter.hp <= 0:
-                #  Death
-                if self.inventory and len(self.inventory) > 0:
-                    #  Drop the first inventory item if the tile is empty
-                    if not self.map.get_item(layer='items', location=self.location):
-                        self.drop_item(0)
-                self.map.delete_item(layer='actors', location=self.location)
-                #  By this moment GameEvent should be the only thing holding the actor reference.
-                #  When it is animated and then removed, Actor instance will be forgotten
-                self.map.extend_log('{} was killed'.format(self.descriptor.name))
-                self.map.game_events.append(GameEvent(event_type='was_destroyed',
-                                                      actor=self))
+            self.fighter.get_damaged(other.fighter.attack())
+            #  Collision did happen and take colliding actor's turn, whether it damaged target or not
             return True

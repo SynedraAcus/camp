@@ -28,8 +28,14 @@ class Construction(MapItem):
         super(Construction, self).__init__(**kwargs)
         #  Components
         self.fighter = fighter
+        if self.fighter:
+            self.fighter.actor = self
         self.descriptor = descriptor
+        if self.descriptor:
+            self.descriptor.actor = self
         self.inventory = inventory
+        if self.inventory:
+            self.inventory.actor = self
         self.controller = controller
         if self.controller:
             self.controller.actor = self
@@ -59,26 +65,11 @@ class Construction(MapItem):
         :return:
         """
         if self.fighter and other.fighter:
-            a = other.fighter.attack()
-            d = self.fighter.defense()
+            #  Process melee attack
             self.map.game_events.append(GameEvent(event_type='attacked',
                                                   actor=other, location=self.location))
-            if a > d:
-                self.fighter.hp -= a-d
-                self.map.extend_log('{1} hit {0} for {2} damage ({3}/{4})'.format(self.descriptor.name,
-                                                                                  other.descriptor.name,
-                                                                                  a-d, a, d))
-            else:
-                self.map.extend_log('{1} missed {0}({3}/{4})'.format(self.descriptor.name,
-                                                                     other.descriptor.name,
-                                                                     a, d))
-            if self.fighter.hp <= 0:
-                self.map.extend_log('{} was destroyed'.format(self.descriptor.name))
-                self.map.game_events.append(GameEvent(event_type='was_destroyed',
-                                                      actor=self))
-                self.map.delete_item(layer=self.layer, location=self.location)
-                #  By this moment GameEvent should be the only thing holding the actor reference.
-                #  When it is animated and then removed, Construction instance will be forgotten
+            self.fighter.get_damaged(other.fighter.attack())
+            #  Collision did happen and take colliding actor's turn, whether it damaged target or not
             return True
 
     def make_turn(self):
@@ -143,7 +134,7 @@ class FighterConstruction(Construction):
             #  Attempts to collide with something outside map boundaries are silently ignored
             pass
         moved = False
-        if passability:
+        if not collision_occured and passability:
             self.map.move_item(layer=self.layer,
                                old_location=self.location,
                                new_location=location)

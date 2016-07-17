@@ -13,7 +13,6 @@ class GameEvent(object):
     """
     acceptable_types = ('moved',
                         'was_destroyed',
-                        # 'construction_destroyed',
                         'attacked',
                         'log_updated',
                         'picked_up',

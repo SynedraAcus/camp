@@ -27,12 +27,39 @@ class FighterComponent(Component):
         self.attacks = attacks
         self.defenses = defenses
 
+    def get_damaged(self, attack=0):
+        """
+        Be attacked for 'attack' damage, dying if necessary. Defense, if any, is applied.
+        :param attack: int
+        :return:
+        """
+        damage = attack - self.defense()
+        if damage > 0:
+            self.actor.map.extend_log('{0} was hit for {1} damage'.format(self.actor.descriptor.name,
+                                                                          damage))
+        else:
+            self.actor.map.extend_log('{0} managed to evade the blow'.format(self.actor.descriptor.name))
+        self.hp -= damage
+        if self.hp <= 0:
+            if self.actor.inventory and len(self.actor.inventory) > 0:
+                if not self.actor.map.get_item(location=self.actor.location,
+                                               layer='items'):
+                    self.actor.drop_item(0)
+            self.actor.map.extend_log('{0} was killed'.format(self.actor.descriptor.name))
+            self.actor.map.delete_item(location=self.actor.location, layer=self.actor.layer)
+            #  Layer is not hardcoded because there are Fighter Constructions
+            #  Actor and Component should be garbage collected after this event fires, as there are no more
+            #  references to them besides the event
+            self.actor.map.game_events.append(GameEvent(event_type='was_destroyed',
+                                                        actor=self.actor))
+
     @property
     def hp(self):
         return self._hp
 
     @hp.setter
     def hp(self, hp):
+        #  Only checking for HP overflow. Underflow (ie death) is covered by self.get_damaged
         if hp > self.max_hp:
             self._hp = self.max_hp
         else:
