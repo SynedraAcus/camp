@@ -111,6 +111,11 @@ class GameWidget(RelativeLayout):
         self.boombox = {'moved': SoundLoader.load('dshoof.wav'),
                         'attacked': SoundLoader.load('dspunch.wav'),
                         'exploded': SoundLoader.load('dsbarexp.wav')}
+        #  Sound in kivy seems to be loaded lazily. IE files are not actually read until they are necessary,
+        #  which leads to lags for up to half a second (on my computer at least). The following two lines are
+        #  forcing it to be read right now.
+        for sound in self.boombox.keys():
+            self.boombox[sound].seek(0)
         #  Keyboard controls
         #  Initializing keyboard bindings and key lists
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
