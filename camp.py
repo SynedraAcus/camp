@@ -19,6 +19,10 @@ from Factories import TileWidgetFactory, MapFactory
 from Controller import Command
 
 
+#  A collection of constants. Most definitely needs to be refactored into a proper option container
+DISPLAY_DIJKSTRA_MAP = True
+
+
 class KeyParser(object):
     """
     A class that contains methods for converting keycodes to Controller-compatible Commands, numbers
@@ -324,12 +328,12 @@ class RLMapWidget(RelativeLayout):
             self.add_widget(self.layer_widgets[layer])
         #  This is set to True during animation to avoid mistakes
         self.animating = False
-        #  Debugging Dijkstra map view
-        self.map.update_dijkstra()
-        self.dijkstra_widget = DijkstraWidget(parent=self)
-        self.add_widget(self.dijkstra_widget)
         #  A temporary widget slot for stuff like explosions, spell effects and such
         self.overlay_widget = None
+        #  Debugging Dijkstra map view
+        if DISPLAY_DIJKSTRA_MAP:
+            self.dijkstra_widget = DijkstraWidget(parent=self)
+            self.add_widget(self.dijkstra_widget)
 
 #########################################################
     #

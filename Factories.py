@@ -241,4 +241,6 @@ class MapFactory(object):
                                  location=pos, layer='items')
                     map.get_item(location=pos, layer='items').effect.map = map
                     break
+        #  Update Dijkstra maps
+        map.update_dijkstra()
         return map

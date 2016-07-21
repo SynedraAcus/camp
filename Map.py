@@ -178,8 +178,8 @@ class RLMap(object):
         """
         l = []
         for layer in layers:
-            l += [self.get_item(layer=layer, location=(x, y))for x in range(location[0]-1, location[0]+2)
-                                                            for y in range(location[1]-1, location[1]+2)]
+            l += [self.get_item(layer=layer, location=x)
+                  for x in self.get_neighbour_coordinates(location=location)]
         # Filter out Nones and the item at (x, y)
         l = list(filter(lambda x: x is not None and not x.location == location, l))
         return l
