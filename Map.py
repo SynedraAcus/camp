@@ -142,44 +142,6 @@ class RLMap(object):
         for construction in self.constructions:
             if construction.faction and construction.faction.faction == 'pc':
                 self._set_dijkstra_cell(location=construction.location, value=-2)
-        # #  Place initial values under the player, player-allied constructions and impassable things.
-        # #  This should be done every turn because player could potentially spawn constructions
-        # #  and change passability
-        # #  Set all passable tiles to 100
-        # for x in range(self.size[0]):
-        #     for y in range(self.size[1]):
-        #         if self.entrance_possible(location=(x, y)):
-        #            self.dijkstra[x][y] = 20
-        #         else:
-        #             self.dijkstra[x][y] = None
-        # for construction in self.constructions:
-        #     if construction.faction and construction.faction.faction == 'pc':
-        #         self.dijkstra[construction.location[0]][construction.location[1]] = -2
-        # #  Value actors above constructions. Also overwrite if player stands on allied construction
-        # for actor in self.actors:
-        #     if actor.faction.faction == 'pc':
-        #         self.dijkstra[actor.location[0]][actor.location[1]] = -5
-        #
-        # #  Traverse the map a-la cellular automaton until equilibrium
-        # has_changed = True
-        # while has_changed:
-        #     has_changed = False
-        #     #  Have the copy so that traversal order doesn't affect results
-        #     tmp = self.dijkstra[:][:]
-        #     for x in range(self.size[0]):
-        #         for y in range(self.size[1]):
-        #             #  Don't waste time on impassable tiles
-        #             if self.dijkstra[x][y]:
-        #
-        #                 neighbours = (self.dijkstra[j[0]][j[1]] for j in self.get_neighbour_coordinates(
-        #                     location=(x, y)))
-        #                 for n in neighbours:
-        #                     if n and self.dijkstra[x][y] - n >= 2:
-        #                         tmp[x][y] -= 1
-        #                         has_changed = True
-        #                         break
-        #     self.dijkstra = tmp[:][:]
-
 
     #  Operations on neighbours
 
