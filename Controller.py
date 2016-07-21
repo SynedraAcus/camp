@@ -182,6 +182,7 @@ class FighterSpawnController(Controller):
     """
     A controller for immobile melee fighter. Basically a stripped-down AIController.
     It attacks any enemy that gets nearby, but does nothing else.
+    Doesn't depend on Dijkstra map to find a victim
     """
     def choose_actor_action(self):
         #  Fight combat-capable neighbours from enemy factions, if any

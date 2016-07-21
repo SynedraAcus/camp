@@ -146,7 +146,6 @@ class RLMap(object):
                         for n in neighbours:
                             if n and self.dijkstra[x][y] - n >= 2:
                                 tmp[x][y] -= 1
-                                print('ASD')
                                 has_changed = True
                                 break
             self.dijkstra = tmp[:][:]

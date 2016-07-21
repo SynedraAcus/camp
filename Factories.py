@@ -234,7 +234,6 @@ class MapFactory(object):
         for a in range(7):
             while True:
                 pos = (randint(0, map.size[0]-1), randint(0, map.size[1]-1))
-                print(pos)
                 if not map.get_item(layer='items', location=pos)\
                         and not map.get_item(layer='constructions', location=pos):
                     map.add_item(item=make_random_item(),
