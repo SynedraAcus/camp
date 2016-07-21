@@ -13,7 +13,7 @@ class RLMap(object):
         self.size=size
         #  Initializing items container
         self.layers = layers
-        self.items = {l: [[None for x in range(size[1])] for y in range(size[0])] for l in layers}
+        self.items = {l: [[None for y in range(size[1])] for x in range(size[0])] for l in layers}
         #  Actors list
         self.actors = []
         self.constructions = []
@@ -22,6 +22,8 @@ class RLMap(object):
                          'All the text below will be in English, so I guess Latin log works as well']
         #  GameEvent list
         self.game_events = []
+        #  The Dijkstra map list, used for NPC pathfinding
+        self.dijkstra = [[None for y in range(self.size[1])] for x in range(self.size[0])]
 
     #  Actions on map items: addition, removal and so on
 
@@ -104,6 +106,68 @@ class RLMap(object):
         #  via Item.owner.actor
 
     #  Some primitive map analysis
+
+    def update_dijkstra(self):
+        """
+        Update the Dijkstra map based on positions of PC and any PC-allied constructions.
+        :return:
+        """
+        #  Place initial values under the player, player-allied constructions and impassable things.
+        #  This should be done every turn because player could potentially spawn constructions
+        #  and change passability
+        #  Set all passable tiles to 100
+        for x in range(self.size[0]):
+            for y in range(self.size[1]):
+                if self.entrance_possible(location=(x,y)):
+                   self.dijkstra[x][y] = 100
+                else:
+                    self.dijkstra[x][y] = None
+        for construction in self.constructions:
+            if construction.faction and construction.faction.faction == 'pc':
+                self.dijkstra[construction.location[0]][construction.location[1]] = -2
+        #  Value actors above constructions. Also overwrite if player stands on allied construction
+        for actor in self.actors:
+            if actor.faction.faction == 'pc':
+                self.dijkstra[actor.location[0]][actor.location[1]] = -5
+
+        #  Traverse the map a-la cellular automaton until equilibrium
+        has_changed = True
+        while has_changed:
+            has_changed = False
+            #  Have the copy so that traversal order doesn't affect results
+            tmp = self.dijkstra[:][:]
+            for x in range(self.size[0]):
+                for y in range(self.size[1]):
+                    #  Don't waste time on impassable tiles
+                    if self.dijkstra[x][y]:
+
+                        neighbours = (self.dijkstra[j[0]][j[1]] for j in self.get_neighbour_coordinates(
+                            location=(x, y)))
+                        for n in neighbours:
+                            if n and self.dijkstra[x][y] - n >= 2:
+                                tmp[x][y] -= 1
+                                print('ASD')
+                                has_changed = True
+                                break
+            self.dijkstra = tmp[:][:]
+
+    def get_neighbour_coordinates(self, location=(None, None)):
+        """
+        Get the locations of all valid neighbour tiles.
+        This method returns list of locations; for items, use get_neighbours()
+        :param location: tuple of int
+        :return:
+        """
+        ret = []
+        for x in range(location[0]-1, location[0]+2):
+            for y in range(location[1]-1, location[1]+2):
+                try:
+                    self.get_item(location=(x,y), layer='bg')
+                    ret.append((x, y))
+                except IndexError:
+                    pass
+        return ret
+
 
     def get_neighbours(self, layers=['default'], location=(None, None)):
         """

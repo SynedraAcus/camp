@@ -285,6 +285,23 @@ class LayerWidget(RelativeLayout):
                     tile_widget.pos = parent.get_screen_pos((x, y))
                     self.add_widget(tile_widget)
 
+class DijkstraWidget(RelativeLayout):
+    """
+    The widget that displays little numbers on every tile to allow debugging Dijkstra maps.
+    This widget is designed to be a child of RLMapWidget, so it relies on its methods
+    For such a crude testing thing I won't even write updating: let's just remove it and create
+    anew every time Dijkstra map is updated.
+    """
+    def __init__(self, parent = None, **kwargs):
+        super(DijkstraWidget, self).__init__(**kwargs)
+        for x in range(parent.map.size[0]):
+            for y in range(parent.map.size[1]):
+                self.add_widget(Label(size=(64, 64),
+                                      size_hint=(None,None),
+                                      pos=parent.get_screen_pos((x, y)),
+                                      text=str(parent.map.dijkstra[x][y]),
+                                      text_size=(64, 64),
+                                      font_size=7))
 
 class RLMapWidget(RelativeLayout):
     """
@@ -307,6 +324,10 @@ class RLMapWidget(RelativeLayout):
             self.add_widget(self.layer_widgets[layer])
         #  This is set to True during animation to avoid mistakes
         self.animating = False
+        #  Debugging Dijkstra map view
+        self.map.update_dijkstra()
+        self.dijkstra_widget = DijkstraWidget(parent=self)
+        self.add_widget(self.dijkstra_widget)
         #  A temporary widget slot for stuff like explosions, spell effects and such
         self.overlay_widget = None
 
@@ -432,6 +453,8 @@ class LogWindow(Label):
         with self.canvas.before:
             Color(1, 0, 0)
             Rectangle(size=self.size, pos=self.pos)
+
+
 
 
 class CampApp(App):
