@@ -20,7 +20,7 @@ from Controller import Command
 
 
 #  A collection of constants. Most definitely needs to be refactored into a proper option container
-DISPLAY_DIJKSTRA_MAP = False
+DISPLAY_DIJKSTRA_MAP = True
 
 class KeyParser(object):
     """
