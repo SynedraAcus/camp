@@ -175,6 +175,7 @@ class GameWidget(RelativeLayout):
                         #  If the player has managed to do something, draw results and let others work.
                         #  If not for this check, the player attempting to do impossible things will have
                         #  wasted a turn
+                        self.map_widget.map.update_dijkstra()
                         for actor in self.map_widget.map.actors[1:]:
                             actor.make_turn()
                         for construction in self.map_widget.map.constructions:
@@ -215,6 +216,7 @@ class GameWidget(RelativeLayout):
                         self.map_widget.map.actors[0].controller.accept_command(command)
                         r = self.map_widget.map.actors[0].make_turn()
                         if r:
+                            self.map_widget.map.update_dijkstra()
                             for actor in self.map_widget.map.actors[1:]:
                                 actor.make_turn()
                             for construction in self.map_widget.map.constructions:
@@ -235,6 +237,7 @@ class GameWidget(RelativeLayout):
                         self.map_widget.map.actors[0].controller.accept_command(command)
                         r = self.map_widget.map.actors[0].make_turn()
                         if r:
+                            self.map_widget.map.update_dijkstra()
                             for actor in self.map_widget.map.actors[1:]:
                                 actor.make_turn()
                             for construction in self.map_widget.map.constructions:
@@ -426,6 +429,11 @@ class RLMapWidget(RelativeLayout):
         else:
             #  Reactivating keyboard after finishing animation
             self.animating = False
+            #  Might as well be time to redraw the Dijkstra widget
+            if DISPLAY_DIJKSTRA_MAP:
+                self.remove_widget(self.dijkstra_widget)
+                self.dijkstra_widget = DijkstraWidget(parent=self)
+                self.add_widget(self.dijkstra_widget)
 
     def remember_anim(self):
         '''

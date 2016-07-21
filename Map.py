@@ -23,7 +23,7 @@ class RLMap(object):
         #  GameEvent list
         self.game_events = []
         #  The Dijkstra map list, used for NPC pathfinding
-        self.dijkstra = [[None for y in range(self.size[1])] for x in range(self.size[0])]
+        self.dijkstra = [[1000 for y in range(self.size[1])] for x in range(self.size[0])]
 
     #  Actions on map items: addition, removal and so on
 
@@ -105,50 +105,80 @@ class RLMap(object):
         #  Actor objects remain briefly within Controller method and are then kept in the inventory
         #  via Item.owner.actor
 
-    #  Some primitive map analysis
+    #  Dijkstra map
+
+    def _set_dijkstra_cell(self, location=(None, None), value=0):
+        """
+        Set Dijkstra value for a given cell.
+        This method sets Dijksrta value for a cell and, if any of the neighbouring cells have Dijkstra
+        value of more than value+1, calls itself on them recursively with value+1
+        :param location:
+        :param value:
+        :return:
+        """
+        self.dijkstra[location[0]][location[1]] = value
+        for n in self.get_neighbour_coordinates(location):
+            if self.dijkstra[n[0]][n[1]] > value + 1:
+                #  Check that there is neither impassable construction nor impassable bg item
+                #  Cannot call self.entrance_possible here, as that would also check the actor, and
+                #  cells under actors are subject to Dijkstra map calculations
+                c = self.get_item(layer='constructions', location=n)
+                bg = self.get_item(layer='bg', location=n)
+                if bg.passable and (not c or c.passable):
+                    self._set_dijkstra_cell(location=n, value=value+1)
 
     def update_dijkstra(self):
         """
         Update the Dijkstra map based on positions of PC and any PC-allied constructions.
         :return:
         """
-        #  Place initial values under the player, player-allied constructions and impassable things.
-        #  This should be done every turn because player could potentially spawn constructions
-        #  and change passability
-        #  Set all passable tiles to 100
-        for x in range(self.size[0]):
-            for y in range(self.size[1]):
-                if self.entrance_possible(location=(x,y)):
-                   self.dijkstra[x][y] = 100
-                else:
-                    self.dijkstra[x][y] = None
-        for construction in self.constructions:
-            if construction.faction and construction.faction.faction == 'pc':
-                self.dijkstra[construction.location[0]][construction.location[1]] = -2
-        #  Value actors above constructions. Also overwrite if player stands on allied construction
+        # self.dijkstra = [[1000 for j in range(self.size[1])] for k in range(self.size[0])]
         for actor in self.actors:
             if actor.faction.faction == 'pc':
-                self.dijkstra[actor.location[0]][actor.location[1]] = -5
+                self._set_dijkstra_cell(location=actor.location, value=-5)
+        for construction in self.constructions:
+            if construction.faction and construction.faction.faction == 'pc':
+                self._set_dijkstra_cell(location=construction.location, value=-2)
+        # #  Place initial values under the player, player-allied constructions and impassable things.
+        # #  This should be done every turn because player could potentially spawn constructions
+        # #  and change passability
+        # #  Set all passable tiles to 100
+        # for x in range(self.size[0]):
+        #     for y in range(self.size[1]):
+        #         if self.entrance_possible(location=(x, y)):
+        #            self.dijkstra[x][y] = 20
+        #         else:
+        #             self.dijkstra[x][y] = None
+        # for construction in self.constructions:
+        #     if construction.faction and construction.faction.faction == 'pc':
+        #         self.dijkstra[construction.location[0]][construction.location[1]] = -2
+        # #  Value actors above constructions. Also overwrite if player stands on allied construction
+        # for actor in self.actors:
+        #     if actor.faction.faction == 'pc':
+        #         self.dijkstra[actor.location[0]][actor.location[1]] = -5
+        #
+        # #  Traverse the map a-la cellular automaton until equilibrium
+        # has_changed = True
+        # while has_changed:
+        #     has_changed = False
+        #     #  Have the copy so that traversal order doesn't affect results
+        #     tmp = self.dijkstra[:][:]
+        #     for x in range(self.size[0]):
+        #         for y in range(self.size[1]):
+        #             #  Don't waste time on impassable tiles
+        #             if self.dijkstra[x][y]:
+        #
+        #                 neighbours = (self.dijkstra[j[0]][j[1]] for j in self.get_neighbour_coordinates(
+        #                     location=(x, y)))
+        #                 for n in neighbours:
+        #                     if n and self.dijkstra[x][y] - n >= 2:
+        #                         tmp[x][y] -= 1
+        #                         has_changed = True
+        #                         break
+        #     self.dijkstra = tmp[:][:]
 
-        #  Traverse the map a-la cellular automaton until equilibrium
-        has_changed = True
-        while has_changed:
-            has_changed = False
-            #  Have the copy so that traversal order doesn't affect results
-            tmp = self.dijkstra[:][:]
-            for x in range(self.size[0]):
-                for y in range(self.size[1]):
-                    #  Don't waste time on impassable tiles
-                    if self.dijkstra[x][y]:
 
-                        neighbours = (self.dijkstra[j[0]][j[1]] for j in self.get_neighbour_coordinates(
-                            location=(x, y)))
-                        for n in neighbours:
-                            if n and self.dijkstra[x][y] - n >= 2:
-                                tmp[x][y] -= 1
-                                has_changed = True
-                                break
-            self.dijkstra = tmp[:][:]
+    #  Operations on neighbours
 
     def get_neighbour_coordinates(self, location=(None, None)):
         """
