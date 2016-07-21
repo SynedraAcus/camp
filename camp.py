@@ -20,6 +20,9 @@ from Controller import Command
 
 
 #  A collection of constants. Most definitely needs to be refactored into a proper option container
+
+#  Whether to display Dijkstra map values overlay. Extremely laggy and should be False unless debugging
+#  Dijkstra maps
 DISPLAY_DIJKSTRA_MAP = True
 
 class KeyParser(object):

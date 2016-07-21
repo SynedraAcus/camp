@@ -24,8 +24,10 @@ class RLMap(object):
         #  GameEvent list
         self.game_events = []
         #  The Dijkstra map list, used for NPC pathfinding
-        self.dijkstra = {x: {y: 1000 for y in range(self.size[1])} for x in range(self.size[0])}
-        self.empty_dijkstra = deepcopy(self.dijkstra)
+        #  For some reason keeping tuple and creating list from it is way quicker than generating the list
+        #  from scratch on every turn
+        self.dijkstra = [[1000 for y in range(self.size[1])] for x in range(self.size[0])]
+        self.empty_dijkstra = tuple(self.dijkstra)
 
     #  Actions on map items: addition, removal and so on
 
@@ -134,8 +136,7 @@ class RLMap(object):
         Update the Dijkstra map based on positions of PC and any PC-allied constructions.
         :return:
         """
-        self.dijkstra = {k: {j:100 for j in range(self.size[1])} for k in range(self.size[0])}
-        # self.dijkstra = deepcopy(self.empty_dijkstra)
+        self.dijkstra = list(self.empty_dijkstra)
         for actor in self.actors:
             if actor.faction.faction == 'pc':
                 self._set_dijkstra_cell(location=actor.location, value=-5)
