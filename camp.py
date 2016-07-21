@@ -20,8 +20,7 @@ from Controller import Command
 
 
 #  A collection of constants. Most definitely needs to be refactored into a proper option container
-DISPLAY_DIJKSTRA_MAP = True
-
+DISPLAY_DIJKSTRA_MAP = False
 
 class KeyParser(object):
     """
@@ -297,7 +296,8 @@ class DijkstraWidget(RelativeLayout):
     The widget that displays little numbers on every tile to allow debugging Dijkstra maps.
     This widget is designed to be a child of RLMapWidget, so it relies on its methods
     For such a crude testing thing I won't even write updating: let's just remove it and create
-    anew every time Dijkstra map is updated.
+    anew every time Dijkstra map is updated. Therefore it's immensely laggy and performance of anything
+    should be tested with it disabled.
     """
     def __init__(self, parent = None, **kwargs):
         super(DijkstraWidget, self).__init__(**kwargs)

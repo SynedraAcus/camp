@@ -6,6 +6,7 @@ from Actor import Actor
 from Constructions import Construction
 from math import sqrt
 from GameEvent import GameEvent
+from copy import deepcopy
 
 
 class RLMap(object):
@@ -23,7 +24,8 @@ class RLMap(object):
         #  GameEvent list
         self.game_events = []
         #  The Dijkstra map list, used for NPC pathfinding
-        self.dijkstra = [[1000 for y in range(self.size[1])] for x in range(self.size[0])]
+        self.dijkstra = {x: {y: 1000 for y in range(self.size[1])} for x in range(self.size[0])}
+        self.empty_dijkstra = deepcopy(self.dijkstra)
 
     #  Actions on map items: addition, removal and so on
 
@@ -132,7 +134,8 @@ class RLMap(object):
         Update the Dijkstra map based on positions of PC and any PC-allied constructions.
         :return:
         """
-        # self.dijkstra = [[1000 for j in range(self.size[1])] for k in range(self.size[0])]
+        self.dijkstra = {k: {j:100 for j in range(self.size[1])} for k in range(self.size[0])}
+        # self.dijkstra = deepcopy(self.empty_dijkstra)
         for actor in self.actors:
             if actor.faction.faction == 'pc':
                 self._set_dijkstra_cell(location=actor.location, value=-5)
@@ -191,8 +194,9 @@ class RLMap(object):
         for x in range(location[0]-1, location[0]+2):
             for y in range(location[1]-1, location[1]+2):
                 try:
-                    self.get_item(location=(x,y), layer='bg')
-                    ret.append((x, y))
+                    if x>0 and y>0:
+                        self.get_item(location=(x,y), layer='bg')
+                        ret.append((x, y))
                 except IndexError:
                     pass
         return ret
