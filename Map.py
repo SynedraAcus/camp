@@ -157,7 +157,8 @@ class RLMap(object):
         for x in range(location[0]-1, location[0]+2):
             for y in range(location[1]-1, location[1]+2):
                 try:
-                    if x >= 0 and y >= 0:
+                    if x >= 0 and y >= 0 and not (x, y) == location:
+                        #  This line will raise IndexError if it's outside map boundaries
                         self.get_item(location=(x,y), layer='bg')
                         ret.append((x, y))
                 except IndexError:
