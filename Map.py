@@ -173,7 +173,8 @@ class RLMap(object):
             for n in self.get_neighbour_coordinates(cell):
                 bg = self.get_item(layer='bg', location=n)
                 c = self.get_item(layer='constructions', location=n)
-                if n not in self.updated_now and bg.passable and (not c or c.passable):
+                #  Ignore impassable cells and cells with impassable factionless constructions
+                if n not in self.updated_now and bg.passable and (not c or c.passable or c.faction):
                     s.add(n)
         if s:
             for cell in s:

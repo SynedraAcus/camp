@@ -200,16 +200,22 @@ class MapFactory(object):
         """
         map = RLMap(size=(20, 15), layers=['bg', 'constructions', 'items', 'actors'])
         for x in range(20):
+            #  Background
+            for y in range(15):
+                map.add_item(item=GroundTile(passable=True, image_source='Tile_passable.png'),
+                             layer='bg',
+                             location=(x, y))
+            #  Adding trees along border
             map.add_item(item=Construction(passable=False, image_source='Tree.png'),
                          layer='constructions',
                          location=(x, 0))
             map.add_item(item=Construction(passable=False, image_source='Tree.png'),
                          layer='constructions',
                          location=(x, 14))
-            for y in range(15):
-                map.add_item(item=GroundTile(passable=True, image_source='Tile_passable.png'),
-                             layer='bg',
-                             location=(x, y))
+        for x in range(15):
+            map.add_item(item = Construction(passable=False, image_source='Tree.png'),
+                         layer='constructions',
+                         location = (x, 7))
         #  Adding PC and NPCs
         pc_faction = FactionComponent(faction='pc', enemies=['npc'])
         npc_faction = FactionComponent(faction='npc', enemies=['pc'])
@@ -224,12 +230,12 @@ class MapFactory(object):
                                 image_source='PC.png'),
                      location=(2, 2), layer='actors')
         map.add_item(thug_factory.create_thug(),
-                     location=(16, 12), layer='actors')
+                     location=(5, 12), layer='actors')
         map.add_item(item=Spawner(image_source='DownStairs.png',
                                   faction=npc_faction,
                                   spawn_factory=thug_factory,
                                   descriptor=DescriptorComponent(name='Dark hole in the ground')),
-                     location=(17, 13), layer='constructions')
+                     location=(2, 13), layer='constructions')
         #  Add 7 items in free tiles. Tiles with actors are considered free for this purpose
         for a in range(7):
             while True:
