@@ -27,7 +27,9 @@ class RLMap(object):
         #  For some reason keeping tuple and creating list from it is way quicker than generating the list
         #  from scratch on every turn
         self.dijkstra = [[1000 for y in range(self.size[1])] for x in range(self.size[0])]
-        self.empty_dijkstra = tuple(self.dijkstra)
+        self.empty_dijkstra = deepcopy(self.dijkstra)
+        self.updated_now = set()
+        self.max_distance = None
 
     #  Actions on map items: addition, removal and so on
 
@@ -91,17 +93,20 @@ class RLMap(object):
 
     def delete_item(self, layer='default', location=(None, None)):
         """
-        Delete the item at a given location, removing all references to it in the map object
+        Delete the item at a given location, making all necessary updates
         :param layer: str
         :param location: int tuple
         :return:
         """
         #  If the item deleted is an actor, it should be removed from self.actors as well as
-        #  from self.items. Same 4 constructions
-        if isinstance(self.items[layer][location[0]][location[1]], Actor):
-            self.actors.remove(self.items[layer][location[0]][location[1]])
-        if isinstance(self.items[layer][location[0]][location[1]], Construction):
-            self.constructions.remove(self.items[layer][location[0]][location[1]])
+        #  from self.items. Same 4 constructions.
+        #  Removing items of PC faction also requires editing Dijkstra maps to decrease attractiveness of
+        #  its former position.
+        item = self.items[layer][location[0]][location[1]]
+        if isinstance(item, Actor):
+            self.actors.remove(item)
+        if isinstance(item, Construction):
+            self.constructions.remove(item)
         self.items[layer][location[0]][location[1]] = None
         #  If no other references exist (when this executes, one should probably be in GameEvent)
         #  Actor object will be garbage-collected. Please note that this method does not handle
@@ -111,38 +116,93 @@ class RLMap(object):
 
     #  Dijkstra map
 
-    def _set_dijkstra_cell(self, location=(None, None), value=0):
+    ####
+    # This implementation of Dijkstra map filling algorithm is commented out as it is extremely slow.
+    # However, it surely does work with multiple attractors, which are yet to be implemented in _breadth_fill()
+    #######
+
+    # def _set_dijkstra_cell(self, location=(None, None), value=0, spread_direction = 'down', callers=set()):
+    #     """
+    #     Set Dijkstra value for a given cell.
+    #     This method sets Dijksrta value for a cell and tries to spread it to any neighbouring cells/
+    #     Depending on 'spread_direction' attribute it will attempt to either lower it (default)
+    #     or raise. Lowering is intended to be done after addition of attractive item (ie PC entering tile
+    #     starts attracting enemies) while raising is intended for a removal of such item (ie PC *leaving*
+    #     tile or construction being destroyed stops being of any interest).
+    #     Although recursively increasing Dijkstra values is supposed to be a quick-and-dirty cleanup after player
+    #     has moved away, it still needs to cover most, if not all, the map
+    #     :param value: int. A value the cell gets
+    #     :param spread_direction: str, one of 'up' or 'down'
+    #     :return:
+    #     """
+    #     self.dijkstra[location[0]][location[1]] = value
+    #     self.updated_now.add(tuple(location))
+    #     if spread_direction == 'down':
+    #         for n in self.get_neighbour_coordinates(location):
+    #             if tuple(n) not in self.updated_now or self.dijkstra[n[0]][n[1]] > value + 1:
+    #                 #  Check that there is neither impassable construction nor impassable bg item
+    #                 #  Cannot call self.entrance_possible here, as that would also check the actor, and
+    #                 #  cells under actors are subject to Dijkstra map calculations
+    #                 c = self.get_item(layer='constructions', location=n)
+    #                 bg = self.get_item(layer='bg', location=n)
+    #                 if bg.passable and (not c or c.passable):
+    #                     self._set_dijkstra_cell(location=n, value=value+1)
+    #     elif spread_direction == 'up':
+    #         for n in self.get_neighbour_coordinates(location):
+    #             if self.dijkstra[n[0]][n[1]] < value - 1:
+    #                 c = self.get_item(layer='constructions', location=n)
+    #                 bg = self.get_item(layer='bg', location=n)
+    #                 if bg.passable and (not c or c.passable):
+    #                     self._set_dijkstra_cell(location=n, value=value-1, spread_direction='up')
+    #     else:
+    #         raise ValueError('spread_direction should be either\'up\' or \'down\'')
+
+    def _breadth_fill(self, filled=set(), value=-5):
         """
-        Set Dijkstra value for a given cell.
-        This method sets Dijksrta value for a cell and, if any of the neighbouring cells have Dijkstra
-        value of more than value+1, calls itself on them recursively with value+1
-        :param location:
-        :param value:
+        Fill Dijkstra map breadth-first.
+        This method is recursive and is intended to be started from a single point. Multiple attractors are
+        currently not supported. This method relies on exactly one cell being filled with value and placed
+        in self.updated_now by the moment it's (non-recursively) called. Probably will also work with several
+        cells not forming a joint cluster provided that they are supplied with the same initial value.
+        :param filled: set. Set of cells (as coordinate tuples) filled on a previous iteration
+        :param value: int. Value that the cells from a `filled` set contain
         :return:
         """
-        self.dijkstra[location[0]][location[1]] = value
-        for n in self.get_neighbour_coordinates(location):
-            if self.dijkstra[n[0]][n[1]] > value + 1:
-                #  Check that there is neither impassable construction nor impassable bg item
-                #  Cannot call self.entrance_possible here, as that would also check the actor, and
-                #  cells under actors are subject to Dijkstra map calculations
-                c = self.get_item(layer='constructions', location=n)
-                bg = self.get_item(layer='bg', location=n)
-                if bg.passable and (not c or c.passable):
-                    self._set_dijkstra_cell(location=n, value=value+1)
+        s = set()
+        for cell in filled:
+            for n in self.get_neighbour_coordinates(cell):
+                if n not in self.updated_now:
+                    s.add(n)
+        if s:
+            for cell in s:
+                self.dijkstra[cell[0]][cell[1]] = value + 1
+            self.updated_now = self.updated_now.union(s)
+            self._breadth_fill(filled=s, value=value+1)
+        else:
+            return
 
     def update_dijkstra(self):
         """
         Update the Dijkstra map based on positions of PC and any PC-allied constructions.
         :return:
         """
-        self.dijkstra = list(self.empty_dijkstra)
-        for actor in self.actors:
-            if actor.faction.faction == 'pc':
-                self._set_dijkstra_cell(location=actor.location, value=-5)
-        for construction in self.constructions:
-            if construction.faction and construction.faction.faction == 'pc':
-                self._set_dijkstra_cell(location=construction.location, value=-2)
+        # self.dijkstra = list(self.empty_dijkstra)
+        self.updated_now = set()
+        # for x in range(len(self.dijkstra)):
+        #     for y in range(len(self.dijkstra[0])):
+        #         self.dijkstra[x][y] = 100
+        # self.dijkstra = deepcopy(self.empty_dijkstra)
+        actor = self.actors[0]
+        # for actor in self.actors:
+        #     if actor.faction.faction == 'pc':
+        self.dijkstra[actor.location[0]][actor.location[1]] = -5
+        self.updated_now.add(tuple(actor.location))
+        self._breadth_fill(value=-5, filled=set((tuple(actor.location),)))
+                # self._set_dijkstra_cell(location=actor.location, value=-5)
+        # for construction in self.constructions:
+        #     if construction.faction and construction.faction.faction == 'pc':
+        #         self._set_dijkstra_cell(location=construction.location, value=-2)
+
 
     #  Operations on neighbours
 

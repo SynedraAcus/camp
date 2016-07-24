@@ -18,6 +18,8 @@ from kivy.core.audio import SoundLoader
 from Factories import TileWidgetFactory, MapFactory
 from Controller import Command
 
+#  Other imports
+import threading
 
 #  A collection of constants. Most definitely needs to be refactored into a proper option container
 
@@ -177,7 +179,6 @@ class GameWidget(RelativeLayout):
                         #  If the player has managed to do something, draw results and let others work.
                         #  If not for this check, the player attempting to do impossible things will have
                         #  wasted a turn
-                        self.map_widget.map.update_dijkstra()
                         for actor in self.map_widget.map.actors[1:]:
                             actor.make_turn()
                         for construction in self.map_widget.map.constructions:
@@ -218,7 +219,6 @@ class GameWidget(RelativeLayout):
                         self.map_widget.map.actors[0].controller.accept_command(command)
                         r = self.map_widget.map.actors[0].make_turn()
                         if r:
-                            self.map_widget.map.update_dijkstra()
                             for actor in self.map_widget.map.actors[1:]:
                                 actor.make_turn()
                             for construction in self.map_widget.map.constructions:
@@ -239,7 +239,6 @@ class GameWidget(RelativeLayout):
                         self.map_widget.map.actors[0].controller.accept_command(command)
                         r = self.map_widget.map.actors[0].make_turn()
                         if r:
-                            self.map_widget.map.update_dijkstra()
                             for actor in self.map_widget.map.actors[1:]:
                                 actor.make_turn()
                             for construction in self.map_widget.map.constructions:

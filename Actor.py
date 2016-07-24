@@ -82,7 +82,11 @@ class Actor(MapItem):
             return False
         if not isinstance(self.controller, PlayerController):
             self.controller.choose_actor_action()
-        return self.controller.call_actor_method()
+        r = self.controller.call_actor_method()
+        if isinstance(self.controller, PlayerController):
+            #  This should be done *after* player move!
+            self.map.update_dijkstra()
+        return r
 
     #  These methods are expected to be called by Controller. They all return True if action could be performed
     #  (not necessarily successfully!!!), False otherwise
