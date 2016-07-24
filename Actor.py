@@ -143,13 +143,17 @@ class Actor(MapItem):
         """
         i = self.map.get_item(location=self.location, layer='items')
         if i:
-            self.inventory.append(i)
-            self.map.delete_item(location=self.location, layer='items')
-            self.map.game_events.append(GameEvent(event_type='picked_up', actor=self,
-                                                  location=self.location))
-            self.map.extend_log('{0} picked up {1}'.format(self.descriptor.name,
-                                                           i.name))
-            return True
+            if len(self.inventory) < self.inventory.volume:
+                self.inventory.append(i)
+                self.map.delete_item(location=self.location, layer='items')
+                self.map.game_events.append(GameEvent(event_type='picked_up', actor=self,
+                                                      location=self.location))
+                self.map.extend_log('{0} picked up {1}'.format(self.descriptor.name,
+                                                               i.name))
+                return True
+            else:
+                self.map.extend_log('Inventory is full already!')
+                return False
         else:
             return False
 

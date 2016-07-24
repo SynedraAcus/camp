@@ -225,7 +225,8 @@ class MapFactory(object):
                                 descriptor=DescriptorComponent(name='PC',
                                                                 description='Player-controlled dude'),
                                 inventory=InventoryComponent(initial_items=[make_random_item(),
-                                                                            make_random_item()]),
+                                                                            make_random_item()],
+                                                             volume=10),
                                 faction = pc_faction,
                                 image_source='PC.png'),
                      location=(2, 2), layer='actors')

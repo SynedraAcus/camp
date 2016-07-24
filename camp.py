@@ -25,7 +25,7 @@ import threading
 
 #  Whether to display Dijkstra map values overlay. Extremely laggy and should be False unless debugging
 #  Dijkstra maps
-DISPLAY_DIJKSTRA_MAP = True
+DISPLAY_DIJKSTRA_MAP = False
 
 class KeyParser(object):
     """
