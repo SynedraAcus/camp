@@ -161,9 +161,9 @@ class RLMap(object):
         """
         Fill Dijkstra map breadth-first.
         This method is recursive and is intended to be started from a single point. Multiple attractors are
-        currently not supported. This method relies on exactly one cell being filled with value and placed
-        in self.updated_now by the moment it's (non-recursively) called. Probably will also work with several
-        cells not forming a joint cluster provided that they are supplied with the same initial value.
+        currently not supported (although multiple starting points *may* work if they all have exactly the same
+        value. This method relies on at least one cell of Dijkstra map being filled with value and placed
+        in self.updated_now by the moment it's (non-recursively) called.
         :param filled: set. Set of cells (as coordinate tuples) filled on a previous iteration
         :param value: int. Value that the cells from a `filled` set contain
         :return:
