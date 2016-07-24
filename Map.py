@@ -171,7 +171,9 @@ class RLMap(object):
         s = set()
         for cell in filled:
             for n in self.get_neighbour_coordinates(cell):
-                if n not in self.updated_now:
+                bg = self.get_item(layer='bg', location=n)
+                c = self.get_item(layer='constructions', location=n)
+                if n not in self.updated_now and bg.passable and (not c or c.passable):
                     s.add(n)
         if s:
             for cell in s:
@@ -188,21 +190,10 @@ class RLMap(object):
         """
         # self.dijkstra = list(self.empty_dijkstra)
         self.updated_now = set()
-        # for x in range(len(self.dijkstra)):
-        #     for y in range(len(self.dijkstra[0])):
-        #         self.dijkstra[x][y] = 100
-        # self.dijkstra = deepcopy(self.empty_dijkstra)
         actor = self.actors[0]
-        # for actor in self.actors:
-        #     if actor.faction.faction == 'pc':
         self.dijkstra[actor.location[0]][actor.location[1]] = -5
         self.updated_now.add(tuple(actor.location))
         self._breadth_fill(value=-5, filled=set((tuple(actor.location),)))
-                # self._set_dijkstra_cell(location=actor.location, value=-5)
-        # for construction in self.constructions:
-        #     if construction.faction and construction.faction.faction == 'pc':
-        #         self._set_dijkstra_cell(location=construction.location, value=-2)
-
 
     #  Operations on neighbours
 
