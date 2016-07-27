@@ -97,6 +97,9 @@ class TileWidgetFactory(object):
                              Actor: self.create_actor_widget,
                              Item: self.create_item_widget,
                              Construction: self.create_construction_widget}
+        self.passable_tiles = ('Tile_passable.png',
+                               'Tile_passable_2.png',
+                               'Tile_passable_3.png')
 
     def create_widget(self, item):
         """
@@ -111,7 +114,7 @@ class TileWidgetFactory(object):
                 return self.type_methods[t](item)
 
     def create_tile_widget(self, tile):
-        s = 'Tile_passable.png' if tile.passable else 'Tile_impassable.png'
+        s = choice(self.passable_tiles) if tile.passable else 'Tile_impassable.png'
         tile.widget = TileWidget(source=s, size=(32, 32),
                                  size_hint=(None, None))
         return tile.widget
