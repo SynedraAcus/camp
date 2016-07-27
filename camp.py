@@ -142,7 +142,9 @@ class GameWidget(RelativeLayout):
                              '0', '1', '2', '3', '4', '5',
                              '6', '7', '8', '9',
                              #  Grabbing and dropping stuff
-                             'g', ',', 'd']
+                             'g', ',', 'd',
+                             #  Jumping
+                             'z']
         #  Keys in this list are processed by self.map_widget.map
         self.map_keys = ['spacebar', '.',
                          'h', 'j', 'k', 'l',
@@ -207,6 +209,15 @@ class GameWidget(RelativeLayout):
                                                    size_hint=(None, None),
                                                    text=self.map_widget.map.actors[0].inventory.get_string())
                     self.add_widget(self.window_widget)
+                elif keycode[1] in 'z':
+                    self.game_state = 'jump_targeting'
+                    self.target_coordinates = self.map_widget.map.actors[0].location
+                    self.window_widget = Image(source='Mined.png',
+                                               pos=self.map_widget.get_screen_pos(self.target_coordinates,
+                                                                                  parent=True),
+                                               size=(32, 32),
+                                               size_hint=(None, None))
+                    self.add_widget(self.window_widget)
             else:
                 if 'window' in self.game_state and keycode[1] in ('i', 'c', 'g', 'd'):
                     self.remove_widget(self.window_widget)
@@ -250,6 +261,25 @@ class GameWidget(RelativeLayout):
                         self.map_widget.process_game_event()
                     except ValueError:
                         pass
+                elif 'targeting' in self.game_state:
+                    if keycode[1] in 'z':
+                        delta = (self.target_coordinates[0]-self.map_widget.map.actors[0].location[0],
+                                 self.target_coordinates[1]-self.map_widget.map.actors[0].location[1])
+                        command = Command(command_type='walk', command_value=delta)
+                        self.map_widget.map.actors[0].controller.accept_command(command)
+                        self.map_widget.map.actors[0].make_turn()
+                        self.map_widget.process_game_event()
+                    elif self.key_parser.command_types[keycode[1]] == 'walk':
+                        #  Move the targeting widget
+                        delta = self.key_parser.command_values[keycode[1]]
+                        self.target_coordinates = [self.target_coordinates[0]+delta[0],
+                                                   self.target_coordinates[1]+delta[1]]
+                        self.window_widget.pos = self.map_widget.get_screen_pos(self.target_coordinates,
+                                                                                parent=True)
+
+
+
+
 
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_key_down)
@@ -445,14 +475,18 @@ class RLMapWidget(RelativeLayout):
         '''
         self.animating = True
 
-    @staticmethod
-    def get_screen_pos(location):
+    def get_screen_pos(self, location, parent=False):
         """
-        Return screen coordinates (in pixels) for a given location
+        Return screen coordinates (in pixels) for a given location. Unless window parameter is set to true,
+        returns coordinates relative to self
         :param location: int tuple
+        :param window: bool If true, return window coordinates.
         :return: int tuple
         """
-        return (location[0]*32, location[1]*32)
+        if not parent:
+            return (location[0]*32, location[1]*32)
+        else:
+            return(self.to_parent(location[0]*32, location[1]*32))
 
     def update_rect(self, pos, size):
         self.rect.pos = self.pos
