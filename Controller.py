@@ -62,7 +62,7 @@ class Controller(object):
                 return True
         return False
 
-    def _should_walk(self, location):
+    def should_walk(self, location):
         """
         Decide whether actor should walk into a tile
         Only the coordinates for a tile are supplied
@@ -169,36 +169,10 @@ class AIController(Controller):
                 candidates = [n]
             elif self.actor.map.dijkstra[n[0]][n[1]] == minimum:
                 candidates.append(n)
-        target = random.choice(candidates)
+        target = random.choice(tuple(filter(lambda a: self.should_walk(a), candidates)))
         self.last_command = Command(command_type='walk',
                                     command_value=(target[0]-self.actor.location[0],
                                                    target[1]-self.actor.location[1]))
-
-    # def choose_actor_action(self):
-    #     """
-    #     Main AI routine. Currently is terribly crude and inefficient.
-    #     :return:
-    #     """
-    #     #  Fight combat-capable neighbours from enemy factions, if any
-    #     neighbours = self.actor.map.get_neighbours(layers=['actors', 'constructions'], location=self.actor.location)
-    #     neighbours = list(filter(self._should_attack, neighbours))
-    #     # print(len(neighbours))
-    #     if len(neighbours) > 0:
-    #         victim = random.choice(neighbours)
-    #         self.last_command = Command(command_type='walk',
-    #                                     command_value=(victim.location[0]-self.actor.location[0],
-    #                                                    victim.location[1]-self.actor.location[1]))
-    #     else:
-    #         #  Find all visible actors of 'pc' faction and walk towards closest
-    #         enemies = self.get_visible_items(layer='actors', filter_function=lambda a: a.faction.faction=='pc')
-    #         #  Select closest one
-    #         min_dist = 10000 #  Just a magic number obviously higher than any distance
-    #         closest_loc = (0, 0)
-    #         for a in enemies:
-    #             if self.actor.map.distance(self.actor.location, a.location) < min_dist:
-    #                 closest_loc = a.location
-    #                 min_dist = self.actor.map.distance(self.actor.location, a.location)
-    #         self.last_command = self.get_command_towards(closest_loc)
 
 
 class FighterSpawnController(Controller):
