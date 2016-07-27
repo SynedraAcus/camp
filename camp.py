@@ -156,6 +156,9 @@ class GameWidget(RelativeLayout):
         self.key_parser = KeyParser()
         #  Game state
         self.game_state = 'playing'
+        #  Stuff for various game states
+        self.state_widget = None
+        self.target_coordinates = (None, None)
 
     def _on_key_down(self, keyboard, keycode, text, modifier):
         """
@@ -173,73 +176,57 @@ class GameWidget(RelativeLayout):
             if self.game_state == 'playing':
                 #  Either make a turn or show one of windows
                 if keycode[1] in self.map_keys:
-                    #  If the key is a 'map-controlling' one, ie uses a turn without calling windows
+                    #  If the key is a 'map-controlling' one, ie uses a turn without calling further windows
                     command = self.key_parser.key_to_command(keycode)
-                    self.map_widget.map.actors[0].controller.accept_command(command)
-                    r = self.map_widget.map.actors[0].make_turn()
-                    if r:
-                        #  If the player has managed to do something, draw results and let others work.
-                        #  If not for this check, the player attempting to do impossible things will have
-                        #  wasted a turn
-                        for actor in self.map_widget.map.actors[1:]:
-                            actor.make_turn()
-                        for construction in self.map_widget.map.constructions:
-                            construction.make_turn()
-                    self.map_widget.process_game_event()
+                    self.map_widget.process_turn(command=command)
+                #  The following checks set various game states but don't, by themselves, produce commands
                 elif keycode[1] in 'c':
                     #  Displaying player stats window
                     self.game_state = 'stat_window'
-                    self.window_widget = LogWindow(pos=(200, 200),
-                                                 size=(200, 200),
-                                                 size_hint=(None, None),
-                                                 text=self.map_widget.map.actors[0].descriptor.get_description(
+                    self.state_widget = LogWindow(pos=(200, 200),
+                                                  size=(200, 200),
+                                                  size_hint=(None, None),
+                                                  text=self.map_widget.map.actors[0].descriptor.get_description(
                                                      combat=True))
-                    self.add_widget(self.window_widget)
+                    self.add_widget(self.state_widget)
                 elif keycode[1] in 'i':
                     self.game_state = 'inv_window'
-                    self.window_widget = LogWindow(pos=(200, 200),
-                                                   size=(200, 200),
-                                                   size_hint=(None, None),
-                                                   text=self.map_widget.map.actors[0].inventory.get_string())
-                    self.add_widget(self.window_widget)
+                    self.state_widget = LogWindow(pos=(200, 200),
+                                                  size=(200, 200),
+                                                  size_hint=(None, None),
+                                                  text=self.map_widget.map.actors[0].inventory.get_string())
+                    self.add_widget(self.state_widget)
                 elif keycode[1] in 'd':
                     self.game_state = 'drop_window'
-                    self.window_widget = LogWindow(pos=(200, 200),
-                                                   size=(200, 200),
-                                                   size_hint=(None, None),
-                                                   text=self.map_widget.map.actors[0].inventory.get_string())
-                    self.add_widget(self.window_widget)
+                    self.state_widget = LogWindow(pos=(200, 200),
+                                                  size=(200, 200),
+                                                  size_hint=(None, None),
+                                                  text=self.map_widget.map.actors[0].inventory.get_string())
+                    self.add_widget(self.state_widget)
                 elif keycode[1] in 'z':
                     self.game_state = 'jump_targeting'
                     self.target_coordinates = self.map_widget.map.actors[0].location
-                    self.window_widget = Image(source='Mined.png',
-                                               pos=self.map_widget.get_screen_pos(self.target_coordinates,
+                    self.state_widget = Image(source='Mined.png',
+                                              pos=self.map_widget.get_screen_pos(self.target_coordinates,
                                                                                   parent=True),
-                                               size=(32, 32),
-                                               size_hint=(None, None))
-                    self.add_widget(self.window_widget)
+                                              size=(32, 32),
+                                              size_hint=(None, None))
+                    self.add_widget(self.state_widget)
             else:
+                #  Process various non-'playing' game states, hopefully making a command
                 if 'window' in self.game_state and keycode[1] in ('i', 'c', 'g', 'd'):
-                    self.remove_widget(self.window_widget)
+                    self.remove_widget(self.state_widget)
                     self.game_state = 'playing'
                 elif self.game_state == 'inv_window':
                     #  Try to use keycode as inventory command
                     try:
                         n = self.key_parser.key_to_number(keycode)
                         command = Command(command_type='use_item', command_value=(n, ))
-                        self.map_widget.map.actors[0].controller.accept_command(command)
-                        r = self.map_widget.map.actors[0].make_turn()
-                        if r:
-                            for actor in self.map_widget.map.actors[1:]:
-                                actor.make_turn()
-                            for construction in self.map_widget.map.constructions:
-                                construction.make_turn()
-                        #  Remove inventory widget upon using item
-                        self.remove_widget(self.window_widget)
+                        self.remove_widget(self.state_widget)
                         self.game_state = 'playing'
-                        #  Draw stuff
-                        self.map_widget.process_game_event()
-                    except ValueError:  #  This ValueError is expected to be raised by key_to_number if the keycode
+                        self.map_widget.process_turn(command=command)
+                    except ValueError:
+                        #  This ValueError is expected to be raised by key_to_number if the keycode
                         #  is not numeric
                         pass
                 elif self.game_state == 'drop_window':
@@ -247,18 +234,10 @@ class GameWidget(RelativeLayout):
                     try:
                         n = self.key_parser.key_to_number(keycode)
                         command = Command(command_type='drop_item', command_value=(n, ))
-                        self.map_widget.map.actors[0].controller.accept_command(command)
-                        r = self.map_widget.map.actors[0].make_turn()
-                        if r:
-                            for actor in self.map_widget.map.actors[1:]:
-                                actor.make_turn()
-                            for construction in self.map_widget.map.constructions:
-                                construction.make_turn()
                         #  Remove inventory widget upon using item
-                        self.remove_widget(self.window_widget)
+                        self.remove_widget(self.state_widget)
                         self.game_state = 'playing'
-                        #  Draw stuff
-                        self.map_widget.process_game_event()
+                        self.map_widget.process_turn(command=command)
                     except ValueError:
                         pass
                 elif 'targeting' in self.game_state:
@@ -266,21 +245,16 @@ class GameWidget(RelativeLayout):
                         delta = (self.target_coordinates[0]-self.map_widget.map.actors[0].location[0],
                                  self.target_coordinates[1]-self.map_widget.map.actors[0].location[1])
                         command = Command(command_type='jump', command_value=delta)
-                        self.map_widget.map.actors[0].controller.accept_command(command)
-                        self.remove_widget(self.window_widget)
-                        self.map_widget.map.actors[0].make_turn()
                         self.game_state = 'playing'
-                        self.map_widget.process_game_event()
+                        self.remove_widget(self.state_widget)
+                        self.map_widget.process_turn(command=command)
                     elif self.key_parser.command_types[keycode[1]] == 'walk':
                         #  Move the targeting widget
                         delta = self.key_parser.command_values[keycode[1]]
                         self.target_coordinates = [self.target_coordinates[0]+delta[0],
                                                    self.target_coordinates[1]+delta[1]]
-                        self.window_widget.pos = self.map_widget.get_screen_pos(self.target_coordinates,
-                                                                                parent=True)
-
-
-
+                        self.state_widget.pos = self.map_widget.get_screen_pos(self.target_coordinates,
+                                                                               parent=True)
 
 
     def _keyboard_closed(self):
@@ -371,6 +345,24 @@ class RLMapWidget(RelativeLayout):
         if DISPLAY_DIJKSTRA_MAP:
             self.dijkstra_widget = DijkstraWidget(parent=self)
             self.add_widget(self.dijkstra_widget)
+
+    def process_turn(self, command=None):
+        """
+        Make one turn, passing command to PC.
+        This method passes the command to self.actors[0].controller, asks the same to make a turn and, if
+        successful, does the same for all the actors and constructions (in that order). Then it calls for animation
+        to be drawn, even if PC turn wasn't actually possible. That's because calling for impossible turn could've
+        potentially updated game log or caused other visible effects.
+        :return:
+        """
+        self.map.actors[0].controller.accept_command(command)
+        r = self.map.actors[0].make_turn()
+        if r:
+            for a in self.map.actors[1:]:
+                a.make_turn()
+            for a in self.map.constructions:
+                a.make_turn
+        self.process_game_event()
 
 #########################################################
     #
