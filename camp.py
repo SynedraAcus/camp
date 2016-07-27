@@ -265,9 +265,11 @@ class GameWidget(RelativeLayout):
                     if keycode[1] in 'z':
                         delta = (self.target_coordinates[0]-self.map_widget.map.actors[0].location[0],
                                  self.target_coordinates[1]-self.map_widget.map.actors[0].location[1])
-                        command = Command(command_type='walk', command_value=delta)
+                        command = Command(command_type='jump', command_value=delta)
                         self.map_widget.map.actors[0].controller.accept_command(command)
+                        self.remove_widget(self.window_widget)
                         self.map_widget.map.actors[0].make_turn()
+                        self.game_state = 'playing'
                         self.map_widget.process_game_event()
                     elif self.key_parser.command_types[keycode[1]] == 'walk':
                         #  Move the targeting widget

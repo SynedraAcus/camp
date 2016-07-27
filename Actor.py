@@ -127,6 +127,32 @@ class Actor(MapItem):
             self.widget.last_move_animated = False
         return moved or collision_occured
 
+    def jump(self, location=(None, None)):
+        """
+        Jump to the target location.
+        Jump is possible if tile is enterable (no collisions/long-range melee!) and is no further
+        than two tiles from player, ie has Dijkstra map value of -3 or -4. Jumps to neighbouring tiles are
+        allowed, although meaningless, but jumps to the very tile the player is at are prohibited as they are
+        most likely the result of erroneusly double-mashing jump button
+        :param location:
+        :return:
+        """
+        if not self.map.entrance_possible(location=location):
+            self.map.extend_log('You cannot jump to occupied tiles')
+            return False
+        elif self.map.dijkstra[location[0]][location[1]] > -3:
+            #  Passability is checked before this, as walls have very high Dijkstra and will produce misleading
+            #  messages.
+            self.map.extend_log('That\'s too far to jump')
+            return False
+        else:
+            self.map.move_item(layer='actors',
+                               old_location=self.location,
+                               new_location=location)
+            self.location = location
+            self.map.game_events.append(GameEvent(event_type='moved', actor=self))
+            return True
+
     def pause(self):
         """
         Spend one turn doing nothing. Return True if it was possible, False otherwise
