@@ -169,10 +169,14 @@ class AIController(Controller):
                 candidates = [n]
             elif self.actor.map.dijkstra[n[0]][n[1]] == minimum:
                 candidates.append(n)
-        target = random.choice(tuple(filter(lambda a: self.should_walk(a), candidates)))
-        self.last_command = Command(command_type='walk',
+        try:
+            target = random.choice(tuple(filter(lambda a: self.should_walk(a), candidates)))
+            self.last_command = Command(command_type='walk',
                                     command_value=(target[0]-self.actor.location[0],
                                                    target[1]-self.actor.location[1]))
+        except IndexError:
+            #  Exception may be raised if there are no walkable tiles
+            self.last_command = Command(command_type='wait')
 
 
 class FighterSpawnController(Controller):
