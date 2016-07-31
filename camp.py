@@ -361,7 +361,7 @@ class RLMapWidget(RelativeLayout):
             for a in self.map.actors[1:]:
                 a.make_turn()
             for a in self.map.constructions:
-                a.make_turn
+                a.make_turn()
         self.process_game_event()
 
 #########################################################

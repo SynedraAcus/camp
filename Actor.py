@@ -8,14 +8,11 @@ from MapItem import MapItem
 from GameEvent import GameEvent
 
 
-
-
-
 class Actor(MapItem):
     def __init__(self,
                  image_source='NPC.png',
                  controller=None, fighter=None, descriptor=None,
-                 inventory=None, faction=None,
+                 inventory=None, faction=None, breath=None,
                  **kwargs):
         #  Actors should be impassable by default. The 'passable' should be in kwargs to be passed to
         #  superclass constructor, so a simple default value in signature won't work here
@@ -24,10 +21,11 @@ class Actor(MapItem):
         super(Actor, self).__init__(**kwargs)
         self.attach_controller(controller)
         self.fighter = fighter
+        self.breath = breath
         if descriptor:
             self.descriptor = descriptor
         self.inventory = inventory
-        for a in (self.fighter, self.inventory, self.controller, self.descriptor):
+        for a in (self.fighter, self.inventory, self.controller, self.descriptor, self.breath):
             if a:
                 a.actor = self
         #  Faction component
@@ -83,8 +81,10 @@ class Actor(MapItem):
         if not isinstance(self.controller, PlayerController):
             self.controller.choose_actor_action()
         r = self.controller.call_actor_method()
+        #  Stuff to be done *after* actor turn
+        if self.breath and not self.breath.is_ready():
+            self.breath.regenerate()
         if isinstance(self.controller, PlayerController):
-            #  This should be done *after* player move!
             self.map.update_dijkstra()
         return r
 
@@ -134,9 +134,14 @@ class Actor(MapItem):
         than two tiles from player, ie has Dijkstra map value of -3 or -4. Jumps to neighbouring tiles are
         allowed, although meaningless, but jumps to the very tile the player is at are prohibited as they are
         most likely the result of erroneusly double-mashing jump button
+        Jumping also costs breath, so it calls to the breath component, potentially causing exceptions if there is
+        None.
         :param location:
         :return:
         """
+        if not self.breath.is_ready():
+            self.map.extend_log('Catch your breath before jumping')
+            return False
         if not self.map.entrance_possible(location=location):
             self.map.extend_log('You cannot jump to occupied tiles')
             return False
@@ -151,6 +156,7 @@ class Actor(MapItem):
                                new_location=location)
             self.location = location
             self.map.game_events.append(GameEvent(event_type='moved', actor=self))
+            self.breath.use_breath('jump')
             return True
 
     def pause(self):

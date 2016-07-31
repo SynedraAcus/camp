@@ -104,6 +104,7 @@ class FighterConstruction(Construction):
     Melee fighter construction. Supports 'move' method to enable melee combat
     """
     def make_turn(self):
+        print('ASD')
         self.controller.choose_actor_action()
         self.controller.call_actor_method()
 

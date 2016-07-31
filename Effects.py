@@ -5,6 +5,7 @@ Various effects for potions, spells, events and so on
 from Actor import GameEvent
 from random import choice
 
+
 class Effect(object):
     """
     Root effect class

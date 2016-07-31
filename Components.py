@@ -198,3 +198,38 @@ class FactionComponent(Component):
             return True
         else:
             return False
+
+class BreathComponent(Component):
+    """
+    The component that contains information about Actor breath.
+    Breath is, basically, a skill cooldown, so this class only remembers how much actions cost
+    and stores breath at any particular moment. Currently little more than a placeholder, but later may
+    be expanded.
+    """
+    def __init__(self, **kwargs):
+        super(BreathComponent, self).__init__(**kwargs)
+        self.breath = 0
+        self.skill_costs = {'jump': 3}
+
+    def is_ready(self):
+        """
+        Return True if the actor currently has a breath of zero
+        :param skill:
+        :return:
+        """
+        return self.breath == 0
+
+    def use_breath(self, skill):
+        """
+        Pay the breath cost of a skill
+        :param skill: str. Skill name that should be in self.skill_costs
+        :return:
+        """
+        self.breath += self.skill_costs[skill]
+
+    def regenerate(self):
+        """
+        Regenerate one turn's worth of breath
+        :return:
+        """
+        self.breath -= 1

@@ -13,7 +13,7 @@ from Map import RLMap
 from MapItem import GroundTile, MapItem
 from Actor import Actor
 from Constructions import Construction, FighterConstruction, Spawner, Trap
-from Components import FighterComponent, DescriptorComponent, InventoryComponent, FactionComponent
+from Components import *
 from Controller import PlayerController, AIController, FighterSpawnController
 from Items import PotionTypeItem, Item
 from Effects import FighterTargetedEffect, TileTargetedEffect
@@ -231,6 +231,7 @@ class MapFactory(object):
                                                                             make_random_item()],
                                                              volume=10),
                                 faction = pc_faction,
+                                breath = BreathComponent(),
                                 image_source='PC.png'),
                      location=(2, 2), layer='actors')
         map.add_item(thug_factory.create_thug(),
