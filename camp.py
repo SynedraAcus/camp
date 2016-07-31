@@ -292,10 +292,7 @@ class LayerWidget(RelativeLayout):
             for y in range(parent.map.size[1]):
                 item = parent.map.get_item(layer=self.layer, location=(x, y))
                 if item:
-                    tile_widget = parent.tile_factory.create_widget(
-                        parent.map.get_item(layer=self.layer,
-                                            location=(x, y))
-                                    )
+                    tile_widget = parent.tile_factory.create_widget(item)
                     tile_widget.pos = parent.get_screen_pos((x, y))
                     self.add_widget(tile_widget)
 

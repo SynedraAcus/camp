@@ -184,7 +184,7 @@ class ActorFactory(object):
         """
         return Actor(image_source='NPC.png',
                      controller=AIController(),
-                     fighter=FighterComponent(),
+                     fighter=FighterComponent(max_hp=3),
                      descriptor=DescriptorComponent(name='A regular thug',
                                                     description='Not particularly smart, but also rarely alone'),
                      inventory=InventoryComponent(volume=1,
@@ -239,6 +239,7 @@ class MapFactory(object):
         map.add_item(item=Spawner(image_source='DownStairs.png',
                                   faction=npc_faction,
                                   spawn_factory=thug_factory,
+                                  spawn_frequency=3,
                                   descriptor=DescriptorComponent(name='Dark hole in the ground')),
                      location=(2, 13), layer='constructions')
         #  Add 7 items in free tiles. Tiles with actors are considered free for this purpose
