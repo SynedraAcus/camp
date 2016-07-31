@@ -145,7 +145,7 @@ class Actor(MapItem):
         if not self.map.entrance_possible(location=location):
             self.map.extend_log('You cannot jump to occupied tiles')
             return False
-        elif self.map.dijkstra[location[0]][location[1]] > -3:
+        elif abs(location[0]-self.location[0]) > 2 or abs(location[1]-self.location[1]) > 2:
             #  Passability is checked before this, as walls have very high Dijkstra and will produce misleading
             #  messages.
             self.map.extend_log('That\'s too far to jump')
