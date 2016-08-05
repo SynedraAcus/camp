@@ -137,15 +137,15 @@ class GameWidget(RelativeLayout):
                              'up', 'down', 'left', 'right',
                              'numpad1', 'numpad2', 'numpad3', 'numpad4', 'numpad5',
                              'numpad6', 'numpad7', 'numpad8', 'numpad9', 'numpad0',
-                             #  Window calls
-                             'c', 'i',
+                             #  PC stats view
+                             'c',
                              #  Used for inventory & spell systems
                              '0', '1', '2', '3', '4', '5',
                              '6', '7', '8', '9',
-                             #  Grabbing and dropping stuff
-                             'g', ',', 'd',
-                             #  Jumping
-                             'z',
+                             #  Inventory management
+                             'g', ',', 'd', 'i'
+                             #  Targeted effects
+                             'z', 'x',
                              #  Others
                              'escape']
         #  Keys in this list are processed by self.map_widget.map
@@ -217,11 +217,20 @@ class GameWidget(RelativeLayout):
                                               size=(32, 32),
                                               size_hint=(None, None))
                     self.add_widget(self.state_widget)
+                elif keycode[1] in 'x':
+                    self.game_state = 'examine_targeting'
+                    self.target_coordinates = self.map_widget.map.actors[0].location
+                    self.state_widget = Image(source='Mined.png',
+                                              pos=self.map_widget.get_screen_pos(self.target_coordinates,
+                                                                                 parent=True),
+                                              size=(32, 32),
+                                              size_hint=(None, None))
+                    self.add_widget(self.state_widget)
             else:
                 #  Process various non-'playing' game states, hopefully making a command
                 if ('window' in self.game_state or 'targeting' in self.game_state) \
                         and keycode[1] in ('i', 'c', 'g', 'd', 'escape'):
-                    #  All state-switching keys move game to 'playing'
+                    #  Escape and window-calling buttons switch state to 'playing', doing nothing else
                     self.remove_widget(self.state_widget)
                     self.game_state = 'playing'
                 elif self.game_state == 'inv_window':
@@ -237,7 +246,7 @@ class GameWidget(RelativeLayout):
                         #  is not numeric
                         pass
                 elif self.game_state == 'drop_window':
-                    #  Try to use keycode as inventory command
+                    #  Try to use keycode as drop command
                     try:
                         n = self.key_parser.key_to_number(keycode)
                         command = Command(command_type='drop_item', command_value=(n, ))
@@ -248,13 +257,23 @@ class GameWidget(RelativeLayout):
                     except ValueError:
                         pass
                 elif 'targeting' in self.game_state:
-                    if keycode[1] in 'z':
+                    if keycode[1] == 'z':
+                        #  Finish jump targeting
                         delta = (self.target_coordinates[0]-self.map_widget.map.actors[0].location[0],
                                  self.target_coordinates[1]-self.map_widget.map.actors[0].location[1])
                         command = Command(command_type='jump', command_value=delta)
                         self.game_state = 'playing'
                         self.remove_widget(self.state_widget)
                         self.map_widget.process_turn(command=command)
+                    if keycode[1] == 'x':
+                        #  Examine whatever is under cursor
+                        self.game_state = 'examine_window'
+                        self.remove_widget(self.state_widget)
+                        self.state_widget = LogWindow(pos=(200, 200),
+                                                      size=(200, 200),
+                                                      size_hint=(None, None),
+                                                      text='Placeholder examine text')
+                        self.add_widget(self.state_widget)
                     elif self.key_parser.command_types[keycode[1]] == 'walk':
                         #  Move the targeting widget
                         delta = self.key_parser.command_values[keycode[1]]
