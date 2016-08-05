@@ -7,10 +7,10 @@ Typical constructions are immobile interactive stuff: traps, chests, stairs and 
 """
 
 from MapItem import MapItem
+from Items import Item
 from Actor import Actor, GameEvent
-from Controller import AIController
-from Components import FighterComponent, DescriptorComponent
-from copy import deepcopy
+from random import random
+
 
 class Construction(MapItem):
     """
@@ -165,15 +165,45 @@ class Trap(Construction):
             #  This event should be shot before any other events caused by explosion
             self.map.game_events.append(GameEvent(event_type='was_destroyed',
                                                   actor=self))
-            #  Damage Actor on the same tile, if any
+            #  Damage Actor on the same tile. Since mine went off, there was one
             victim = self.map.get_item(layer='actors',
                                        location=self.location)
             victim.fighter.get_damaged(5)
-            #  Damage Actors and Constructions on neighbouring tiles
-            for victim in self.map.get_neighbours(location=self.location,
-                                                  layers=['actors', 'constructions']):
-                if victim.fighter:
-                    victim.fighter.get_damaged(5)
+            items_destroyed = False
+            #  Destroy item on the same tile, if any
+            victim = self.map.get_item(layer='items',
+                                       location=self.location)
+            if victim:
+            # if random() > 0.5:
+                self.map.delete_item(location=self.location, layer='items')
+                self.map.game_events.append(GameEvent(event_type='was_destroyed',
+                                                      actor=victim,
+                                                      location=self.location))
+            for loc in self.map.get_neighbour_coordinates(location=self.location):
+                #  Damage Actors and Constructions on neighbouring tiles and destroy stuff w/50% chance
+                a = self.map.get_column(location=loc)
+                for victim in a:
+                    if hasattr(victim, 'fighter'):
+                        #  Attack anything that has HP
+                        victim.fighter.get_damaged(5)
+                    if isinstance(victim, Item):
+                        if random() < 0.5:
+                            self.map.delete_item(location=loc, layer='items')
+                            self.map.game_events.append(GameEvent(event_type='was_destroyed',
+                                                                  actor=victim,
+                                                              location=loc))
+                            items_destroyed = True
+            if items_destroyed:
+                self.map.extend_log('Some items were destroyed in the process')
+
+            #
+            # for victim in self.map.get_neighbours(location=self.location,
+            #                                       layers=['actors', 'constructions', 'items']):
+            #     if victim.fighter:
+            #         victim.fighter.get_damaged(5)
+            #     if isinstance(victim, Item):
+            #         if random() < 0.5:
+            #             self.map.delete_item(location=victim.location,)
             self.map.delete_item(location=self.location,
                                  layer=self.layer)
 

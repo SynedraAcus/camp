@@ -56,7 +56,7 @@ class RLMap(object):
 
     def get_column(self, location=(0, 0)):
         """
-        Return a tuple of truthy objects in all layers at the given location
+        Return a list of truthy objects in all layers at the given location
         :param location: int tuple
         :return:
         """
