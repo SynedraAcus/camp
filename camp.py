@@ -19,9 +19,6 @@ from kivy.core.audio import SoundLoader
 from Factories import TileWidgetFactory, MapFactory
 from Controller import Command
 
-#  Other imports
-import threading
-
 #  A collection of constants. Most definitely needs to be refactored into a proper option container
 
 #  Whether to display Dijkstra map values overlay. Extremely laggy and should be False unless debugging
@@ -34,21 +31,6 @@ class KeyParser(object):
     and other interface commands. Keyboard layout is stored here as well.
     Currently class is little more than stub for later moving controls to separate file
     """
-    #  Obsolete human-readable command dict, actually not used by any methods.
-    #  Kept purely for reference.
-    command_dict = {'wait': ('spacebar', '.', 'numpad5'),
-                #  Walking in cardinal directions
-                'walk_8': ('h', 'numpad8', 'up'),
-                'walk_2': ('l', 'numpad2', 'down'),
-                'walk_4': ('j', 'numpad4', 'left'),
-                'walk_6': ('k', 'numpad6', 'right'),
-                #  Diagonal movement
-                'walk_7': ('y', 'numpad7', ),
-                'walk_9': ('u', 'numpad9', ),
-                'walk_1': ('b', 'numpad1', ),
-                'walk_3': ('n', 'numpad3', ),
-                'grab': (',', 'g')}
-
     command_type_dict = {'walk': ('h', 'numpad8', 'up', # Up
                                   'l', 'numpad2', 'down',
                                   'j', 'numpad4', 'left',
@@ -120,9 +102,9 @@ class GameWidget(RelativeLayout):
         self.boombox = {'moved': SoundLoader.load('dshoof.wav'),
                         'attacked': SoundLoader.load('dspunch.wav'),
                         'exploded': SoundLoader.load('dsbarexp.wav')}
-        #  Sound in kivy seems to be loaded lazily. IE files are not actually read until they are necessary,
+        #  Sound in kivy seems to be loaded lazily. Files are not actually read until they are necessary,
         #  which leads to lags for up to half a second (on my computer at least). The following two lines are
-        #  forcing it to be read right now.
+        #  forcing them to be loaded right now.
         for sound in self.boombox.keys():
             self.boombox[sound].seek(0)
         #  Keyboard controls
@@ -143,7 +125,7 @@ class GameWidget(RelativeLayout):
                              '0', '1', '2', '3', '4', '5',
                              '6', '7', '8', '9',
                              #  Inventory management
-                             'g', ',', 'd', 'i'
+                             'g', ',', 'd', 'i',
                              #  Targeted effects
                              'z', 'x',
                              #  Others
@@ -195,6 +177,7 @@ class GameWidget(RelativeLayout):
                                                      combat=True))
                     self.add_widget(self.state_widget)
                 elif keycode[1] in 'i':
+                    print('ASD')
                     self.game_state = 'inv_window'
                     self.state_widget = LogWindow(pos=(200, 200),
                                                   size=(200, 200),
@@ -265,7 +248,7 @@ class GameWidget(RelativeLayout):
                         self.game_state = 'playing'
                         self.remove_widget(self.state_widget)
                         self.map_widget.process_turn(command=command)
-                    if keycode[1] == 'x':
+                    elif keycode[1] == 'x':
                         #  Examine whatever is under cursor
                         self.game_state = 'examine_window'
                         self.remove_widget(self.state_widget)
@@ -534,6 +517,9 @@ class LogWindow(Label):
     """
     def __init__(self, *args, **kwargs):
         super(LogWindow, self).__init__(*args, **kwargs)
+        self.text_size = self.size
+        self.halign = 'left'
+        self.valign = 'middle'
         with self.canvas.before:
             Color(1, 0, 0)
             Rectangle(size=self.size, pos=self.pos)
