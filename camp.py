@@ -378,8 +378,7 @@ class RLMapWidget(RelativeLayout):
         """
         if widget and widget.parent and widget.height < 1:
             #  If the widget was given zero size, this means it should be removed
-            #  This entire affair, including creating placeholder widget on every iteration,
-            #  is kinda inefficient and should be rebuilt later
+            #  This entire affair is kinda inefficient and should be rebuilt later
             widget.parent.remove_widget(widget)
         if not self.map.game_events == []:
             event = self.map.game_events.pop(0)
@@ -401,6 +400,14 @@ class RLMapWidget(RelativeLayout):
                 a.start(event.actor.widget)
                 self.parent.boombox['attacked'].play()
             elif event.event_type == 'was_destroyed':
+                if not event.actor.widget:
+                    #  If actor is None, that means it was destroyed right after spawning, not getting a
+                    #  widget. Similar case is covered under 'dropped', see there for example. The check is
+                    #  different here, because in 'dropped' item is taken from map, where it's None by the time
+                    #  this method runs. Here, on the other hand, Item object exists (in GameEvent), but has
+                    #  no widget (and is not placed on map, but that's irrelevant).
+                    self.process_game_event()
+                    return
                 a = Animation(size=(0, 0), duration=anim_duration)
                 a.bind(on_start=lambda x, y: self.remember_anim(),
                        on_complete=lambda x, y: self.process_game_event(widget=y))
@@ -414,6 +421,12 @@ class RLMapWidget(RelativeLayout):
                 self.process_game_event()
             elif event.event_type == 'dropped':
                 item = self.map.get_item(location=event.location, layer='items')
+                if not item:
+                    #  Item could've been destroyed right after being drop, ie it didn't get a widget. Skip.
+                    #  It's rather likely if someone was killed by landmine, dropped an item and had this item
+                    #  destroyed in the same explosion
+                    self.process_game_event()
+                    return
                 if not item.widget:
                     self.tile_factory.create_widget(item)
                     item.widget.pos = self.get_screen_pos(event.location)

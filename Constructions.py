@@ -154,10 +154,11 @@ class Trap(Construction):
     def __init__(self, **kwargs):
         super(Trap, self).__init__(**kwargs)
         self.primed = False
+        self._destroyed_items = False
 
     def make_turn(self):
         if self.map.get_item(layer='actors', location=self.location) and self.primed:
-            #  If there is an Actor on top of it
+            #  If there is an Actor on top of primed mine
             self.map.game_events.append(GameEvent(event_type='exploded',
                                                   actor=self,
                                                   location=self.location))
@@ -165,50 +166,36 @@ class Trap(Construction):
             #  This event should be shot before any other events caused by explosion
             self.map.game_events.append(GameEvent(event_type='was_destroyed',
                                                   actor=self))
-            #  Damage Actor on the same tile. Since mine went off, there was one
-            victim = self.map.get_item(layer='actors',
-                                       location=self.location)
-            victim.fighter.get_damaged(5)
-            items_destroyed = False
-            #  Destroy item on the same tile, if any
-            victim = self.map.get_item(layer='items',
-                                       location=self.location)
-            if victim:
-            # if random() > 0.5:
-                self.map.delete_item(location=self.location, layer='items')
-                self.map.game_events.append(GameEvent(event_type='was_destroyed',
-                                                      actor=victim,
-                                                      location=self.location))
+            self.attack_tile(self.location)
             for loc in self.map.get_neighbour_coordinates(location=self.location):
-                #  Damage Actors and Constructions on neighbouring tiles and destroy stuff w/50% chance
-                a = self.map.get_column(location=loc)
-                for victim in a:
-                    if hasattr(victim, 'fighter'):
-                        #  Attack anything that has HP
-                        victim.fighter.get_damaged(5)
-                    if isinstance(victim, Item):
-                        if random() < 0.5:
-                            self.map.delete_item(location=loc, layer='items')
-                            self.map.game_events.append(GameEvent(event_type='was_destroyed',
-                                                                  actor=victim,
-                                                              location=loc))
-                            items_destroyed = True
-            if items_destroyed:
+                self.attack_tile(location=loc)
+            if self._destroyed_items:
                 self.map.extend_log('Some items were destroyed in the process')
-
-            #
-            # for victim in self.map.get_neighbours(location=self.location,
-            #                                       layers=['actors', 'constructions', 'items']):
-            #     if victim.fighter:
-            #         victim.fighter.get_damaged(5)
-            #     if isinstance(victim, Item):
-            #         if random() < 0.5:
-            #             self.map.delete_item(location=victim.location,)
             self.map.delete_item(location=self.location,
                                  layer=self.layer)
-
         else:
-            #  The landmine is primed when there is nobody on top of it.
+            #  The landmine takes one turn to prime.
             #  This is to prevent landmine exploding under the player right after he used it
             if not self.primed:
                 self.primed = True
+
+    def attack_tile(self, location):
+        """
+        Damage everything on the location.
+        MapItems that have a Fighter component (ie Actors and some Constructions) get 5 damage; Items have a
+        50% chance of being destroyed outright
+        :param location:
+        :return:
+        """
+        victims = self.map.get_column(location=location)
+        for victim in victims:
+            if hasattr(victim, 'fighter') and victim.fighter:
+                #  Both checks are necessary: constructions have fighter attribute, but may not have *component*
+                victim.fighter.get_damaged(5)
+            if isinstance(victim, Item):
+                if random() > 0.5:
+                    self.map.delete_item(location=location, layer='items')
+                    self.map.game_events.append(GameEvent(event_type='was_destroyed',
+                                                          actor=victim,
+                                                          location=location))
+                    self._destroyed_items = True
