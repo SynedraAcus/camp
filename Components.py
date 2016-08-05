@@ -90,7 +90,7 @@ class DescriptorComponent(Component):
     def get_description(self, combat=False):
         """
         Return a string that describes the actor this component is attached to.
-        :param combat: boolean. If set to True, combat capabilities of this actor will be returned
+        :param combat: boolean. If set to True, combat capabilities of this actor (if any) will be added
         :return:
         """
         r = '{0}\n{1}'.format(self.name, self.description)
@@ -101,8 +101,6 @@ class DescriptorComponent(Component):
                     '|'.join((str(x) for x in self.actor.fighter.attacks)),
                     '|'.join((str(x) for x in self.actor.fighter.defenses))
                 )
-            else:
-                raise ValueError('Cannot request combat description from Actor without FighterComponent!')
         return r
 
 

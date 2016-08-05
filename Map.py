@@ -63,6 +63,14 @@ class RLMap(object):
         return [self.items[layer][location[0]][location[1]] for layer in self.layers
                 if self.items[layer][location[0]][location[1]]]
 
+    def get_top_item(self, location=(0, 0)):
+        """
+        Return the topmost item in a given column
+        :param location:
+        :return:
+        """
+        return self.get_column(location=location)[-1]
+
     def add_item(self, item=None, layer='default', location=(0, 0)):
         """
         Add the map item at the given layer and location.

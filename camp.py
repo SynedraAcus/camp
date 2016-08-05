@@ -269,10 +269,16 @@ class GameWidget(RelativeLayout):
                         #  Examine whatever is under cursor
                         self.game_state = 'examine_window'
                         self.remove_widget(self.state_widget)
+                        try:
+                            t = self.map_widget.map.get_top_item(location=self.target_coordinates).descriptor.get_description(
+                                combat=True
+                            )
+                        except AttributeError:
+                            t = 'Nothing of note'
                         self.state_widget = LogWindow(pos=(200, 200),
                                                       size=(200, 200),
                                                       size_hint=(None, None),
-                                                      text='Placeholder examine text')
+                                                      text=t)
                         self.add_widget(self.state_widget)
                     elif self.key_parser.command_types[keycode[1]] == 'walk':
                         #  Move the targeting widget
