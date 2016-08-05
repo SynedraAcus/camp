@@ -157,17 +157,21 @@ class AIController(Controller):
     def choose_actor_action(self):
         """
         Walk to lowest-Dijkstra cell in the neighbourhood.
-        If several cells have equal value, a random one is chosen
+        Only walks to cells with Dijkstra value not higher than that of current cell. If several cells
+        have equal value, a random one is chosen.
         """
         #  Get lowest-Dijkstra neighbours
         neighbours = self.actor.map.get_neighbour_coordinates(location=self.actor.location)
         candidates = []
-        minimum = 1001  #  Above any possible Dijkstra map value
+        current = self.actor.map.dijkstra[self.actor.location[0]][self.actor.location[1]]
+        minimum = 1001  #  Hopefully above any possible Dijkstra map value
         for n in neighbours:
-            if self.actor.map.dijkstra[n[0]][n[1]] < minimum:
+            if self.actor.map.dijkstra[n[0]][n[1]] < minimum and self.actor.map.dijkstra[n[0]][n[1]] \
+                    and self.should_walk(n):
                 minimum = self.actor.map.dijkstra[n[0]][n[1]]
                 candidates = [n]
-            elif self.actor.map.dijkstra[n[0]][n[1]] == minimum:
+            elif self.actor.map.dijkstra[n[0]][n[1]] == minimum and self.actor.map.dijkstra[n[0]][n[1]] \
+                    and self.should_walk(n):
                 candidates.append(n)
         try:
             target = random.choice(tuple(filter(lambda a: self.should_walk(a), candidates)))
