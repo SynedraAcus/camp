@@ -198,11 +198,12 @@ class RLMap(object):
 
     #  Operations on neighbours
 
-    def get_neighbour_coordinates(self, location=(None, None)):
+    def get_neighbour_coordinates(self, location=(None, None), return_query=False):
         """
         Get the locations of all valid neighbour tiles.
-        This method returns list of locations; for items, use get_neighbours()
+        This method returns list of locations; for items, use get_neighbours().
         :param location: tuple of int
+        :param return_query: bool. Whether to include the location from argument to return list
         :return:
         """
         ret = []
@@ -215,20 +216,23 @@ class RLMap(object):
                         ret.append((x, y))
                 except IndexError:
                     pass
+        if return_query:
+            ret.append(location)
         return ret
 
 
-    def get_neighbours(self, layers=['default'], location=(None, None)):
+    def get_neighbours(self, layers=['default'], location=(None, None), return_query=False):
         """
         Get all the items in the cells connected to this one on given layers
         :param layers: list of layers of interest
         :param location: location
+        :param return_query: bool. Whether to include items in the tile from argument
         :return:
         """
         l = []
         for layer in layers:
             l += [self.get_item(layer=layer, location=x)
-                  for x in self.get_neighbour_coordinates(location=location)]
+                  for x in self.get_neighbour_coordinates(location=location, return_query=return_query)]
         # Filter out Nones and the item at (x, y)
         l = list(filter(lambda x: x is not None and not x.location == location, l))
         return l

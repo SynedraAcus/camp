@@ -3,6 +3,7 @@
 import kivy
 kivy.require('1.9.0')
 from kivy.app import App
+from kivy.config import Config
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.boxlayout import BoxLayout
@@ -144,7 +145,9 @@ class GameWidget(RelativeLayout):
                              #  Grabbing and dropping stuff
                              'g', ',', 'd',
                              #  Jumping
-                             'z']
+                             'z',
+                             #  Others
+                             'escape']
         #  Keys in this list are processed by self.map_widget.map
         self.map_keys = ['spacebar', '.',
                          'h', 'j', 'k', 'l',
@@ -179,6 +182,8 @@ class GameWidget(RelativeLayout):
                     #  If the key is a 'map-controlling' one, ie uses a turn without calling further windows
                     command = self.key_parser.key_to_command(keycode)
                     self.map_widget.process_turn(command=command)
+                elif keycode[1] == 'escape':
+                    App.get_running_app().stop()
                 #  The following checks set various game states but don't, by themselves, produce commands
                 elif keycode[1] in 'c':
                     #  Displaying player stats window
@@ -214,7 +219,9 @@ class GameWidget(RelativeLayout):
                     self.add_widget(self.state_widget)
             else:
                 #  Process various non-'playing' game states, hopefully making a command
-                if 'window' in self.game_state and keycode[1] in ('i', 'c', 'g', 'd'):
+                if ('window' in self.game_state or 'targeting' in self.game_state) \
+                        and keycode[1] in ('i', 'c', 'g', 'd', 'escape'):
+                    #  All state-switching keys move game to 'playing'
                     self.remove_widget(self.state_widget)
                     self.game_state = 'playing'
                 elif self.game_state == 'inv_window':
@@ -541,4 +548,5 @@ class CampApp(App):
         return root
 
 if __name__ == '__main__':
+    Config.set('kivy', 'exit_on_escape', 0)
     CampApp().run()

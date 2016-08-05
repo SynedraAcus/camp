@@ -158,16 +158,15 @@ class Trap(Construction):
 
     def make_turn(self):
         if self.map.get_item(layer='actors', location=self.location) and self.primed:
-            #  If there is an Actor on top of primed mine
+            #  Explode
             self.map.game_events.append(GameEvent(event_type='exploded',
                                                   actor=self,
                                                   location=self.location))
             self.map.extend_log('A mine exploded')
-            #  This event should be shot before any other events caused by explosion
+            #  This event should be fired before any other events caused by explosion
             self.map.game_events.append(GameEvent(event_type='was_destroyed',
                                                   actor=self))
-            self.attack_tile(self.location)
-            for loc in self.map.get_neighbour_coordinates(location=self.location):
+            for loc in self.map.get_neighbour_coordinates(location=self.location, return_query=True):
                 self.attack_tile(location=loc)
             if self._destroyed_items:
                 self.map.extend_log('Some items were destroyed in the process')
@@ -175,7 +174,7 @@ class Trap(Construction):
                                  layer=self.layer)
         else:
             #  The landmine takes one turn to prime.
-            #  This is to prevent landmine exploding under the player right after he used it
+            #  This is to prevent it from exploding under the player right after he installed it
             if not self.primed:
                 self.primed = True
 
