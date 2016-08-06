@@ -5,6 +5,7 @@ kivy.require('1.9.0')
 from kivy.app import App
 from kivy.config import Config
 from kivy.uix.floatlayout import FloatLayout
+from kivy.graphics.context_instructions import Rotate, Translate
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
@@ -18,6 +19,9 @@ from kivy.core.audio import SoundLoader
 #  My own stuff
 from Factories import TileWidgetFactory, MapFactory
 from Controller import Command
+
+#  Others
+from math import atan2, degrees
 
 #  A collection of constants. Most definitely needs to be refactored into a proper option container
 
@@ -495,10 +499,20 @@ class RLMapWidget(RelativeLayout):
                 self.parent.boombox['exploded'].play()
                 a.start(self.overlay_widget)
             elif event.event_type == 'shot':
-                self.overlay_widget = Image(source='Rocket.png',
-                                      size=(32, 32),
-                                      size_hint=(None, None),
-                                      pos = self.get_screen_pos(event.actor.location))
+                self.overlay_widget = RelativeLayout(pos=self.get_screen_pos(event.actor.location),
+                                                     size=(64, 64),
+                                                     size_hint=(None, None))
+                i = Image(source='Rocket.png',
+                          size=(32, 32),
+                          size_hint=(None, None))
+                self.overlay_widget.add_widget(i)
+                self.overlay_widget.canvas.before.add(Translate(x=32, y=32))
+                a = degrees(atan2(event.actor.location[1]-event.location[1],
+                                  event.actor.location[0]-event.location[0]))
+                # print(a)
+                if a > 180:
+                    self.overlay_widget.y += 32
+                self.overlay_widget.canvas.before.add(Rotate(angle=a+90, axis=(0, 0, 1)))
                 a = Animation(pos=self.get_screen_pos(event.location), duration=anim_duration)
                 a += Animation(size=(0,0), duration=0)
                 a.bind(on_start=lambda x, y: self.remember_anim(),
