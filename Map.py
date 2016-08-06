@@ -242,7 +242,7 @@ class RLMap(object):
             l += [self.get_item(layer=layer, location=x)
                   for x in self.get_neighbour_coordinates(location=location, return_query=return_query)]
         # Filter out Nones and the item at (x, y)
-        l = list(filter(lambda x: x is not None and not x.location == location, l))
+        l = list(filter(lambda x: x is not None and not (x.location == location and not return_query), l))
         return l
 
     def get_line(self, start=(None, None), end=(None, None)):

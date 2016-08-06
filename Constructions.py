@@ -151,8 +151,9 @@ class Trap(Construction):
     A construction that acts if an Actor steps on it.
     Currently is a hardcoded landmine (deals 5 damage to everything on its tile and neighbours)
     """
-    def __init__(self, **kwargs):
+    def __init__(self, effect=None, **kwargs):
         super(Trap, self).__init__(**kwargs)
+        self.effect = effect
         self.primed = False
         self._destroyed_items = False
 
@@ -166,12 +167,7 @@ class Trap(Construction):
             #  This event should be fired before any other events caused by explosion
             self.map.game_events.append(GameEvent(event_type='was_destroyed',
                                                   actor=self))
-            for loc in self.map.get_neighbour_coordinates(location=self.location, return_query=True):
-                self.attack_tile(location=loc)
-            if self._destroyed_items:
-                self.map.extend_log('Some items were destroyed in the process')
-            self.map.delete_item(location=self.location,
-                                 layer=self.layer)
+            self.effect.affect(self.map, self.location)
         else:
             #  The landmine takes one turn to prime.
             #  This is to prevent it from exploding under the player right after he installed it

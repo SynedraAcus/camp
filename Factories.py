@@ -15,8 +15,7 @@ from Actor import Actor
 from Constructions import Construction, FighterConstruction, Spawner, Trap
 from Components import *
 from Controller import PlayerController, AIController, FighterSpawnController
-from Items import PotionTypeItem, Item
-from Effects import FighterTargetedEffect, TileTargetedEffect
+from Items import PotionTypeItem, Item, FighterTargetedEffect, TileTargetedEffect
 
 #  Other imports
 from random import choice, randint
@@ -164,7 +163,10 @@ def make_random_item():
                             image_source='Landmine.png',
                             effect=TileTargetedEffect(effect_type='spawn_construction',
                                                       map=None,
-                                                      effect_value=Trap(image_source='Mined.png')))]
+                                                      effect_value=Trap(image_source='Mined.png',
+                                                                        effect=TileTargetedEffect(
+                                                                            effect_type='explode',
+                                                                            effect_value=5))))]
     return choice(items)
 
 

@@ -1,10 +1,66 @@
 """
-Item classes for the stuff that may be put in the inventories
+Item and Effect classes and their subclasses.
 """
 
+from Actor import GameEvent
 from MapItem import MapItem
-from Effects import FighterTargetedEffect, TileTargetedEffect
-# from Components import *
+from random import random, choice
+
+class Effect(object):
+    """
+    Root effect class
+    """
+    def __init__(self, effect_type, effect_value):
+        self.effect_type = effect_type
+        self.effect_value = effect_value
+
+
+class FighterTargetedEffect(Effect):
+    """
+    Effect that affects the FighterComponent of an Actor
+    """
+    def __init__(self, **kwargs):
+        super(FighterTargetedEffect, self).__init__(**kwargs)
+
+    def affect(self, actor):
+        if self.effect_type == 'heal':
+            actor.fighter.hp += choice(self.effect_value)
+            return True
+
+
+class TileTargetedEffect(Effect):
+    """
+    Effect that affects map tile
+    """
+    def __init__(self, map=None, **kwargs):
+        super(TileTargetedEffect, self).__init__(**kwargs)
+
+    def affect(self, map, location):
+        if self.effect_type == 'spawn_construction':
+            #  Spawn something in construction layer unless there already is something
+            if not map.get_item(location=location, layer='constructions'):
+                map.add_item(item=self.effect_value, location=location, layer='constructions')
+                map.game_events.append(GameEvent(event_type='construction_spawned',
+                                                 actor=self.effect_value,
+                                                 location=location))
+                return True
+            else:
+                return False
+        elif self.effect_type == 'explode':
+            #  Blow up, dealing 5 damage to all fighters on this and neighbouring tiles and
+            #  destroying items with 50% chance
+            destroyed_items = False
+            for tile in map.get_neighbour_coordinates(location=location, return_query=True):
+                for victim in map.get_column(tile):
+                    if hasattr(victim, 'fighter') and victim.fighter:
+                        victim.fighter.get_damaged(self.effect_value)
+                    elif isinstance(victim, Item) and random() > 0.5:
+                        map.delete_item(layer='items', location=tile)
+                        map.game_events.append(GameEvent(event_type='was_destroyed',
+                                                              actor=victim, location=tile))
+                        destroyed_items = True
+            if destroyed_items:
+                map.extend_log('Some items were destroyed')
 
 
 class Item(MapItem):
@@ -47,7 +103,7 @@ class PotionTypeItem(Item):
         if isinstance(self.effect, FighterTargetedEffect):
             r = self.effect.affect(self.owner.actor)
         elif isinstance(self.effect, TileTargetedEffect):
-            r = self.effect.affect(self.owner.actor.location)
+            r = self.effect.affect(self.owner.actor.map, self.owner.actor.location)
         #  Log usage and return result
         if r:
             self.owner.actor.map.extend_log('{0} used {1}'.format(self.owner.actor.descriptor.name,
