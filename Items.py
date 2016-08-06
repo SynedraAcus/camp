@@ -93,17 +93,24 @@ class PotionTypeItem(Item):
         super(PotionTypeItem, self).__init__(**kwargs)
         self.effect = effect
 
-    def use(self):
+    def use(self, target=None):
         """
         Spend this item: apply effect, remove it from inventory and send a message to game log
         Returns True if using item was possible (not necessary successful!)
+        :param target: type depends on Effect class and may be Actor, location or whatever else subclass supports
         :return:
         """
         #  Use effect on an appropriate target
         if isinstance(self.effect, FighterTargetedEffect):
-            r = self.effect.affect(self.owner.actor)
+            if not target:
+                r = self.effect.affect(self.owner.actor)
+            else:
+                r = self.effect.affect(target)
         elif isinstance(self.effect, TileTargetedEffect):
-            r = self.effect.affect(self.owner.actor.map, self.owner.actor.location)
+            if not target:
+                r = self.effect.affect(self.owner.actor.map, self.owner.actor.location)
+            else:
+                r = self.effect.affect(self.owner.actor.map, target)
         #  Log usage and return result
         if r:
             self.owner.actor.map.extend_log('{0} used {1}'.format(self.owner.actor.descriptor.name,

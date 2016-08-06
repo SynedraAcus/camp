@@ -274,10 +274,11 @@ class GameWidget(RelativeLayout):
                         self.add_widget(self.state_widget)
                     elif keycode[1] == 'f':
                         #  Shooting to the cursor
-                        self.game_state = 'playing'
-                        self.remove_widget(self.state_widget)
                         command = Command(command_type='shoot',
                                           command_value=self.target_coordinates)
+                        self.game_state = 'playing'
+                        self.remove_widget(self.state_widget)
+
                         self.map_widget.process_turn(command)
                     elif self.key_parser.command_types[keycode[1]] == 'walk':
                         #  Move the targeting widget

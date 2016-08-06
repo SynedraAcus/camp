@@ -146,6 +146,9 @@ class InventoryComponent(Component):
         item.owner = None
         self.items.remove(item)
 
+    def index(self, item):
+        return self.items.index(item)
+
     def __len__(self):
         return len(self.items)
 

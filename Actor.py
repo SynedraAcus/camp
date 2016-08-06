@@ -189,7 +189,7 @@ class Actor(MapItem):
         else:
             return False
 
-    def use_item(self, item_number):
+    def use_item(self, item_number, target=None):
         """
         Spend one turn to use item from inventory.
         Return True if use was successful, False otherwise
@@ -197,7 +197,7 @@ class Actor(MapItem):
         :return:
         """
         try:
-            return self.inventory[item_number].use()
+            return self.inventory[item_number].use(target)
         except IndexError:
             return False
 
@@ -209,10 +209,16 @@ class Actor(MapItem):
         :param target:
         :return: bool
         """
-        hit_location = self.map.get_line(self.location, location)[-1]
-        self.map.extend_log('{0} shot and hit {1}'.format(self.descriptor.name,
-                                                          str(self.map.get_column(hit_location))))
-        return True
+        #  This prototype remotely installs items because rocket Item is not yet available
+        mine_id = None
+        for item in self.inventory:
+            if item.name == 'Landmine':
+                mine_id = self.inventory.index(item)
+                self.use_item(mine_id, target=location)
+            return True
+        if not mine_id:
+            self.map.extend_log('Out of mines!')
+            return False
 
     def drop_item(self, item_number):
         """

@@ -45,7 +45,11 @@ class Controller(object):
                                            self.last_command.command_value[1]))
         #  Item usage
         elif self.last_command.command_type == 'use_item':
-            r = self.actor.use_item(self.last_command.command_value[0])
+            if len(self.last_command.command_value) == 1:
+                r = self.actor.use_item(self.last_command.command_value[0])
+            else:
+                r = self.actor.use_item(self.last_command.command_value[0],
+                                        self.last_command.command_value[1:])
         #  Grabbing & Dropping
         elif self.last_command.command_type == 'grab':
             r = self.actor.grab()
