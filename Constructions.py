@@ -167,6 +167,7 @@ class Trap(Construction):
             #  This event should be fired before any other events caused by explosion
             self.map.game_events.append(GameEvent(event_type='was_destroyed',
                                                   actor=self))
+            self.map.delete_item(layer='constructions', location=self.location)
             self.effect.affect(self.map, self.location)
         else:
             #  The landmine takes one turn to prime.
