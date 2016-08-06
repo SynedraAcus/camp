@@ -111,7 +111,11 @@ class PotionTypeItem(Item):
                 r = self.effect.affect(target)
         elif isinstance(self.effect, TileTargetedEffect):
             if not target:
-                r = self.effect.affect(self.owner.actor.map, self.owner.actor.location)
+                if self.effect.effect_type not in 'explode':
+                    r = self.effect.affect(self.owner.actor.map, self.owner.actor.location)
+                else:
+                    self.owner.actor.map.extend_log('Better not to blow yourself up. Use [F]ire command.')
+                    r = False
             else:
                 print('{0} used on {1}'.format(self.name, target))
                 r = self.effect.affect(self.owner.actor.map, target)
