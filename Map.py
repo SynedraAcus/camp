@@ -204,7 +204,7 @@ class RLMap(object):
         self.updated_now.add(tuple(actor.location))
         self._breadth_fill(value=-5, filled=set((tuple(actor.location),)))
 
-    #  Operations on neighbours
+    #  Complex operations on map
 
     def get_neighbour_coordinates(self, location=(None, None), return_query=False):
         """
@@ -245,6 +245,51 @@ class RLMap(object):
         l = list(filter(lambda x: x is not None and not x.location == location, l))
         return l
 
+    def get_line(self, start=(None, None), end=(None, None)):
+        """
+        Return the path from starting point to endpoint as a list of coordinates.
+        This method uses Bresenham line-drawing algorithm and stops iteration on reaching the impassable
+        tile, even if it hasn't reached end. The entire method, save for impassability check, is copied
+        from http://www.roguebasin.com/index.php?title=Bresenham%27s_Line_Algorithm#Python
+        :param start:
+        :param end:
+        :return:
+        """
+        x1, y1 = start
+        x2, y2 = end
+        dx = x2 - x1
+        dy = y2 - y1
+        is_steep = abs(dy) > abs(dx)
+        if is_steep:
+            x1, y1 = y1, x1
+            x2, y2 = y2, x2
+        swapped = False
+        if x1 > x2:
+            x1, x2 = x2, x1
+            y1, y2 = y2, y1
+            swapped = True
+        dx = x2 - x1
+        dy = y2 - y1
+        error = int(dx/2.0)
+        ystep = 1 if y1 < y2 else -1
+        #  Iteration
+        y = y1
+        points = []
+        for x in range(x1, x2+1):
+            coord = (y, x) if is_steep else (x, y)
+            points.append(coord)
+            if not coord == (x1, y1) and not self.entrance_possible(coord):
+                #  Break line on impassable tiles
+                break
+            error -= abs(dy)
+            if error < 0:
+                y += ystep
+                error += dx
+        if swapped:
+            points.reverse()
+        return points
+
+
     #  This isn't static method, because I intend to replace it by some proper distance calculation
     #  with pathfinding instead of a current euclidean placeholder sometime in the future
     def distance(self, location1=(None, None), location2=(None, None)):
@@ -254,6 +299,7 @@ class RLMap(object):
         :param location2:
         :return:
         """
+        #  Deprecated
         return sqrt((location1[0]-location2[0])**2+(location1[1]-location2[1])**2)
 
     def entrance_possible(self, location):
