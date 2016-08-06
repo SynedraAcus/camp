@@ -19,7 +19,8 @@ class GameEvent(object):
                         'dropped',
                         'actor_spawned',
                         'construction_spawned',
-                        'exploded')
+                        'exploded',
+                        'shot')
 
     def __init__(self, event_type=None, actor=None, location=None):
         assert isinstance(event_type, str) and event_type in self.acceptable_types

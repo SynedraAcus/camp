@@ -117,7 +117,6 @@ class PotionTypeItem(Item):
                     self.owner.actor.map.extend_log('Better not to blow yourself up. Use [F]ire command.')
                     r = False
             else:
-                print('{0} used on {1}'.format(self.name, target))
                 r = self.effect.affect(self.owner.actor.map, target)
         #  Log usage and return result
         if r:

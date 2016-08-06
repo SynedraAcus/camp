@@ -493,6 +493,18 @@ class RLMapWidget(RelativeLayout):
                 self.add_widget(self.overlay_widget)
                 self.parent.boombox['exploded'].play()
                 a.start(self.overlay_widget)
+            elif event.event_type == 'shot':
+                self.overlay_widget = Image(source='Rocket.png',
+                                      size=(32, 32),
+                                      size_hint=(None, None),
+                                      pos = self.get_screen_pos(event.actor.location))
+                a = Animation(pos=self.get_screen_pos(event.location), duration=anim_duration)
+                a += Animation(size=(0,0), duration=0)
+                a.bind(on_start=lambda x, y: self.remember_anim(),
+                       on_complete=lambda x, y: self.process_game_event(widget=y))
+                self.add_widget(self.overlay_widget)
+                a.start(self.overlay_widget)
+
         else:
             #  Reactivating keyboard after finishing animation
             self.animating = False

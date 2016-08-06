@@ -214,6 +214,7 @@ class Actor(MapItem):
         for item in self.inventory.items:
             if item.name == 'Rocket':
                 rocket_id = self.inventory.index(item)
+                self.map.game_events.append(GameEvent(event_type='shot', actor=self, location=location))
                 self.use_item(rocket_id, target=self.map.get_line(self.location, location)[-1])
                 return True
         print(rocket_id)
