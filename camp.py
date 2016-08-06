@@ -276,8 +276,9 @@ class GameWidget(RelativeLayout):
                         #  Shooting to the cursor
                         self.game_state = 'playing'
                         self.remove_widget(self.state_widget)
-                        print(self.map_widget.map.get_line(self.map_widget.map.actors[0].location,
-                                                           self.target_coordinates))
+                        command = Command(command_type='shoot',
+                                          command_value=self.target_coordinates)
+                        self.map_widget.process_turn(command)
                     elif self.key_parser.command_types[keycode[1]] == 'walk':
                         #  Move the targeting widget
                         delta = self.key_parser.command_values[keycode[1]]

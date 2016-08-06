@@ -9,7 +9,7 @@ class Command(object):
     command_type should be one of the string values defined in Command.acceptable_commands
     command_value should be an iterable or None
     """
-    acceptable_commands = ('walk', 'use_item', 'wait', 'grab', 'drop_item', 'jump')
+    acceptable_commands = ('walk', 'use_item', 'wait', 'grab', 'drop_item', 'jump', 'shoot')
     def __init__(self, command_type=None, command_value=None):
         assert command_type in self.acceptable_commands
         self.command_type = command_type
@@ -40,6 +40,9 @@ class Controller(object):
         elif self.last_command.command_type == 'jump':
             r = self.actor.jump(location=(self.actor.location[0]+self.last_command.command_value[0],
                                           self.actor.location[1]+self.last_command.command_value[1]))
+        elif self.last_command.command_type == 'shoot':
+            r = self.actor.shoot(location=(self.last_command.command_value[0],
+                                           self.last_command.command_value[1]))
         #  Item usage
         elif self.last_command.command_type == 'use_item':
             r = self.actor.use_item(self.last_command.command_value[0])
@@ -135,7 +138,7 @@ class PlayerController(Controller):
         super(Controller, self).__init__()
         # self.commands = {}
 
-    accepted_command_types = ('walk', 'use_item', 'wait', 'grab', 'drop_item', 'jump')
+    accepted_command_types = ('walk', 'use_item', 'wait', 'grab', 'drop_item', 'jump', 'shoot')
 
     def accept_command(self, command):
         if command.command_type not in self.accepted_command_types:

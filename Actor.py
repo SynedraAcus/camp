@@ -201,6 +201,19 @@ class Actor(MapItem):
         except IndexError:
             return False
 
+    def shoot(self, location):
+        """
+        Shoot to the target location.
+        This method actually finds the first rocket in the player inventory and calls its' use_item
+        with the target location. It also fires 'shot' GameEvent to draw shooting animation
+        :param target:
+        :return: bool
+        """
+        hit_location = self.map.get_line(self.location, location)[-1]
+        self.map.extend_log('{0} shot and hit {1}'.format(self.descriptor.name,
+                                                          str(self.map.get_column(hit_location))))
+        return True
+
     def drop_item(self, item_number):
         """
         Spend one turn to drop item from inventory
