@@ -47,8 +47,9 @@ class TileTargetedEffect(Effect):
             else:
                 return False
         elif self.effect_type == 'explode':
-            #  Blow up, dealing 5 damage to all fighters on this and neighbouring tiles and
+            #  Blow up, dealing effect_value damage to all fighters on this and neighbouring tiles and
             #  destroying items with 50% chance
+            map.game_events.append(GameEvent(event_type='exploded', location=location))
             destroyed_items = False
             for tile in map.get_neighbour_coordinates(location=location, return_query=True):
                 for victim in map.get_column(tile):
@@ -61,6 +62,7 @@ class TileTargetedEffect(Effect):
                         destroyed_items = True
             if destroyed_items:
                 map.extend_log('Some items were destroyed')
+            return True
 
 
 class Item(MapItem):
@@ -100,7 +102,8 @@ class PotionTypeItem(Item):
         :param target: type depends on Effect class and may be Actor, location or whatever else subclass supports
         :return:
         """
-        #  Use effect on an appropriate target
+        self.owner.actor.map.extend_log('{0} used {1}'.format(self.owner.actor.descriptor.name,
+                                                                  self.name))
         if isinstance(self.effect, FighterTargetedEffect):
             if not target:
                 r = self.effect.affect(self.owner.actor)
@@ -110,11 +113,10 @@ class PotionTypeItem(Item):
             if not target:
                 r = self.effect.affect(self.owner.actor.map, self.owner.actor.location)
             else:
+                print('{0} used on {1}'.format(self.name, target))
                 r = self.effect.affect(self.owner.actor.map, target)
         #  Log usage and return result
         if r:
-            self.owner.actor.map.extend_log('{0} used {1}'.format(self.owner.actor.descriptor.name,
-                                                                  self.name))
             self.owner.remove(self)
             return True
         else:

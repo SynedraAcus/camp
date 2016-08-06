@@ -197,7 +197,7 @@ class Actor(MapItem):
         :return:
         """
         try:
-            return self.inventory[item_number].use(target)
+            return self.inventory[item_number].use(target=target)
         except IndexError:
             return False
 
@@ -210,14 +210,15 @@ class Actor(MapItem):
         :return: bool
         """
         #  This prototype remotely installs items because rocket Item is not yet available
-        mine_id = None
-        for item in self.inventory:
-            if item.name == 'Landmine':
-                mine_id = self.inventory.index(item)
-                self.use_item(mine_id, target=location)
-            return True
-        if not mine_id:
-            self.map.extend_log('Out of mines!')
+        rocket_id = None
+        for item in self.inventory.items:
+            if item.name == 'Rocket':
+                rocket_id = self.inventory.index(item)
+                self.use_item(rocket_id, target=self.map.get_line(self.location, location)[-1])
+                return True
+        print(rocket_id)
+        if rocket_id is None:
+            self.map.extend_log('Out of rockets!')
             return False
 
     def drop_item(self, item_number):

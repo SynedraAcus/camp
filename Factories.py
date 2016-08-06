@@ -166,7 +166,10 @@ def make_random_item():
                                                       effect_value=Trap(image_source='Mined.png',
                                                                         effect=TileTargetedEffect(
                                                                             effect_type='explode',
-                                                                            effect_value=5))))]
+                                                                            effect_value=5)))),
+             PotionTypeItem(name='Rocket',
+                            image_source='Rocket.png',
+                            effect=TileTargetedEffect(effect_type='explode', effect_value=5))]
     return choice(items)
 
 

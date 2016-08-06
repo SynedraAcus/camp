@@ -160,9 +160,9 @@ class Trap(Construction):
     def make_turn(self):
         if self.map.get_item(layer='actors', location=self.location) and self.primed:
             #  Explode
-            self.map.game_events.append(GameEvent(event_type='exploded',
-                                                  actor=self,
-                                                  location=self.location))
+            # self.map.game_events.append(GameEvent(event_type='exploded',
+            #                                       actor=self,
+            #                                       location=self.location))
             self.map.extend_log('A mine exploded')
             #  This event should be fired before any other events caused by explosion
             self.map.game_events.append(GameEvent(event_type='was_destroyed',

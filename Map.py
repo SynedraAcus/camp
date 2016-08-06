@@ -278,16 +278,18 @@ class RLMap(object):
         for x in range(x1, x2+1):
             coord = (y, x) if is_steep else (x, y)
             points.append(coord)
-            if not coord == (x1, y1) and not self.entrance_possible(coord):
-                #  Break line on impassable tiles
-                break
             error -= abs(dy)
             if error < 0:
                 y += ystep
                 error += dx
         if swapped:
             points.reverse()
-        return points
+        #  Shorten points until the first impassable tile, not including the very start
+        for a in range(1, len(points)):
+            if not self.entrance_possible(points[a]):
+                cut = a
+                break
+        return points[:a+1]
 
 
     #  This isn't static method, because I intend to replace it by some proper distance calculation

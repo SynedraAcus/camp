@@ -303,7 +303,6 @@ class GameWidget(RelativeLayout):
         else:
             self.log_widget.text = '\n'.join(self.map_widget.map.game_log)
 
-
 class LayerWidget(RelativeLayout):
     """
     A map layer widget.
@@ -536,7 +535,7 @@ class LogWindow(Label):
         super(LogWindow, self).__init__(*args, **kwargs)
         self.text_size = self.size
         self.halign = 'left'
-        self.valign = 'middle'
+        self.valign = 'top'
         with self.canvas.before:
             Color(1, 0, 0)
             Rectangle(size=self.size, pos=self.pos)
