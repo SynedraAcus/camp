@@ -129,7 +129,7 @@ class GameWidget(RelativeLayout):
                              #  Targeted effects
                              'z', 'x', 'f',
                              #  Others
-                             'escape']
+                             'escape', 'enter', 'numpadenter']
         #  Keys in this list are processed by self.map_widget.map
         self.map_keys = ['spacebar', '.',
                          'h', 'j', 'k', 'l',
@@ -249,7 +249,7 @@ class GameWidget(RelativeLayout):
                     except ValueError:
                         pass
                 elif 'targeting' in self.game_state:
-                    if keycode[1] == 'z':
+                    if self.game_state == 'jump_targeting' and keycode[1] in ('z', 'enter', 'numpadenter'):
                         #  Finish jump targeting
                         delta = (self.target_coordinates[0]-self.map_widget.map.actors[0].location[0],
                                  self.target_coordinates[1]-self.map_widget.map.actors[0].location[1])
@@ -257,7 +257,7 @@ class GameWidget(RelativeLayout):
                         self.game_state = 'playing'
                         self.remove_widget(self.state_widget)
                         self.map_widget.process_turn(command=command)
-                    elif keycode[1] == 'x':
+                    elif self.game_state == 'examine_targeting' and keycode[1] in ('x', 'enter', 'numpadenter'):
                         #  Examine whatever is under cursor
                         self.game_state = 'examine_window'
                         self.remove_widget(self.state_widget)
@@ -272,7 +272,7 @@ class GameWidget(RelativeLayout):
                                                       size_hint=(None, None),
                                                       text=t)
                         self.add_widget(self.state_widget)
-                    elif keycode[1] == 'f':
+                    elif self.game_state == 'fire_targeting' and keycode[1] in ('f', 'enter', 'numpadenter'):
                         #  Shooting to the cursor
                         command = Command(command_type='shoot',
                                           command_value=self.target_coordinates)
@@ -280,7 +280,8 @@ class GameWidget(RelativeLayout):
                         self.remove_widget(self.state_widget)
 
                         self.map_widget.process_turn(command)
-                    elif self.key_parser.command_types[keycode[1]] == 'walk':
+                    elif keycode[1] in self.key_parser.command_types.keys() and \
+                                    self.key_parser.command_types[keycode[1]] == 'walk':
                         #  Move the targeting widget
                         delta = self.key_parser.command_values[keycode[1]]
                         self.target_coordinates = [self.target_coordinates[0]+delta[0],
