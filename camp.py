@@ -127,7 +127,7 @@ class GameWidget(RelativeLayout):
                              #  Inventory management
                              'g', ',', 'd', 'i',
                              #  Targeted effects
-                             'z', 'x',
+                             'z', 'x', 'f',
                              #  Others
                              'escape']
         #  Keys in this list are processed by self.map_widget.map
@@ -209,6 +209,15 @@ class GameWidget(RelativeLayout):
                                               size=(32, 32),
                                               size_hint=(None, None))
                     self.add_widget(self.state_widget)
+                elif keycode[1] in 'f':
+                    self.game_state = 'fire_targeting'
+                    self.target_coordinates = self.map_widget.map.actors[0].location
+                    self.state_widget = Image(source='Mined.png',
+                                              pos = self.map_widget.get_screen_pos(self.target_coordinates,
+                                                                                   parent=True),
+                                              size=(32, 32),
+                                              size_hint=(None, None))
+                    self.add_widget(self.state_widget)
             else:
                 #  Process various non-'playing' game states, hopefully making a command
                 if ('window' in self.game_state or 'targeting' in self.game_state) \
@@ -263,6 +272,12 @@ class GameWidget(RelativeLayout):
                                                       size_hint=(None, None),
                                                       text=t)
                         self.add_widget(self.state_widget)
+                    elif keycode[1] == 'f':
+                        #  Shooting to the cursor
+                        self.game_state = 'playing'
+                        self.remove_widget(self.state_widget)
+                        print(self.map_widget.map.get_line(self.map_widget.map.actors[0].location,
+                                                           self.target_coordinates))
                     elif self.key_parser.command_types[keycode[1]] == 'walk':
                         #  Move the targeting widget
                         delta = self.key_parser.command_values[keycode[1]]
