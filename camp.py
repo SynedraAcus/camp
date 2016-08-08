@@ -198,7 +198,7 @@ class GameWidget(RelativeLayout):
                 elif keycode[1] in 'z':
                     self.game_state = 'jump_targeting'
                     self.target_coordinates = self.map_widget.map.actors[0].location
-                    self.state_widget = Image(source='Mined.png',
+                    self.state_widget = Image(source='JumpTarget.png',
                                               pos=self.map_widget.get_screen_pos(self.target_coordinates,
                                                                                   parent=True),
                                               size=(32, 32),
@@ -207,7 +207,7 @@ class GameWidget(RelativeLayout):
                 elif keycode[1] in 'x':
                     self.game_state = 'examine_targeting'
                     self.target_coordinates = self.map_widget.map.actors[0].location
-                    self.state_widget = Image(source='Mined.png',
+                    self.state_widget = Image(source='ExamineTarget.png',
                                               pos=self.map_widget.get_screen_pos(self.target_coordinates,
                                                                                  parent=True),
                                               size=(32, 32),
@@ -216,8 +216,8 @@ class GameWidget(RelativeLayout):
                 elif keycode[1] in 'f':
                     self.game_state = 'fire_targeting'
                     self.target_coordinates = self.map_widget.map.actors[0].location
-                    self.state_widget = Image(source='Mined.png',
-                                              pos = self.map_widget.get_screen_pos(self.target_coordinates,
+                    self.state_widget = Image(source='FireTarget.png',
+                                              pos=self.map_widget.get_screen_pos(self.target_coordinates,
                                                                                    parent=True),
                                               size=(32, 32),
                                               size_hint=(None, None))
