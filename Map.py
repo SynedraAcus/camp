@@ -182,8 +182,12 @@ class RLMap(object):
                 bg = self.get_item(layer='bg', location=n)
                 c = self.get_item(layer='constructions', location=n)
                 #  Ignore impassable cells and cells with impassable factionless constructions
-                if n not in self.updated_now and bg.passable and (not c or c.passable or c.faction):
-                    s.add(n)
+                if n not in self.updated_now:
+                    if bg.passable and (not c or c.passable or c.faction):
+                        s.add(n)
+                    else:
+                        self.dijkstra[n[0]][n[1]] = 1000
+                        self.updated_now.add(n)
         if s:
             for cell in s:
                 self.dijkstra[cell[0]][cell[1]] = value + 1
