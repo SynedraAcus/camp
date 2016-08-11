@@ -6,10 +6,8 @@ may be present at a cell at a time, but there may be both actor and construction
 Typical constructions are immobile interactive stuff: traps, chests, stairs and such.
 """
 
+from Actor import GameEvent
 from MapItem import MapItem
-from Items import Item
-from Actor import Actor, GameEvent
-from random import random
 
 
 class Construction(MapItem):
@@ -174,24 +172,3 @@ class Trap(Construction):
             #  This is to prevent it from exploding under the player right after he installed it
             if not self.primed:
                 self.primed = True
-
-    def attack_tile(self, location):
-        """
-        Damage everything on the location.
-        MapItems that have a Fighter component (ie Actors and some Constructions) get 5 damage; Items have a
-        50% chance of being destroyed outright
-        :param location:
-        :return:
-        """
-        victims = self.map.get_column(location=location)
-        for victim in victims:
-            if hasattr(victim, 'fighter') and victim.fighter:
-                #  Both checks are necessary: constructions have fighter attribute, but may not have *component*
-                victim.fighter.get_damaged(5)
-            if isinstance(victim, Item):
-                if random() > 0.5:
-                    self.map.delete_item(location=location, layer='items')
-                    self.map.game_events.append(GameEvent(event_type='was_destroyed',
-                                                          actor=victim,
-                                                          location=location))
-                    self._destroyed_items = True

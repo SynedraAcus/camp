@@ -2,9 +2,11 @@
 Item and Effect classes and their subclasses.
 """
 
+from random import random, choice
+
 from Actor import GameEvent
 from MapItem import MapItem
-from random import random, choice
+
 
 class Effect(object):
     """
@@ -48,7 +50,7 @@ class TileTargetedEffect(Effect):
                 return False
         elif self.effect_type == 'explode':
             #  Blow up, dealing effect_value damage to all fighters on this and neighbouring tiles and
-            #  destroying items with 50% chance
+            #  destroying items with 50% chance. Spawn an impassable hole where explosion occured
             map.game_events.append(GameEvent(event_type='exploded', location=location))
             destroyed_items = False
             for tile in map.get_neighbour_coordinates(location=location, return_query=True):
