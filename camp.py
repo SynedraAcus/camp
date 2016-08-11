@@ -4,12 +4,10 @@ import kivy
 kivy.require('1.9.0')
 from kivy.app import App
 from kivy.config import Config
-from kivy.uix.floatlayout import FloatLayout
 from kivy.graphics.context_instructions import Rotate, Translate
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
-from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.graphics import Color, Rectangle
 from kivy.core.window import Window
@@ -305,6 +303,7 @@ class GameWidget(RelativeLayout):
             self.log_widget.text = '\n'.join(self.map_widget.map.game_log[-6:])
         else:
             self.log_widget.text = '\n'.join(self.map_widget.map.game_log)
+        self.log_widget.canvas.ask_update()
 
 class LayerWidget(RelativeLayout):
     """
