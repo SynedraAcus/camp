@@ -123,7 +123,7 @@ class PotionTypeItem(Item):
         :return:
         """
         self.owner.actor.map.extend_log('{0} used {1}'.format(self.owner.actor.descriptor.name,
-                                                                  self.name))
+                                                              self.name))
         if isinstance(self.effect, FighterTargetedEffect):
             if not target:
                 r = self.effect.affect(self.owner.actor)

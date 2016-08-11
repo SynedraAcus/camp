@@ -3,9 +3,9 @@ Actor classes. Also contains other classes (components, TurnReport) that are nec
 functioning, but are not, strictly speaking, related to graphics
 """
 
-from Controller import Controller, PlayerController, AIController
-from MapItem import MapItem
+from Controller import Controller, PlayerController
 from GameEvent import GameEvent
+from MapItem import MapItem
 
 
 class Actor(MapItem):
@@ -217,7 +217,6 @@ class Actor(MapItem):
                 self.map.game_events.append(GameEvent(event_type='shot', actor=self, location=location))
                 self.use_item(rocket_id, target=self.map.get_line(self.location, location)[-1])
                 return True
-        print(rocket_id)
         if rocket_id is None:
             self.map.extend_log('Out of rockets!')
             return False
