@@ -292,18 +292,6 @@ class RLMap(object):
         return points[:a+1]
 
 
-    #  This isn't static method, because I intend to replace it by some proper distance calculation
-    #  with pathfinding instead of a current euclidean placeholder sometime in the future
-    def distance(self, location1=(None, None), location2=(None, None)):
-        """
-        Calculate distance between two locations
-        :param location1:
-        :param location2:
-        :return:
-        """
-        #  Deprecated
-        return sqrt((location1[0]-location2[0])**2+(location1[1]-location2[1])**2)
-
     def entrance_possible(self, location):
         """
         Return true, if a given coordinates correspond to a valid move destination (ie passable tile

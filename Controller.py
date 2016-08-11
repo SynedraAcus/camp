@@ -107,31 +107,6 @@ class Controller(object):
         l = tuple(filter(filter_function, l))
         return l
 
-    def get_command_towards(self, location):
-        """
-        Return Command for a step towards location
-        Return 'walk' command with either dx, dy or both that moves an actor towards desired location.
-        No checks are made, other that coordinates should change in the right direction and there should be
-        no obstacles.
-        :param location:
-        :return:
-        """
-        dx = self.actor.location[0]-location[0]
-        dy = self.actor.location[1]-location[1]
-        #  Walk horizontally or vertically if dx and dy differ twofold or more
-        #  Diagonally otherwise
-        if abs(dx) > 2*abs(dy):
-            c = Command(command_type='walk', command_value=(1 if dx < 0 else -1, 0))
-        elif abs(dy) > 2*abs(dx):
-            c = Command(command_type='walk', command_value=(0, 1 if dy < 0 else -1))
-        else:
-            c = Command(command_type='walk', command_value=(1 if dx < 0 else -1,
-                                                            1 if dy < 0 else -1))
-        if not self._should_walk((self.actor.location[0]+c.command_value[0],
-                                  self.actor.location[1]+c.command_value[1])):
-            c = Command(command_type='wait')
-        return c
-
 
 class PlayerController(Controller):
     """
