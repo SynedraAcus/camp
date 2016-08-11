@@ -19,6 +19,7 @@ from Items import PotionTypeItem, Item, FighterTargetedEffect, TileTargetedEffec
 
 #  Other imports
 from random import choice, randint
+from copy import deepcopy
 
 
 class ActorWidget(Widget):
@@ -137,10 +138,9 @@ class TileWidgetFactory(object):
         return constr.widget
 
 
-def make_random_item():
+class ItemFactory:
     """
-    Return a random item from a list defined inside the procedure.
-    Some items cannot be created when map is not available, so a RLMap instance should be supplied
+    A factory for the inventory items.
     :return:
     """
     items = [PotionTypeItem(name='Bottle',
@@ -169,9 +169,22 @@ def make_random_item():
                                                                             effect_value=5)))),
              PotionTypeItem(name='Rocket',
                             image_source='Rocket.png',
-                            effect=TileTargetedEffect(effect_type='explode', effect_value=5))]
-    return choice(items)
+                            effect=TileTargetedEffect(effect_type='explode', effect_value=5))
+             ]
 
+    def create_random(self):
+        """
+        Return a random item from self.items
+        :return: Item instance
+        """
+        return deepcopy(choice(self.items))
+
+    def give_all(self):
+        """
+        Return a list containing a single copy of all available items
+        :return:
+        """
+        return deepcopy(self.items)
 
 class ActorFactory(object):
     """
@@ -180,6 +193,7 @@ class ActorFactory(object):
     def __init__(self, faction):
         assert isinstance(faction, FactionComponent)
         self.faction = faction
+        self.item_factory = ItemFactory()
 
     def create_thug(self):
         """
@@ -193,7 +207,7 @@ class ActorFactory(object):
                      descriptor=DescriptorComponent(name='A regular thug',
                                                     description='Not particularly smart, but also rarely alone'),
                      inventory=InventoryComponent(volume=1,
-                                                  initial_items=[make_random_item()]),
+                                                  initial_items=[self.item_factory.create_random()]),
                      faction=self.faction)
 
 
@@ -228,12 +242,12 @@ class MapFactory(object):
         pc_faction = FactionComponent(faction='pc', enemies=['npc'])
         npc_faction = FactionComponent(faction='npc', enemies=['pc'])
         thug_factory = ActorFactory(faction=npc_faction)
+        item_factory = ItemFactory()
         map.add_item(item=Actor(controller=PlayerController(),
                                 fighter=FighterComponent(),
                                 descriptor=DescriptorComponent(name='PC',
                                                                 description='Player-controlled dude'),
-                                inventory=InventoryComponent(initial_items=[make_random_item(),
-                                                                            make_random_item()],
+                                inventory=InventoryComponent(initial_items=item_factory.give_all(),
                                                              volume=10),
                                 faction = pc_faction,
                                 breath = BreathComponent(),
@@ -253,7 +267,7 @@ class MapFactory(object):
                 pos = (randint(0, map.size[0]-1), randint(0, map.size[1]-1))
                 if not map.get_item(layer='items', location=pos)\
                         and not map.get_item(layer='constructions', location=pos):
-                    map.add_item(item=make_random_item(),
+                    map.add_item(item=item_factory.create_random(),
                                  location=pos, layer='items')
                     map.get_item(location=pos, layer='items').effect.map = map
                     break

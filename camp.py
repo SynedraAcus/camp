@@ -181,7 +181,6 @@ class GameWidget(RelativeLayout):
                                                      combat=True))
                     self.add_widget(self.state_widget)
                 elif keycode[1] in 'i':
-                    print('ASD')
                     self.game_state = 'inv_window'
                     self.state_widget = LogWindow(pos=(200, 200),
                                                   size=(200, 200),
