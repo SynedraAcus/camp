@@ -63,7 +63,7 @@ class TileTargetedEffect(Effect):
                     if isinstance(victim, Item) and (random() > 0.5 or tile == location):
                         map.delete_item(layer='items', location=tile)
                         map.game_events.append(GameEvent(event_type='was_destroyed',
-                                                          actor=victim, location=tile))
+                                                         actor=victim, location=tile))
                         destroyed_items = True
             hole = Construction(image_source='Hole.png',
                                 passable=False, air_passable=True)

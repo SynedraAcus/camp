@@ -4,9 +4,7 @@ Creates both Widgets and MapItems
 """
 
 from kivy.uix.image import Image
-from kivy.core.image import Image as CoreImage
 from kivy.uix.widget import Widget
-from kivy.graphics import Rectangle, BindTexture
 
 #  Importing my own stuff
 from Map import RLMap
@@ -207,7 +205,7 @@ class ActorFactory(object):
         """
         return Actor(image_source='NPC.png',
                      controller=AIController(),
-                     fighter=FighterComponent(max_hp=3),
+                     fighter=FighterComponent(max_hp=2),
                      descriptor=DescriptorComponent(name='A regular thug',
                                                     description='Not particularly smart, but also rarely alone'),
                      inventory=InventoryComponent(volume=1,
