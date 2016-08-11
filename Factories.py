@@ -232,14 +232,17 @@ class MapFactory(object):
                              layer='bg',
                              location=(x, y))
             #  Adding trees along border
-            map.add_item(item=Construction(passable=False, image_source='Tree.png'),
+            map.add_item(item=Construction(passable=False, image_source='Tree.png',
+                                           descriptor=DescriptorComponent(name='Tree')),
                          layer='constructions',
                          location=(x, 0))
-            map.add_item(item=Construction(passable=False, image_source='Tree.png'),
+            map.add_item(item=Construction(passable=False, image_source='Tree.png',
+                                           descriptor=DescriptorComponent(name='Tree')),
                          layer='constructions',
                          location=(x, 14))
         for x in range(15):
-            map.add_item(item = Construction(passable=False, image_source='Tree.png'),
+            map.add_item(item = Construction(passable=False, image_source='Tree.png',
+                                             descriptor=DescriptorComponent(name='Tree')),
                          layer='constructions',
                          location = (x, 7))
         #  Adding PC and NPCs
