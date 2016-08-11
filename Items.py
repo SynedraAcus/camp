@@ -58,16 +58,18 @@ class TileTargetedEffect(Effect):
                 for victim in map.get_column(tile):
                     if hasattr(victim, 'fighter') and victim.fighter:
                         victim.fighter.get_damaged(self.effect_value)
-                    elif isinstance(victim, Item) and random() > 0.5:
+                for victim in map.get_column(tile):
+                    #  Items are checked in a separate cycle because items could've been dropped by killed enemies
+                    if isinstance(victim, Item) and (random() > 0.5 or tile == location):
                         map.delete_item(layer='items', location=tile)
                         map.game_events.append(GameEvent(event_type='was_destroyed',
-                                                              actor=victim, location=tile))
+                                                          actor=victim, location=tile))
                         destroyed_items = True
             hole = Construction(image_source='Hole.png',
                                 passable=False)
-            map.add_item(item=hole, location=tile, layer='constructions')
+            map.add_item(item=hole, location=location, layer='constructions')
             map.game_events.append(GameEvent(event_type='construction_spawned', actor=hole,
-                                             location=tile))
+                                             location=location))
             if destroyed_items:
                 map.extend_log('Some items were destroyed')
             return True
