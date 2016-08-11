@@ -143,10 +143,12 @@ class ItemFactory:
     A factory for the inventory items.
     :return:
     """
-    items = [PotionTypeItem(name='Bottle',
+    items = [PotionTypeItem(descriptor=DescriptorComponent(name='Bottle',
+                                                           description='Heals for 2 or 3 HP'),
                             effect=FighterTargetedEffect(effect_type='heal',
                                                          effect_value=[2, 3])),
-             PotionTypeItem(name='Spawning flag',
+             PotionTypeItem(descriptor=DescriptorComponent(name='Spawning flag',
+                                                           description='Builds a headless dude under the player'),
                             image_source='Flag.png',
                             effect=TileTargetedEffect(effect_type='spawn_construction',
                                                       map=None,
@@ -159,7 +161,8 @@ class ItemFactory:
                                                           descriptor=DescriptorComponent(name='Headless dude'),
                                                           controller=FighterSpawnController(),
                                                       ))),
-             PotionTypeItem(name='Landmine',
+             PotionTypeItem(descriptor=DescriptorComponent(name='Landmine',
+                                                           description='Places a landmine under the player'),
                             image_source='Landmine.png',
                             effect=TileTargetedEffect(effect_type='spawn_construction',
                                                       map=None,
@@ -167,7 +170,8 @@ class ItemFactory:
                                                                         effect=TileTargetedEffect(
                                                                             effect_type='explode',
                                                                             effect_value=5)))),
-             PotionTypeItem(name='Rocket',
+             PotionTypeItem(descriptor=DescriptorComponent(name='Rocket',
+                                                           description='Can and should be [F]ired at enemies'),
                             image_source='Rocket.png',
                             effect=TileTargetedEffect(effect_type='explode', effect_value=5))
              ]

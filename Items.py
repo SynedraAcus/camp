@@ -69,12 +69,22 @@ class Item(MapItem):
     """
     Base class for the inventory item. Inherits from MapItem to allow placing items on map.
     """
-    def __init__(self, name='Item', image_source='Bottle.png', owner=None, **kwargs):
+    def __init__(self, name='Item', image_source='Bottle.png', owner=None, descriptor=None, **kwargs):
         super(Item, self).__init__(**kwargs)
-        self.name = name
         #  Owner is an inventory component, not an actor
         self.owner = owner
-        self.image_source=image_source
+        self.descriptor = descriptor
+        if self.descriptor:
+            self.descriptor.actor = self
+        self.image_source = image_source
+
+    @property
+    def name(self):
+        return self.descriptor.name
+
+    @name.setter
+    def name(self, value):
+        self.descriptor.name = value
 
     def use(self):
         """

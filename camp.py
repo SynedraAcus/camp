@@ -266,8 +266,7 @@ class GameWidget(RelativeLayout):
                         self.remove_widget(self.state_widget)
                         try:
                             t = self.map_widget.map.get_top_item(location=self.target_coordinates).descriptor.get_description(
-                                combat=True
-                            )
+                                combat=True)
                         except AttributeError:
                             t = 'Nothing of note'
                         self.state_widget = LogWindow(pos=(200, 200),
