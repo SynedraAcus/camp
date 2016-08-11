@@ -3,8 +3,9 @@ Component classes that add various functionality to Actors
 """
 
 from random import choice
-from Items import Item
+
 from GameEvent import GameEvent
+from Items import Item
 
 
 class Component(object):
@@ -82,7 +83,7 @@ class DescriptorComponent(Component):
     """
     The component that contains various displayable data about this actor
     """
-    def __init__(self, name='Unnamed actor', description='No description', **kwargs):
+    def __init__(self, name='Unnamed actor', description='', **kwargs):
         super(DescriptorComponent, self).__init__(**kwargs)
         self.name = name
         self.description = description
@@ -93,7 +94,9 @@ class DescriptorComponent(Component):
         :param combat: boolean. If set to True, combat capabilities of this actor (if any) will be added
         :return:
         """
-        r = '{0}\n{1}'.format(self.name, self.description)
+        r = self.name
+        if len(self.description) > 0:
+            r += '\n{0}'.format(self.description)
         if combat:
             if hasattr(self.actor, 'fighter') and self.actor.fighter:
                 r += '\nThis Actor has {0} hp.\nIts attacks are {1}\nIts defenses are {2}'.format(
