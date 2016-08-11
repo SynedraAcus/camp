@@ -66,7 +66,7 @@ class TileTargetedEffect(Effect):
                                                           actor=victim, location=tile))
                         destroyed_items = True
             hole = Construction(image_source='Hole.png',
-                                passable=False)
+                                passable=False, air_passable=True)
             map.add_item(item=hole, location=location, layer='constructions')
             map.game_events.append(GameEvent(event_type='construction_spawned', actor=hole,
                                              location=location))

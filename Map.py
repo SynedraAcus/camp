@@ -2,11 +2,11 @@
 #  These contain only the information about things in game and some gameplay logic, so they don't inherit from
 #  any of Kivy classes. MVC and all that.
 
+from copy import deepcopy
+
 from Actor import Actor
 from Constructions import Construction
-from math import sqrt
 from GameEvent import GameEvent
-from copy import deepcopy
 
 
 class RLMap(object):
@@ -248,9 +248,9 @@ class RLMap(object):
     def get_line(self, start=(None, None), end=(None, None)):
         """
         Return the path from starting point to endpoint as a list of coordinates.
-        This method uses Bresenham line-drawing algorithm and stops iteration on reaching the impassable
-        tile, even if it hasn't reached end. The entire method, save for impassability check, is copied
-        from http://www.roguebasin.com/index.php?title=Bresenham%27s_Line_Algorithm#Python
+        This method uses Bresenham line-drawing algorithm and stops iteration on reaching the tile,
+        that isn't air-passable, even if it hasn't reached end. The entire method, save for impassability check,
+        is copied from http://www.roguebasin.com/index.php?title=Bresenham%27s_Line_Algorithm#Python
         :param start:
         :param end:
         :return:
@@ -286,16 +286,35 @@ class RLMap(object):
             points.reverse()
         #  Shorten points until the first impassable tile, not including the very start
         for a in range(1, len(points)):
-            if not self.entrance_possible(points[a]):
-                cut = a
+            if not self.air_entrance_possible(points[a]):
                 break
         return points[:a+1]
 
+    def air_entrance_possible(self, location):
+        """
+        Return True if given coordinates correspond to a valid fly destinaton (ie air_passable tile within
+        map borders)
+        :param location:
+        :return:
+        """
+        ret = True
+        for layer in self.items.keys():
+            try:
+                tile = self.get_item(layer=layer, location=location)
+                if tile is not None and not tile.air_passable:
+                    #  Empty tiles are no problem: there may be a lot of those in eg actor layers
+                    ret = False
+                    break
+            except IndexError:
+                #  location beyond tile boundaries
+                ret = False
+                break
+        return ret
 
     def entrance_possible(self, location):
         """
-        Return true, if a given coordinates correspond to a valid move destination (ie passable tile
-        within borders of the map)
+        Return true, if given coordinates correspond to a valid move destination (ie passable tile
+        within map borders)
         :param location: tuple
         :return: bool
         """

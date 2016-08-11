@@ -7,8 +7,12 @@ class MapItem(object):
     """
     Base class from which all items that can be placed on map should inherit
     """
-    def __init__(self, passable=True, image_source=None):
+    def __init__(self, passable=True, air_passable=None, image_source=None):
         self.passable = passable
+        if air_passable:
+            self.air_passable = air_passable
+        else:
+            self.air_passable = self.passable
         self.widget = None
 
     def collide(self, other):
@@ -20,7 +24,7 @@ class MapItem(object):
 class GroundTile(MapItem):
     def __init__(self, passable=True, image_source='Tmp_frame.png', **kwargs):
         super(GroundTile, self).__init__(**kwargs)
-        self.passable=passable
+        self.passable = passable
         self.image_source = image_source
         #  Widget should be defined when a tile is added to the RLMapWidget using TileWidgetFactory
         self.widget = None
