@@ -5,6 +5,7 @@ Item and Effect classes and their subclasses.
 from random import random, choice
 
 from Actor import GameEvent
+from Constructions import Construction
 from MapItem import MapItem
 
 
@@ -62,6 +63,11 @@ class TileTargetedEffect(Effect):
                         map.game_events.append(GameEvent(event_type='was_destroyed',
                                                               actor=victim, location=tile))
                         destroyed_items = True
+            hole = Construction(image_source='Hole.png',
+                                passable=False)
+            map.add_item(item=hole, location=tile, layer='constructions')
+            map.game_events.append(GameEvent(event_type='construction_spawned', actor=hole,
+                                             location=tile))
             if destroyed_items:
                 map.extend_log('Some items were destroyed')
             return True
