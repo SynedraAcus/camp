@@ -192,7 +192,8 @@ class MapItemDepot():
                        spawn_factory=ActorFactory(faction=FactionComponent(faction='npc',
                                                                            enemies=['pc'])),
                        faction=FactionComponent(faction='npc', enemies=['pc']),
-                       descriptor=DescriptorComponent(name='A dark hole in the ground'))
+                       descriptor=DescriptorComponent(name='A dark hole in the ground'),
+                       fighter=FighterComponent(max_hp=10, defenses=[0,0]))
 
     @staticmethod
     def make_mine():
