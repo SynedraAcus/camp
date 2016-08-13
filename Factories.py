@@ -158,6 +158,8 @@ class MapItemDepot():
                               'B': self.make_bottle,
                               'F': self.make_flag}
 
+    #  Simple single-item methods
+
     def make_pc(self):
         """
         Player character
@@ -215,12 +217,12 @@ class MapItemDepot():
         Headless dude
         :return:
         """
-        return Construction(image_source='Headless.png', passable=False,
-                            fighter=FighterComponent(),
-                            faction=FactionComponent(faction='pc', enemies=['npc']),
-                            descriptor=DescriptorComponent(name='Headless dude',
-                                                           description='It fights on your side'),
-                            controller=FighterSpawnController())
+        return FighterConstruction(image_source='Headless.png', passable=False,
+                                   fighter=FighterComponent(),
+                                   faction=FactionComponent(faction='pc', enemies=['npc']),
+                                   descriptor=DescriptorComponent(name='Headless dude',
+                                                               description='It fights on your side'),
+                                   controller=FighterSpawnController())
 
     def make_thug(self):
         """
@@ -247,8 +249,7 @@ class MapItemDepot():
                               image_source='Rocket.png',
                               effect=TileTargetedEffect(effect_type='explode', effect_value=5))
 
-    @staticmethod
-    def make_landmine():
+    def make_landmine(self):
         """
         Landmine (item)
         :return:
@@ -257,11 +258,7 @@ class MapItemDepot():
                                                              description='Places a landmine under the player'),
                               image_source='Landmine.png',
                               effect=TileTargetedEffect(effect_type='spawn_construction',
-                                                        effect_value=Trap(image_source='Mined.png',
-                                                                          effect=TileTargetedEffect(
-                                                                            effect_type='explode',
-                                                                            effect_value=5))))
-
+                                                        effect_value=self.make_mine()))
     @staticmethod
     def make_bottle():
         """
@@ -274,8 +271,7 @@ class MapItemDepot():
                               effect=FighterTargetedEffect(effect_type='heal',
                                                            effect_value=[2, 3]))
 
-    @staticmethod
-    def make_flag():
+    def make_flag(self):
         """
         Spawning flag
         :return:
@@ -284,15 +280,7 @@ class MapItemDepot():
                                                              description='Builds a headless dude under the player'),
                               image_source='Flag.png',
                               effect=TileTargetedEffect(effect_type='spawn_construction',
-                                                        effect_value=FighterConstruction(
-                                                          passable=False,
-                                                          image_source='Headless.png',
-                                                          fighter=FighterComponent(),
-                                                          faction=FactionComponent(faction='pc',
-                                                                                   enemies=['npc']),
-                                                          descriptor=DescriptorComponent(name='Headless dude'),
-                                                          controller=FighterSpawnController()
-                                                         )))
+                                                        effect_value=self.make_fighter()))
 
     #  Following methods generate items according to some rule
 
