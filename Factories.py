@@ -193,7 +193,6 @@ class MapItemDepot():
     Every make_* method returns the instance of object in question.
     """
 
-
     def __init__(self):
         self.item_factory = ItemFactory()
         self.item_methods = [self.make_landmine,
@@ -241,9 +240,9 @@ class MapItemDepot():
         :return:
         """
         return Spawner(image_source='DownStairs.png', spawn_frequency=3,
-                       spawn_factory=ActorFactory(faction=FactionComponent(faction='pc',
-                                                                           enemies=['npc'])),
-                       faction=FactionComponent(faction='pc', enemies=['npc']),
+                       spawn_factory=ActorFactory(faction=FactionComponent(faction='npc',
+                                                                           enemies=['pc'])),
+                       faction=FactionComponent(faction='npc', enemies=['pc']),
                        descriptor=DescriptorComponent(name='A dark hole in the ground'))
 
     @staticmethod
@@ -449,7 +448,7 @@ class MapLoader():
                 item = self.depot.get_item_by_glyph(i)
                 map.add_item(item=item,
                              layer=self.layers[i],
-                             location=(x,tags['height']-1-y))
+                             location=(x, tags['height']-1-y))
         return map
 
 
