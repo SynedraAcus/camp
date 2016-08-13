@@ -6,6 +6,7 @@ from copy import deepcopy
 
 from Actor import Actor
 from Constructions import Construction
+from Controller import PlayerController
 from GameEvent import GameEvent
 
 
@@ -83,7 +84,10 @@ class RLMap(object):
         if isinstance(item, Actor) or isinstance(item, Construction):
             item.connect_to_map(map=self, location=location, layer=layer)
         if isinstance(item, Actor):
-            self.actors.append(item)
+            if isinstance(item.controller, PlayerController):
+                self.actors.insert(0, item)
+            else:
+                self.actors.append(item)
         if isinstance(item, Construction):
             self.constructions.append(item)
 
