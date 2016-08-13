@@ -14,6 +14,7 @@ from Constructions import Construction, FighterConstruction, Spawner, Trap
 from Components import *
 from Controller import PlayerController, AIController, FighterSpawnController
 from Items import PotionTypeItem, Item, FighterTargetedEffect, TileTargetedEffect
+from MapLoader import MapLoader
 
 #  Other imports
 from random import choice, randint
@@ -215,7 +216,15 @@ class ActorFactory(object):
 
 class MapFactory(object):
     def __init__(self):
-        pass
+        self.map_loader = MapLoader()
+
+    def load_map(self, map_file):
+        """
+        Call a MapLoader instance to load a map from file. Assumes the file to contain a single map
+        :param map_file:
+        :return:
+        """
+        return self.map_loader.read_map_file(open(map_file))
 
     def create_test_map(self):
         """
