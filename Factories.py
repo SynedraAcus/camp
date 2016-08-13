@@ -189,6 +189,171 @@ class ItemFactory:
         """
         return deepcopy(self.items)
 
+
+class MapItemDepot():
+    """
+    A class that contains definitions of every item that can be placed on map during map generation.
+    Every make_* method returns the instance of object in question.
+    """
+
+
+    def __init__(self):
+        self.item_factory = ItemFactory()
+        self.item_methods = [self.make_landmine,
+                             self.make_bottle,
+                             self.make_flag,
+                             self.make_rocket]
+
+    def make_pc(self):
+        """
+        Player character
+        :return:
+        """
+        return Actor(image_source='PC.png',
+                     controller=PlayerController(),
+                     fighter=FighterComponent(),
+                     inventory=InventoryComponent(volume=10, initial_items=self.item_factory.give_all()),
+                     faction=FactionComponent(faction='pc', enemies=['npc']),
+                     descriptor=DescriptorComponent(name='PC', description='Player character'),
+                     breath=BreathComponent())
+
+    @staticmethod
+    def make_wall():
+        """
+        Impassable wall
+        :return:
+        """
+        return Construction(image_source='Tree.png', passable=False,
+                            descriptor=DescriptorComponent(name='Tree'))
+
+    @staticmethod
+    def make_spawner():
+        """
+        Thug spawner
+        :return:
+        """
+        return Spawner(image_source='DownStairs.png', spawn_frequency=3,
+                       spawn_factory=ActorFactory(faction=FactionComponent(faction='pc',
+                                                                           enemies=['npc'])),
+                       faction=FactionComponent(faction='pc', enemies=['npc']),
+                       descriptor=DescriptorComponent(name='A dark hole in the ground'))
+
+    @staticmethod
+    def make_mine():
+        """
+        Landmine (the construction)
+        :return:
+        """
+        return Trap(effect=TileTargetedEffect(effect_type='explode', effect_value=5),
+                    image_source='Mined.png')
+
+    @staticmethod
+    def make_hole():
+        """
+        Explosion-produced hole
+        :return:
+        """
+        return Construction(image_source='Hole.png', passable=False)
+
+    @staticmethod
+    def make_fighter():
+        """
+        Headless dude
+        :return:
+        """
+        return Construction(image_source='Headless.png', passable=False,
+                            fighter=FighterComponent(),
+                            faction=FactionComponent(faction='pc', enemies=['npc']),
+                            descriptor=DescriptorComponent(name='Headless dude',
+                                                           description='It fights on your side'),
+                            controller=FighterSpawnController())
+
+    def make_thug(self):
+        """
+        A regular thug
+        :return:
+        """
+        return Actor(image_source='NPC.png',
+                     controller=AIController(),
+                     fighter=FighterComponent(max_hp=2),
+                     descriptor=DescriptorComponent(name='PC',
+                                                    description='Player character'),
+                     inventory=InventoryComponent(volume=1,
+                                                  initial_items=[self.item_factory.create_random()]),
+                     faction=FactionComponent(faction='npc', enemies=['pc']))
+
+    @staticmethod
+    def make_rocket():
+        """
+        Rocket
+        :return:
+        """
+        return PotionTypeItem(descriptor=DescriptorComponent(name='Rocket',
+                                                             description='Can and should be [F]ired at enemies'),
+                              image_source='Rocket.png',
+                              effect=TileTargetedEffect(effect_type='explode', effect_value=5))
+
+    @staticmethod
+    def make_landmine():
+        """
+        Landmine (item)
+        :return:
+        """
+        return PotionTypeItem(descriptor=DescriptorComponent(name='Landmine',
+                                                             description='Places a landmine under the player'),
+                              image_source='Landmine.png',
+                              effect=TileTargetedEffect(effect_type='spawn_construction',
+                                                        map=None,
+                                                        effect_value=Trap(image_source='Mined.png',
+                                                                          effect=TileTargetedEffect(
+                                                                            effect_type='explode',
+                                                                            effect_value=5))))
+
+    @staticmethod
+    def make_bottle():
+        """
+        Bottle
+        :return:
+        """
+        return PotionTypeItem(descriptor=DescriptorComponent(name='Bottle',
+                                                             description='Heals for 2 or 3 HP'),
+                              image_source='Bottle.png',
+                              effect=FighterTargetedEffect(effect_type='heal',
+                                                           effect_value=[2, 3]))
+
+    @staticmethod
+    def make_flag():
+        """
+        Spawning flag
+        :return:
+        """
+        return PotionTypeItem(descriptor=DescriptorComponent(name='Spawning flag',
+                                                             description='Builds a headless dude under the player'),
+                              image_source='Flag.png',
+                              effect=TileTargetedEffect(effect_type='spawn_construction',
+                                                        map=None,
+                                                        effect_value=FighterConstruction(
+                                                          passable=False,
+                                                          image_source='Headless.png',
+                                                          fighter=FighterComponent(),
+                                                          faction=FactionComponent(faction='pc',
+                                                                                   enemies=['npc']),
+                                                          descriptor=DescriptorComponent(name='Headless dude'),
+                                                          controller=FighterSpawnController()
+                                                         )))
+
+    #  Following methods generate items according to some rule
+
+    def make_random_item(self):
+        """
+        Create a random item
+        :return:
+        """
+        method = choice(self.item_methods)
+        i = method()
+        return i
+
+
 class ActorFactory(object):
     """
     Factory that produces Actors of a given faction
@@ -207,8 +372,8 @@ class ActorFactory(object):
         return Actor(image_source='NPC.png',
                      controller=AIController(),
                      fighter=FighterComponent(max_hp=2),
-                     descriptor=DescriptorComponent(name='A regular thug',
-                                                    description='Not particularly smart, but also rarely alone'),
+                     descriptor=DescriptorComponent(name='PC',
+                                                    description='Player character'),
                      inventory=InventoryComponent(volume=1,
                                                   initial_items=[self.item_factory.create_random()]),
                      faction=self.faction)
@@ -231,6 +396,7 @@ class MapFactory(object):
         A basic map generator. Places a single enemy spawner and several items.
         :return:
         """
+        depot = MapItemDepot()
         map = RLMap(size=(20, 15), layers=['bg', 'constructions', 'items', 'actors'])
         for x in range(20):
             #  Background
@@ -239,51 +405,33 @@ class MapFactory(object):
                              layer='bg',
                              location=(x, y))
             #  Adding trees along border
-            map.add_item(item=Construction(passable=False, image_source='Tree.png',
-                                           descriptor=DescriptorComponent(name='Tree')),
+            map.add_item(item=depot.make_wall(),
                          layer='constructions',
                          location=(x, 0))
-            map.add_item(item=Construction(passable=False, image_source='Tree.png',
-                                           descriptor=DescriptorComponent(name='Tree')),
+            map.add_item(item=depot.make_wall(),
                          layer='constructions',
                          location=(x, 14))
         for x in range(15):
-            map.add_item(item = Construction(passable=False, image_source='Tree.png',
-                                             descriptor=DescriptorComponent(name='Tree')),
+            map.add_item(item = depot.make_wall(),
                          layer='constructions',
                          location = (x, 7))
         #  Adding PC and NPCs
-        pc_faction = FactionComponent(faction='pc', enemies=['npc'])
-        npc_faction = FactionComponent(faction='npc', enemies=['pc'])
-        thug_factory = ActorFactory(faction=npc_faction)
         item_factory = ItemFactory()
-        map.add_item(item=Actor(controller=PlayerController(),
-                                fighter=FighterComponent(),
-                                descriptor=DescriptorComponent(name='PC',
-                                                               description='Player-controlled dude'),
-                                inventory=InventoryComponent(initial_items=item_factory.give_all(),
-                                                             volume=10),
-                                faction = pc_faction,
-                                breath = BreathComponent(),
-                                image_source='PC.png'),
+        map.add_item(depot.make_pc(),
                      location=(2, 2), layer='actors')
-        map.add_item(thug_factory.create_thug(),
-                     location=(5, 12), layer='actors')
-        map.add_item(item=Spawner(image_source='DownStairs.png',
-                                  faction=npc_faction,
-                                  spawn_factory=thug_factory,
-                                  spawn_frequency=3,
-                                  descriptor=DescriptorComponent(name='Dark hole in the ground')),
+        map.add_item(item=depot.make_spawner(),
                      location=(2, 13), layer='constructions')
+        map.add_item(item=depot.make_thug(),
+                     location=(4,12), layer='actors')
         #  Add 7 items in free tiles. Tiles with actors are considered free for this purpose
         for a in range(7):
             while True:
                 pos = (randint(0, map.size[0]-1), randint(0, map.size[1]-1))
                 if not map.get_item(layer='items', location=pos)\
                         and not map.get_item(layer='constructions', location=pos):
-                    map.add_item(item=item_factory.create_random(),
+                    map.add_item(item=depot.make_random_item(),
                                  location=pos, layer='items')
-                    map.get_item(location=pos, layer='items').effect.map = map
+                    # map.get_item(location=pos, layer='items').effect.map = map
                     break
         #  Update Dijkstra maps
         map.update_dijkstra()
