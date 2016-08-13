@@ -230,8 +230,8 @@ class MapItemDepot():
         return Actor(image_source='NPC.png',
                      controller=AIController(),
                      fighter=FighterComponent(max_hp=2),
-                     descriptor=DescriptorComponent(name='PC',
-                                                    description='Player character'),
+                     descriptor=DescriptorComponent(name='A regular thug',
+                                                    description='Not particularly smart, but rarely alone'),
                      inventory=InventoryComponent(volume=1,
                                                   initial_items=[self.make_random_item()]),
                      faction=FactionComponent(faction='npc', enemies=['pc']))
@@ -417,8 +417,8 @@ class ActorFactory(object):
         return Actor(image_source='NPC.png',
                      controller=AIController(),
                      fighter=FighterComponent(max_hp=2),
-                     descriptor=DescriptorComponent(name='PC',
-                                                    description='Player character'),
+                     descriptor=DescriptorComponent(name='A regular thug',
+                                                    description='Not very smart, but rarely alone'),
                      inventory=InventoryComponent(volume=1,
                                                   initial_items=[self.depot.make_random_item()]),
                      faction=self.faction)
