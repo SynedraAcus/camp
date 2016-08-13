@@ -203,6 +203,17 @@ class MapItemDepot():
                              self.make_bottle,
                              self.make_flag,
                              self.make_rocket]
+        self.glyph_methods = {'#': self.make_wall,
+                              'S': self.make_spawner,
+                              '^': self.make_mine,
+                              'f': self.make_fighter,
+                              '_': self.make_hole,
+                              '@': self.make_pc,
+                              'z': self.make_thug,
+                              'R': self.make_rocket,
+                              'L': self.make_landmine,
+                              'B': self.make_bottle,
+                              'F': self.make_flag}
 
     def make_pc(self):
         """
@@ -212,7 +223,7 @@ class MapItemDepot():
         return Actor(image_source='PC.png',
                      controller=PlayerController(),
                      fighter=FighterComponent(),
-                     inventory=InventoryComponent(volume=10, initial_items=self.item_factory.give_all()),
+                     inventory=InventoryComponent(volume=10, initial_items=self.get_all_items()),
                      faction=FactionComponent(faction='pc', enemies=['npc']),
                      descriptor=DescriptorComponent(name='PC', description='Player character'),
                      breath=BreathComponent())
@@ -279,7 +290,7 @@ class MapItemDepot():
                      descriptor=DescriptorComponent(name='PC',
                                                     description='Player character'),
                      inventory=InventoryComponent(volume=1,
-                                                  initial_items=[self.item_factory.create_random()]),
+                                                  initial_items=[self.make_random_item()]),
                      faction=FactionComponent(faction='npc', enemies=['pc']))
 
     @staticmethod
@@ -353,6 +364,21 @@ class MapItemDepot():
         i = method()
         return i
 
+    def get_all_items(self):
+        r = []
+        for method in self.item_methods:
+            r.append(method())
+        return r
+
+    def get_item_by_glyph(self, glyph):
+        """
+        Return the item encoded by the glyph
+        :param glyph:
+        :return:
+        """
+        method = self.glyph_methods[glyph]
+        item = method()
+        return item
 
 class ActorFactory(object):
     """
