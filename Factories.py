@@ -391,19 +391,7 @@ class MapLoader():
         self.tag_converters = {'height': int,
                                'width': int,
                                'aesthetic': str}
-
-        self.map_values = {'#': Construction(image_source='Tree.png', passable=False,
-                                             descriptor=DescriptorComponent(name='Tree')),
-                           '@': Actor(controller=PlayerController(),
-                                      fighter=FighterComponent(),
-                                      inventory=InventoryComponent(volume=10),
-                                      faction=FactionComponent(faction='pc', enemies=['npc']),
-                                      breath=BreathComponent(),
-                                      descriptor=DescriptorComponent(name='PC',
-                                                                     description='Player character'),
-                                      image_source='PC.png'),
-                           'S': Spawner(image_source='DownStairs.png',
-                                        spawn_factory = None)}
+        self.depot = MapItemDepot()
         self.layers = {'#': 'constructions',
                        '@': 'actors',
                        'S': 'constructions'}
@@ -456,8 +444,8 @@ class MapLoader():
                 if i == '.':
                     #  Nothing to place here
                     continue
-                item = self.map_values[i]
-                map.add_item(item=self.map_values[i],
+                item = self.depot.get_item_by_glyph(i)
+                map.add_item(item=item,
                              layer=self.layers[i],
                              location=(x,y))
                 # if i == '@':
