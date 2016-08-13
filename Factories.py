@@ -437,8 +437,6 @@ class MapLoader():
             else:
                 map_lines.append(line)
                 reading_map = True
-        # print(tags)
-        # print('\n'.join(map_lines))
         map = RLMap(size=(tags['width'], tags['height']), layers=['bg', 'constructions', 'items', 'actors'])
         for y in range(0, tags['height']):
             for x in range(0, tags['width']):
