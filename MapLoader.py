@@ -2,6 +2,13 @@
 The classes responsible for loading levels from files. This file is supposed to be imported by Factories.py and
  nobody else
 """
+from Actor import Actor
+from Components import *
+from Constructions import Construction, Spawner
+from Controller import PlayerController
+from Map import RLMap
+from MapItem import GroundTile
+
 
 class MapLoader():
     """
@@ -14,6 +21,22 @@ class MapLoader():
         self.tag_converters = {'height': int,
                                'width': int,
                                'aesthetic': str}
+
+        self.map_values = {'#': Construction(image_source='Tree.png', passable=False,
+                                             descriptor=DescriptorComponent(name='Tree')),
+                           '@': Actor(controller=PlayerController(),
+                                      fighter=FighterComponent(),
+                                      inventory=InventoryComponent(volume=10),
+                                      faction=FactionComponent(faction='pc', enemies=['npc']),
+                                      breath=BreathComponent(),
+                                      descriptor=DescriptorComponent(name='PC',
+                                                                     description='Player character'),
+                                      image_source='PC.png'),
+                           'S': Spawner(image_source='DownStairs.png',
+                                        spawn_factory = None)}
+        self.layers = {'#': 'constructions',
+                       '@': 'actors',
+                       'S': 'constructions'}
 
     def parse_tag_line(self, line):
         """
@@ -54,3 +77,19 @@ class MapLoader():
                 reading_map = True
         # print(tags)
         # print('\n'.join(map_lines))
+        map = RLMap(size=(tags['width'], tags['height']), layers=['bg', 'constructions', 'items', 'actors'])
+        for y in range(0, tags['height']):
+            for x in range(0, tags['width']):
+                map.add_item(GroundTile(passable=True, image_source='Tile_passable.png'),
+                             layer='bg', location=(x,y))
+                i = map_lines[y][x]
+                if i == '.':
+                    #  Nothing to place here
+                    continue
+                item = self.map_values[i]
+                map.add_item(item=self.map_values[i],
+                             layer=self.layers[i],
+                             location=(x,y))
+                # if i == '@':
+                #     map.actors.insert(0, item)
+        return map

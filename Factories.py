@@ -260,7 +260,7 @@ class MapFactory(object):
         map.add_item(item=Actor(controller=PlayerController(),
                                 fighter=FighterComponent(),
                                 descriptor=DescriptorComponent(name='PC',
-                                                                description='Player-controlled dude'),
+                                                               description='Player-controlled dude'),
                                 inventory=InventoryComponent(initial_items=item_factory.give_all(),
                                                              volume=10),
                                 faction = pc_faction,

@@ -574,7 +574,9 @@ class CampApp(App):
     def build(self):
         root = BoxLayout(orientation='vertical')
         map_factory = MapFactory()
-        map = map_factory.create_test_map()
+        # map = map_factory.create_test_map()
+        map = map_factory.load_map('test_level.lvl')
+        print(map.actors)
         map_widget = RLMapWidget(map=map,
                                  size=(map.size[0]*32, map.size[1]*32),
                                  size_hint=(None, None),
