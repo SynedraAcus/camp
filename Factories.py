@@ -17,7 +17,6 @@ from Items import PotionTypeItem, Item, FighterTargetedEffect, TileTargetedEffec
 
 #  Other imports
 from random import choice, randint
-from copy import deepcopy
 
 
 class ActorWidget(Widget):
@@ -136,57 +135,6 @@ class TileWidgetFactory(object):
         return constr.widget
 
 
-class ItemFactory:
-    """
-    A factory for the inventory items.
-    :return:
-    """
-    items = [PotionTypeItem(descriptor=DescriptorComponent(name='Bottle',
-                                                           description='Heals for 2 or 3 HP'),
-                            effect=FighterTargetedEffect(effect_type='heal',
-                                                         effect_value=[2, 3])),
-             PotionTypeItem(descriptor=DescriptorComponent(name='Spawning flag',
-                                                           description='Builds a headless dude under the player'),
-                            image_source='Flag.png',
-                            effect=TileTargetedEffect(effect_type='spawn_construction',
-                                                      effect_value=FighterConstruction(
-                                                          passable=False,
-                                                          image_source='Headless.png',
-                                                          fighter=FighterComponent(),
-                                                          faction=FactionComponent(faction='pc',
-                                                                                   enemies=['npc']),
-                                                          descriptor=DescriptorComponent(name='Headless dude'),
-                                                          controller=FighterSpawnController(),
-                                                      ))),
-             PotionTypeItem(descriptor=DescriptorComponent(name='Landmine',
-                                                           description='Places a landmine under the player'),
-                            image_source='Landmine.png',
-                            effect=TileTargetedEffect(effect_type='spawn_construction',
-                                                      effect_value=Trap(image_source='Mined.png',
-                                                                        effect=TileTargetedEffect(
-                                                                            effect_type='explode',
-                                                                            effect_value=5)))),
-             PotionTypeItem(descriptor=DescriptorComponent(name='Rocket',
-                                                           description='Can and should be [F]ired at enemies'),
-                            image_source='Rocket.png',
-                            effect=TileTargetedEffect(effect_type='explode', effect_value=5))
-             ]
-
-    def create_random(self):
-        """
-        Return a random item from self.items
-        :return: Item instance
-        """
-        return deepcopy(choice(self.items))
-
-    def give_all(self):
-        """
-        Return a list containing a single copy of all available items
-        :return:
-        """
-        return deepcopy(self.items)
-
-
 class MapItemDepot():
     """
     A class that contains definitions of every item that can be placed on map during map generation.
@@ -194,7 +142,6 @@ class MapItemDepot():
     """
 
     def __init__(self):
-        self.item_factory = ItemFactory()
         self.item_methods = [self.make_landmine,
                              self.make_bottle,
                              self.make_flag,
@@ -459,7 +406,7 @@ class ActorFactory(object):
     def __init__(self, faction):
         assert isinstance(faction, FactionComponent)
         self.faction = faction
-        self.item_factory = ItemFactory()
+        self.depot = MapItemDepot()
 
     def create_thug(self):
         """
@@ -473,7 +420,7 @@ class ActorFactory(object):
                      descriptor=DescriptorComponent(name='PC',
                                                     description='Player character'),
                      inventory=InventoryComponent(volume=1,
-                                                  initial_items=[self.item_factory.create_random()]),
+                                                  initial_items=[self.depot.make_random_item()]),
                      faction=self.faction)
 
 
