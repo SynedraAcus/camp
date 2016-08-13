@@ -35,7 +35,7 @@ class TileTargetedEffect(Effect):
     """
     Effect that affects map tile
     """
-    def __init__(self, map=None, **kwargs):
+    def __init__(self, **kwargs):
         super(TileTargetedEffect, self).__init__(**kwargs)
 
     def affect(self, map, location):

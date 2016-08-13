@@ -149,7 +149,6 @@ class ItemFactory:
                                                            description='Builds a headless dude under the player'),
                             image_source='Flag.png',
                             effect=TileTargetedEffect(effect_type='spawn_construction',
-                                                      map=None,
                                                       effect_value=FighterConstruction(
                                                           passable=False,
                                                           image_source='Headless.png',
@@ -163,7 +162,6 @@ class ItemFactory:
                                                            description='Places a landmine under the player'),
                             image_source='Landmine.png',
                             effect=TileTargetedEffect(effect_type='spawn_construction',
-                                                      map=None,
                                                       effect_value=Trap(image_source='Mined.png',
                                                                         effect=TileTargetedEffect(
                                                                             effect_type='explode',
@@ -313,7 +311,6 @@ class MapItemDepot():
                                                              description='Places a landmine under the player'),
                               image_source='Landmine.png',
                               effect=TileTargetedEffect(effect_type='spawn_construction',
-                                                        map=None,
                                                         effect_value=Trap(image_source='Mined.png',
                                                                           effect=TileTargetedEffect(
                                                                             effect_type='explode',
@@ -341,7 +338,6 @@ class MapItemDepot():
                                                              description='Builds a headless dude under the player'),
                               image_source='Flag.png',
                               effect=TileTargetedEffect(effect_type='spawn_construction',
-                                                        map=None,
                                                         effect_value=FighterConstruction(
                                                           passable=False,
                                                           image_source='Headless.png',
@@ -394,7 +390,15 @@ class MapLoader():
         self.depot = MapItemDepot()
         self.layers = {'#': 'constructions',
                        '@': 'actors',
-                       'S': 'constructions'}
+                       'S': 'constructions',
+                       '^': 'constructions',
+                       'f': 'constructions',
+                       '_': 'constructions',
+                       'z': 'actors',
+                       'R': 'items',
+                       'L': 'items',
+                       'B': 'items',
+                       'F': 'items'}
 
     def parse_tag_line(self, line):
         """
@@ -438,8 +442,9 @@ class MapLoader():
         map = RLMap(size=(tags['width'], tags['height']), layers=['bg', 'constructions', 'items', 'actors'])
         for y in range(0, tags['height']):
             for x in range(0, tags['width']):
+                print(x, y)
                 map.add_item(GroundTile(passable=True, image_source='Tile_passable.png'),
-                             layer='bg', location=(x,y))
+                             layer='bg', location=(x, tags['height']-1-y))
                 i = map_lines[y][x]
                 if i == '.':
                     #  Nothing to place here
@@ -447,7 +452,7 @@ class MapLoader():
                 item = self.depot.get_item_by_glyph(i)
                 map.add_item(item=item,
                              layer=self.layers[i],
-                             location=(x,y))
+                             location=(x,tags['height']-1-y))
                 # if i == '@':
                 #     map.actors.insert(0, item)
         return map
