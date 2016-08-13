@@ -442,7 +442,6 @@ class MapLoader():
         map = RLMap(size=(tags['width'], tags['height']), layers=['bg', 'constructions', 'items', 'actors'])
         for y in range(0, tags['height']):
             for x in range(0, tags['width']):
-                print(x, y)
                 map.add_item(GroundTile(passable=True, image_source='Tile_passable.png'),
                              layer='bg', location=(x, tags['height']-1-y))
                 i = map_lines[y][x]
@@ -453,8 +452,6 @@ class MapLoader():
                 map.add_item(item=item,
                              layer=self.layers[i],
                              location=(x,tags['height']-1-y))
-                # if i == '@':
-                #     map.actors.insert(0, item)
         return map
 
 
