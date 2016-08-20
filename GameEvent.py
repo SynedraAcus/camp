@@ -39,9 +39,59 @@ class EventQueue:
     """
     def __init__(self):
         self._deque = deque()
+        self.listeners = []
 
     def append(self, item):
+        """
+        Push a GameEvent to the queue
+        :param item: GameEvent to add
+        :return:
+        """
+        if not isinstance(item, GameEvent):
+            raise ValueError('Only GameEvents can be pushed to the event queue')
         self._deque.append(item)
 
     def popleft(self):
+        """
+        Pop a GameEvent from the queue start
+        :return: GameEvent
+        """
         return self._deque.popleft()
+
+    def pop(self):
+        """
+        Pop a GameEvent
+        :return:
+        """
+        return self._deque.pop()
+
+    def register_listener(self, listener):
+        """
+        :param listener:
+        :return:
+        Register some object as a listener. Its' process_game_event() will be called in every
+        pass_event() with the event,
+        """
+        if hasattr(listener, 'process_game_event'):
+            self.listeners.append(listener)
+        else:
+            raise AttributeError('Listener doesn\'t have process_game_event() method')
+
+    def unregister_listener(self, listener):
+        """
+        Forget a single listener.
+        This method should be called when a listener is being destroyed. Otherwise it will be retained in
+        this queue's `listeners` and thus will not be garbage collected
+        :param listener:
+        :return:
+        """
+        self.listeners.remove(listener)
+
+    def pass_event(self):
+        """
+        Pop a single event from the queue and pass it to all listeners
+        :return:
+        """
+        e = self.pop()
+        for listener in self.listeners:
+            listener.process_game_event(e)
