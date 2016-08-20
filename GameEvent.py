@@ -1,8 +1,9 @@
 """
-GameEvent base class
+GameEvent base class and the event queue
 """
+from collections import deque
 
-class GameEvent(object):
+class GameEvent:
     """
     Something that has happened in the game.
     Contrary to its name, this is not an event in IO/clock sense. This is, rather, a data class that contains a
@@ -30,3 +31,17 @@ class GameEvent(object):
             self.location = location
         elif self.actor:
             self.location = actor.location
+
+
+class EventQueue:
+    """
+    Event queue. Currently a wrapper around a standard collections.deque
+    """
+    def __init__(self):
+        self._deque = deque()
+
+    def append(self, item):
+        self._deque.append(item)
+
+    def popleft(self):
+        return self._deque.popleft()
