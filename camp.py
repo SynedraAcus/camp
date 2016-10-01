@@ -118,11 +118,16 @@ class GameManager():
 
     def register_listener(self, listener):
         """
-        Add a queue listener.
+        Add a queue listener to both queue and self.
+        Listeners registered here get their game_manager attribute set to self. It can allow them to interact
+        with the game, ordering GameManager to change levels, finish the game and so on.
+        Thus, it's advised to use this method only for listeners that need to do so; achievement trackers,
+        interface listeners and whatever else *views* the game should be registered to queue directly.
         :param listener:
         :return:
         """
         self.queue.register_listener(listener)
+        listener.game_manager = self
 
 
 
@@ -635,7 +640,7 @@ class CampApp(App):
         root = BoxLayout(orientation='vertical')
         self.game_manager = GameManager()
         self.game_manager.load_map(map_file='test_level.lvl')
-        self.game_manager.register_queue_listener(DeathListener())
+        self.game_manager.register_listener(DeathListener())
         self.game_widget = GameWidget(game_manager=self.game_manager,
                                       size=Window.size,
                                       size_hint=(None, None),

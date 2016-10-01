@@ -6,10 +6,20 @@ from Controller import PlayerController
 
 
 class Listener():
+    def __init__(self):
+        self.game_manager = None
+
     def process_game_event(self, event):
         raise NotImplementedError('Event listener methods should be overloaded')
 
+
 class DeathListener(Listener):
+    """
+    A listener that checks for PC death and reports it to the console
+    """
+    def __init__(self):
+        super(DeathListener, self).__init__()
+
     def process_game_event(self, event):
         if event.event_type == 'was_destroyed':
             if isinstance(event.actor, Actor) and isinstance(event.actor.controller, PlayerController):
