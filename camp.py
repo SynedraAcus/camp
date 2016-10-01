@@ -17,6 +17,7 @@ from kivy.core.audio import SoundLoader
 #  My own stuff
 from Factories import TileWidgetFactory, MapFactory
 from Controller import Command
+from GameEvent import EventQueue
 
 #  Others
 from math import atan2, degrees
@@ -87,6 +88,31 @@ class KeyParser(object):
         :return:
         """
         return Command(command_type=self.command_types[keycode[1]], command_value=self.command_values[keycode[1]])
+
+class GameManager():
+    """
+    A singleton game manager. It holds data about current map, GameEvent queue and so on.
+    """
+    def __init__(self):
+        self.queue = EventQueue()
+        self.map_factory = MapFactory()
+        self.map = None
+
+    def load_map(self):
+        """
+        Load a new map. Current one, if any, is removed. Player instance and inventory is kept.
+        A newly added map is connected to the correct queue and such.
+        :return:
+        """
+        pass
+
+    def process_events(self):
+        """
+        Process all events in a queue
+        :return:
+        """
+        self.queue.pass_all_events()
+
 
 
 class GameWidget(RelativeLayout):

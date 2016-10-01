@@ -70,7 +70,7 @@ class EventQueue:
         :param listener:
         :return:
         Register some object as a listener. Its' process_game_event() will be called in every
-        pass_event() with the event,
+        pass_event() with the event.
         """
         if hasattr(listener, 'process_game_event'):
             self.listeners.append(listener)
@@ -92,6 +92,14 @@ class EventQueue:
         Pop a single event from the queue and pass it to all listeners
         :return:
         """
-        e = self.pop()
+        e = self.popleft()
         for listener in self.listeners:
             listener.process_game_event(e)
+
+    def pass_all_events(self):
+        """
+        Pass all the events in the queue to listeners
+        :return:
+        """
+        for x in range(len(self._deque)):
+            self.pass_event()
