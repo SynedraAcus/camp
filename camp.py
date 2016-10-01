@@ -18,6 +18,7 @@ from kivy.core.audio import SoundLoader
 from Factories import TileWidgetFactory, MapFactory
 from Controller import Command
 from GameEvent import EventQueue
+from Listeners import Listener
 
 #  Others
 from math import atan2, degrees
@@ -395,7 +396,7 @@ class DijkstraWidget(RelativeLayout):
                                       text_size=(64, 64),
                                       font_size=7))
 
-class RLMapWidget(RelativeLayout):
+class RLMapWidget(RelativeLayout, Listener):
     """
     Game map widget. Mostly is busy displaying character widgets and such.
     Depends on its parent having the following attributes:
