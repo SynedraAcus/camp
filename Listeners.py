@@ -26,6 +26,22 @@ class DeathListener(Listener):
                 print('PC was killed. So it goes.')
 
 
+class BorderWalkListener(Listener):
+    """
+    A Listener that tells GameManager to switch the map whenever player walks on one of the border tiles
+    """
+    def process_game_event(self, event):
+        if event.event_type == 'moved':
+            if isinstance(event.actor, Actor) and isinstance(event.actor.controller, PlayerController):
+                if event.actor.location[0] == 0:
+                    self.game_manager.switch_map(self.game_manager.map.neighbour_maps[4])
+                elif event.actor.location[0] == self.game_manager.map.size[0] - 1:
+                    self.game_manager.switch_map(self.game_manager.map.neighbour_maps[6])
+                elif event.actor.location[1] == 0:
+                    self.game_manager.switch_map(self.game_manager.map.neighbour_maps[2])
+                elif event.actor.location[1] == self.game_manager.map.size[1] -1:
+                    self.game_manager.switch_map(self.game_manager.map.neighbour_maps[8])
+
 class MapChangeListener(Listener):
     """
     A test Listener that switches map to 'empty' if player moves to the bottom row of the map

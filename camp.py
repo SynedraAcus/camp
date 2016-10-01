@@ -18,7 +18,7 @@ from kivy.core.audio import SoundLoader
 from Factories import TileWidgetFactory, MapLoader
 from Controller import Command
 from GameEvent import EventQueue
-from Listeners import Listener, DeathListener, MapChangeListener
+from Listeners import Listener, DeathListener, BorderWalkListener
 
 #  Others
 from math import atan2, degrees
@@ -670,7 +670,7 @@ class CampApp(App):
                                       size_hint=(None, None),
                                       pos=(0, 0))
         self.game_manager.register_listener(DeathListener())
-        self.game_manager.register_listener(MapChangeListener())
+        self.game_manager.register_listener(BorderWalkListener())
         Window.size = self.game_widget.size
         root.add_widget(self.game_widget)
         return root

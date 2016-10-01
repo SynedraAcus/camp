@@ -1,6 +1,10 @@
 /height 15
 /width 20
 /map_id start
+/neighbour_2 empty
+/neighbour_6 empty
+/neighbour_4 empty
+/neighbour_8 empty
 ####################
 ###..##########....#
 ##.S.########......#
