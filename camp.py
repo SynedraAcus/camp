@@ -18,7 +18,7 @@ from kivy.core.audio import SoundLoader
 from Factories import TileWidgetFactory, MapFactory
 from Controller import Command
 from GameEvent import EventQueue
-from Listeners import Listener
+from Listeners import Listener, DeathListener
 
 #  Others
 from math import atan2, degrees
@@ -115,6 +115,14 @@ class GameManager():
         :return:
         """
         self.queue.pass_all_events()
+
+    def register_listener(self, listener):
+        """
+        Add a queue listener.
+        :param listener:
+        :return:
+        """
+        self.queue.register_listener(listener)
 
 
 
@@ -627,6 +635,7 @@ class CampApp(App):
         root = BoxLayout(orientation='vertical')
         self.game_manager = GameManager()
         self.game_manager.load_map(map_file='test_level.lvl')
+        self.game_manager.register_queue_listener(DeathListener())
         self.game_widget = GameWidget(game_manager=self.game_manager,
                                       size=Window.size,
                                       size_hint=(None, None),
