@@ -112,14 +112,14 @@ class GameManager():
         :return: Map
         """
         self.map = self.map_loader.get_map_by_id(map_id)
-        self.map.register_queue(self.queue)
+        self.map.register_manager(self)
         return self.map
 
     def switch_map(self, map_id='start'):
         """
         Switch to a new map.
-        Assumes the map is available from self.map_loader. Also assumes there is some other map currently
-        connected that needs to be removed.
+        Assumes the map is available from self.map_loader. The queue is cleaned up because otherwise
+        some animations on non-displayed items are run after switch.
         :param map_id:
         :return:
         """

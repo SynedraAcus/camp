@@ -22,7 +22,7 @@ class RLMap(object):
         #  Log list. Initial values allow not to have empty log at the startup
         self.game_log = ['Игра начинается', 'Если вы видите этот текст, то кириллический лог работает',
                          'All the text below will be in English, so I guess Latin log works as well']
-        # #  GameEvent queue
+        # #  GameEvent queue and GameManager object
         self.game_events = None
         #  The Dijkstra map list, used for NPC pathfinding
         #  For some reason keeping tuple and creating list from it is way quicker than generating the list
@@ -32,12 +32,13 @@ class RLMap(object):
         self.updated_now = set()
         self.max_distance = None
 
-    def register_queue(self, queue):
+    def register_manager(self, game_manager):
         """
         Register a queue to which this Map will add its GameEvents
         :return:
         """
-        self.game_events = queue
+        self.manager = game_manager
+        self.game_events = game_manager.queue
 
     #  Actions on map items: addition, removal and so on
 
