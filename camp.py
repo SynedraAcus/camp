@@ -614,6 +614,10 @@ class CampApp(App):
     """
     Main app class.
     """
+    def __init__(self):
+        self.game_manager = None
+        self.game_widget = None
+
     def build(self):
         root = BoxLayout(orientation='vertical')
         self.game_manager = GameManager()
