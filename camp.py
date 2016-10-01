@@ -102,6 +102,9 @@ class GameManager():
         self.map_loader.read_map_file(map_file)
         self.map = None
         self.game_widget = None
+        #  Log list. Initial values allow not to have empty log at the startup
+        self.game_log = ['Игра начинается', 'Если вы видите этот текст, то кириллический лог работает',
+                         'All the text below will be in English, so I guess Latin log works as well']
 
     def load_map(self, map_id='start'):
         """
@@ -219,7 +222,7 @@ class GameWidget(RelativeLayout):
                                       size_hint=(None, None),
                                       pos=(0, 100))
         self.log_widget = LogWindow(id='log_window',
-                                    text='\n'.join(self.game_manager.map.game_log[-3:]),
+                                    text='\n'.join(self.game_manager.game_log[-3:]),
                                     size=(self.map_widget.width, 100),
                                     size_hint=(None, None),
                                     pos=(0, 0),
@@ -234,6 +237,7 @@ class GameWidget(RelativeLayout):
         self.add_widget(self.log_widget)
         #  Registering MapWidget to receive events from GameManager
         self.game_manager.queue.register_listener(self.map_widget)
+        self.game_manager.register_listener(self.log_widget)
 
     def _on_key_down(self, keyboard, keycode, text, modifier):
         """
@@ -483,7 +487,8 @@ class RLMapWidget(RelativeLayout, Listener):
             #  Shoot animations only after the entire event batch for the turn has arrived
             #  Better to avoid multiple methods messing with self.animation_queue simultaneously
             self.animate_game_event()
-        else:
+        #  Ignore log-related events
+        elif not event.event_type == 'log_updated':
             self.animation_queue.append(event)
 
     def animate_game_event(self, widget=None, anim_duration=0.3):
@@ -532,9 +537,6 @@ class RLMapWidget(RelativeLayout, Listener):
                 a.bind(on_start=lambda x, y: self.remember_anim(),
                        on_complete=lambda x, y: self.animate_game_event(widget=y))
                 a.start(event.actor.widget)
-            elif event.event_type == 'log_updated':
-                self.parent.update_log()
-                self.animate_game_event()
             elif event.event_type == 'picked_up':
                 #  It's assumed that newly added item will be the last in player inventory
                 self.layer_widgets['items'].remove_widget(self.map.actors[0].inventory[-1].widget)
@@ -639,7 +641,7 @@ class RLMapWidget(RelativeLayout, Listener):
         self.rect.size = self.size
 
 
-class LogWindow(Label):
+class LogWindow(Label, Listener):
     """ Text widget that shows the last 3 items from game_log
     """
     def __init__(self, *args, **kwargs):
@@ -650,6 +652,19 @@ class LogWindow(Label):
         with self.canvas.before:
             Color(1, 0, 0)
             Rectangle(size=self.size, pos=self.pos)
+
+    def process_game_event(self, event):
+        """
+        Update text according to the event
+        :return:
+        """
+        if event.event_type == 'log_updated':
+            if len(self.game_manager.game_log) > 6:
+                self.text = '\n'.join(self.game_manager.game_log[-6:])
+            else:
+                self.text = '\n'.join(self.game_manager.game_log)
+            self.canvas.ask_update()
+
 
 
 class CampApp(App):
