@@ -128,47 +128,6 @@ class RLMap(object):
 
     #  Dijkstra map
 
-    ####
-    # This implementation of Dijkstra map filling algorithm is commented out as it is extremely slow.
-    # However, it surely does work with multiple attractors, which are yet to be implemented in _breadth_fill()
-    #######
-
-    # def _set_dijkstra_cell(self, location=(None, None), value=0, spread_direction = 'down', callers=set()):
-    #     """
-    #     Set Dijkstra value for a given cell.
-    #     This method sets Dijksrta value for a cell and tries to spread it to any neighbouring cells/
-    #     Depending on 'spread_direction' attribute it will attempt to either lower it (default)
-    #     or raise. Lowering is intended to be done after addition of attractive item (ie PC entering tile
-    #     starts attracting enemies) while raising is intended for a removal of such item (ie PC *leaving*
-    #     tile or construction being destroyed stops being of any interest).
-    #     Although recursively increasing Dijkstra values is supposed to be a quick-and-dirty cleanup after player
-    #     has moved away, it still needs to cover most, if not all, the map
-    #     :param value: int. A value the cell gets
-    #     :param spread_direction: str, one of 'up' or 'down'
-    #     :return:
-    #     """
-    #     self.dijkstra[location[0]][location[1]] = value
-    #     self.updated_now.add(tuple(location))
-    #     if spread_direction == 'down':
-    #         for n in self.get_neighbour_coordinates(location):
-    #             if tuple(n) not in self.updated_now or self.dijkstra[n[0]][n[1]] > value + 1:
-    #                 #  Check that there is neither impassable construction nor impassable bg item
-    #                 #  Cannot call self.entrance_possible here, as that would also check the actor, and
-    #                 #  cells under actors are subject to Dijkstra map calculations
-    #                 c = self.get_item(layer='constructions', location=n)
-    #                 bg = self.get_item(layer='bg', location=n)
-    #                 if bg.passable and (not c or c.passable):
-    #                     self._set_dijkstra_cell(location=n, value=value+1)
-    #     elif spread_direction == 'up':
-    #         for n in self.get_neighbour_coordinates(location):
-    #             if self.dijkstra[n[0]][n[1]] < value - 1:
-    #                 c = self.get_item(layer='constructions', location=n)
-    #                 bg = self.get_item(layer='bg', location=n)
-    #                 if bg.passable and (not c or c.passable):
-    #                     self._set_dijkstra_cell(location=n, value=value-1, spread_direction='up')
-    #     else:
-    #         raise ValueError('spread_direction should be either\'up\' or \'down\'')
-
     def _breadth_fill(self, filled=set(), value=-5):
         """
         Fill Dijkstra map breadth-first.
