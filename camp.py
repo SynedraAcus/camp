@@ -98,13 +98,14 @@ class GameManager():
         self.map_factory = MapFactory()
         self.map = None
 
-    def load_map(self):
+    def load_map(self, map_file=None):
         """
         Load a new map. Current one, if any, is removed. Player instance and inventory is kept.
-        A newly added map is connected to the correct queue and such.
-        :return:
+        A newly added map is connected to the correct queue and such. It is also returned.
+        :return: Map
         """
-        pass
+        self.map = self.map_factory.load_map(map_file)
+        return self.map
 
     def process_events(self):
         """
@@ -599,9 +600,10 @@ class CampApp(App):
     """
     def build(self):
         root = BoxLayout(orientation='vertical')
-        map_factory = MapFactory()
+        self.game_manager = GameManager()
+        map = self.game_manager.load_map(map_file='test_level.lvl')
         # map = map_factory.create_test_map()
-        map = map_factory.load_map('test_level.lvl')
+        # map = map_factory.load_map('test_level.lvl')
         map_widget = RLMapWidget(map=map,
                                  size=(map.size[0]*32, map.size[1]*32),
                                  size_hint=(None, None),
