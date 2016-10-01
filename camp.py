@@ -15,7 +15,7 @@ from kivy.animation import Animation
 from kivy.core.audio import SoundLoader
 
 #  My own stuff
-from Factories import TileWidgetFactory, MapFactory
+from Factories import TileWidgetFactory, MapLoader
 from Controller import Command
 from GameEvent import EventQueue
 from Listeners import Listener, DeathListener
@@ -97,7 +97,7 @@ class GameManager():
     """
     def __init__(self):
         self.queue = EventQueue()
-        self.map_factory = MapFactory()
+        self.map_loader = MapLoader()
         self.map = None
 
     def load_map(self, map_file=None):
@@ -106,7 +106,7 @@ class GameManager():
         A newly added map is connected to the correct queue and such. It is also returned.
         :return: Map
         """
-        self.map = self.map_factory.load_map(map_file)
+        self.map = self.map_loader.read_map_file(map_file)
         self.map.register_queue(self.queue)
         return self.map
 

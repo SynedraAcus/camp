@@ -16,7 +16,7 @@ from Controller import PlayerController, AIController, FighterSpawnController
 from Items import PotionTypeItem, Item, FighterTargetedEffect, TileTargetedEffect
 
 #  Other imports
-from random import choice, randint
+from random import choice
 
 
 class ActorWidget(Widget):
@@ -321,7 +321,8 @@ class MapLoader():
         #  required type
         self.tag_converters = {'height': int,
                                'width': int,
-                               'aesthetic': str}
+                               'aesthetic': str,
+                               'map_id': str}
         self.depot = MapItemDepot()
         self.layers = {'#': 'constructions',
                        '@': 'actors',
@@ -353,7 +354,7 @@ class MapLoader():
             raise ValueError('Incorrect tag line "{0}"'.format(line))
         return r
 
-    def read_map_file(self, handle):
+    def read_map_file(self, file):
         """
         Read a file that contains a single map
         :param handle: filehandle to a *.lvl file
@@ -362,8 +363,8 @@ class MapLoader():
         tags = {}
         map_lines = []
         reading_map = False
-        for line in handle:
-            if line[0]=='/':
+        for line in open(file):
+            if line[0] == '/':
                 if reading_map:
                     #  Only read tags *before* the map
                     break
@@ -411,62 +412,3 @@ class ActorFactory(object):
                      inventory=InventoryComponent(volume=1,
                                                   initial_items=[self.depot.make_random_item()]),
                      faction=self.faction)
-
-
-class MapFactory(object):
-    def __init__(self):
-        self.map_loader = MapLoader()
-
-    def load_map(self, map_file):
-        """
-        Call a MapLoader instance to load a map from file. Assumes the file to contain a single map
-        :param map_file:
-        :return:
-        """
-        return self.map_loader.read_map_file(open(map_file))
-
-    def create_test_map(self):
-        """
-        A basic map generator. Places a single enemy spawner and several items.
-        :return:
-        """
-        depot = MapItemDepot()
-        map = RLMap(size=(20, 15), layers=['bg', 'constructions', 'items', 'actors'])
-        for x in range(20):
-            #  Background
-            for y in range(15):
-                map.add_item(item=GroundTile(passable=True, image_source='Tile_passable.png'),
-                             layer='bg',
-                             location=(x, y))
-            #  Adding trees along border
-            map.add_item(item=depot.make_wall(),
-                         layer='constructions',
-                         location=(x, 0))
-            map.add_item(item=depot.make_wall(),
-                         layer='constructions',
-                         location=(x, 14))
-        for x in range(15):
-            map.add_item(item = depot.make_wall(),
-                         layer='constructions',
-                         location = (x, 7))
-        #  Adding PC and NPCs
-        item_factory = ItemFactory()
-        map.add_item(depot.make_pc(),
-                     location=(2, 2), layer='actors')
-        map.add_item(item=depot.make_spawner(),
-                     location=(2, 13), layer='constructions')
-        map.add_item(item=depot.make_thug(),
-                     location=(4,12), layer='actors')
-        #  Add 7 items in free tiles. Tiles with actors are considered free for this purpose
-        for a in range(7):
-            while True:
-                pos = (randint(0, map.size[0]-1), randint(0, map.size[1]-1))
-                if not map.get_item(layer='items', location=pos)\
-                        and not map.get_item(layer='constructions', location=pos):
-                    map.add_item(item=depot.make_random_item(),
-                                 location=pos, layer='items')
-                    # map.get_item(location=pos, layer='items').effect.map = map
-                    break
-        #  Update Dijkstra maps
-        map.update_dijkstra()
-        return map
