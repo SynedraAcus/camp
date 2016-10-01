@@ -121,12 +121,28 @@ class GameWidget(RelativeLayout):
     Main game widget. Includes map, as well as various other widgets, as children.
     The game state is tracked by this widget's self.state
     """
-    def __init__(self, map_widget=None, log_widget=None, **kwargs):
+    def __init__(self, game_manager=None, **kwargs):
         super(GameWidget, self).__init__(**kwargs)
-        self.map_widget = map_widget
+        self.game_manager = game_manager
+        self.map_widget = RLMapWidget(map=self.game_manager.map,
+                                      size=(self.game_manager.map.size[0]*32,
+                                            self.game_manager.map.size[1]*32),
+                                      size_hint=(None, None),
+                                      pos=(0, 100))
+        self.log_widget = LogWindow(id='log_window',
+                                    text='\n'.join(self.game_manager.map.game_log[-3:]),
+                                    size=(self.map_widget.width, 100),
+                                    size_hint=(None, None),
+                                    pos=(0, 0),
+                                    text_size=(self.map_widget.width, 100),
+                                    padding=(20, 5),
+                                    font_size=10,
+                                    valign='top',
+                                    line_height=1)
+        self.height = self.map_widget.height+self.log_widget.height
+        self.width = self.map_widget.width
         self.add_widget(self.map_widget)
-        self.log_widget = log_widget
-        self.add_widget(log_widget)
+        self.add_widget(self.log_widget)
         #  Sound object
         self.boombox = {'moved': SoundLoader.load('dshoof.wav'),
                         'attacked': SoundLoader.load('dspunch.wav'),
@@ -601,30 +617,13 @@ class CampApp(App):
     def build(self):
         root = BoxLayout(orientation='vertical')
         self.game_manager = GameManager()
-        map = self.game_manager.load_map(map_file='test_level.lvl')
-        # map = map_factory.create_test_map()
-        # map = map_factory.load_map('test_level.lvl')
-        map_widget = RLMapWidget(map=map,
-                                 size=(map.size[0]*32, map.size[1]*32),
-                                 size_hint=(None, None),
-                                 pos=(0, 100))
-        log_widget = LogWindow(id='log_window',
-                               text='\n'.join(map.game_log[-3:]),
-                               size=(map_widget.width, 100),
-                               size_hint=(None, None),
-                               pos=(0, 0),
-                               text_size=(map_widget.width, 100),
-                               padding=(20, 5),
-                               font_size=10,
-                               valign='top',
-                               line_height=1)
-        Window.size = (map_widget.width, map_widget.height+log_widget.height)
-        game_widget = GameWidget(map_widget=map_widget,
-                                 log_widget=log_widget,
-                                 size=Window.size,
-                                 size_hint=(None, None),
-                                 pos=(0, 0))
-        root.add_widget(game_widget)
+        self.game_manager.load_map(map_file='test_level.lvl')
+        self.game_widget = GameWidget(game_manager=self.game_manager,
+                                      size=Window.size,
+                                      size_hint=(None, None),
+                                      pos=(0, 0))
+        Window.size = self.game_widget.size
+        root.add_widget(self.game_widget)
         return root
 
 if __name__ == '__main__':
