@@ -358,8 +358,8 @@ class MapLoader():
 
     def read_map_file(self, file):
         """
-        Read a file that contains a single map
-        :param handle: filehandle to a *.lvl file
+        Read a file that contains maps.
+        :param handle: str
         :return:
         """
         tags = {}
@@ -385,7 +385,6 @@ class MapLoader():
                                      layer=self.layers[i],
                                      location=(x, tags['height']-1-y))
                 self.maps[tags['map_id']] = map
-                print(tags['map_id'])
                 tags = {}
                 map_lines = []
             else:

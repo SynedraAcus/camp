@@ -90,24 +90,28 @@ class KeyParser(object):
         """
         return Command(command_type=self.command_types[keycode[1]], command_value=self.command_values[keycode[1]])
 
+
 class GameManager():
     """
     A singleton game manager. It holds data about current map, GameEvent queue and so on.
     Basically anything that is neither interface nor is limited to a single map/actor belongs here
     """
-    def __init__(self):
+    def __init__(self, map_file='test_level.lvl'):
         self.queue = EventQueue()
         self.map_loader = MapLoader()
+        self.map_loader.read_map_file(map_file)
         self.map = None
+        self.game_widget = None
 
-    def load_map(self, map_file=None):
+    def load_map(self, map_id='start'):
         """
-        Load a new map. Current one, if any, is removed. Player instance and inventory is kept.
+        Load a new map with a given ID.
+        Current one, if any, is removed. Player instance is kept.
         A newly added map is connected to the correct queue and such. It is also returned.
+        :param map_id: str
         :return: Map
         """
-        self.map_loader.read_map_file(map_file)
-        self.map = self.map_loader.get_map_by_id('start')
+        self.map = self.map_loader.get_map_by_id(map_id)
         self.map.register_queue(self.queue)
         return self.map
 
@@ -141,6 +145,7 @@ class GameWidget(RelativeLayout):
     def __init__(self, game_manager=None, **kwargs):
         super(GameWidget, self).__init__(**kwargs)
         self.game_manager = game_manager
+        self.game_manager.game_widget = self
         #  Initializing widgets
         self.map_widget = RLMapWidget(map=self.game_manager.map,
                                       size=(self.game_manager.map.size[0]*32,
@@ -627,8 +632,6 @@ class LogWindow(Label):
             Rectangle(size=self.size, pos=self.pos)
 
 
-
-
 class CampApp(App):
     """
     Main app class.
@@ -640,8 +643,8 @@ class CampApp(App):
 
     def build(self):
         root = BoxLayout(orientation='vertical')
-        self.game_manager = GameManager()
-        self.game_manager.load_map(map_file='test_level.lvl')
+        self.game_manager = GameManager(map_file='test_level.lvl')
+        self.game_manager.load_map('start')
         self.game_manager.register_listener(DeathListener())
         self.game_widget = GameWidget(game_manager=self.game_manager,
                                       size=Window.size,
