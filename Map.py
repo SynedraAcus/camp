@@ -22,8 +22,8 @@ class RLMap(object):
         #  Log list. Initial values allow not to have empty log at the startup
         self.game_log = ['Игра начинается', 'Если вы видите этот текст, то кириллический лог работает',
                          'All the text below will be in English, so I guess Latin log works as well']
-        #  GameEvent list
-        self.game_events = []
+        # #  GameEvent queue
+        self.game_events = None
         #  The Dijkstra map list, used for NPC pathfinding
         #  For some reason keeping tuple and creating list from it is way quicker than generating the list
         #  from scratch on every turn
@@ -31,6 +31,13 @@ class RLMap(object):
         self.empty_dijkstra = deepcopy(self.dijkstra)
         self.updated_now = set()
         self.max_distance = None
+
+    def register_queue(self, queue):
+        """
+        Register a queue to which this Map will add its GameEvents
+        :return:
+        """
+        self.game_events = queue
 
     #  Actions on map items: addition, removal and so on
 
@@ -312,3 +319,21 @@ class RLMap(object):
         assert isinstance(item, str)
         self.game_log.append(item)
         self.game_events.append(GameEvent(event_type='log_updated'))
+
+    def process_turn(self, command=None):
+        """
+        Make one turn, passing command to PC.
+        This method passes the command to self.actors[0].controller, asks the same to make a turn and, if
+        successful, does the same for all the actors and constructions (in that order). Then it calls for animation
+        to be drawn, even if PC turn wasn't actually possible. That's because calling for impossible turn could've
+        potentially updated game log or caused other visible effects.
+        :return:
+        """
+        self.actors[0].controller.accept_command(command)
+        r = self.actors[0].make_turn()
+        if r:
+            for a in self.actors[1:]:
+                a.make_turn()
+            for a in self.constructions:
+                a.make_turn()
+        self.game_events.pass_all_events()

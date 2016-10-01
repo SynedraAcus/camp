@@ -105,6 +105,7 @@ class GameManager():
         :return: Map
         """
         self.map = self.map_factory.load_map(map_file)
+        self.map.register_queue(self.queue)
         return self.map
 
     def process_events(self):
@@ -124,6 +125,7 @@ class GameWidget(RelativeLayout):
     def __init__(self, game_manager=None, **kwargs):
         super(GameWidget, self).__init__(**kwargs)
         self.game_manager = game_manager
+        #  Initializing widgets
         self.map_widget = RLMapWidget(map=self.game_manager.map,
                                       size=(self.game_manager.map.size[0]*32,
                                             self.game_manager.map.size[1]*32),
@@ -143,13 +145,15 @@ class GameWidget(RelativeLayout):
         self.width = self.map_widget.width
         self.add_widget(self.map_widget)
         self.add_widget(self.log_widget)
+        #  Registering MapWidget to receive events from GameManager
+        self.game_manager.queue.register_listener(self.map_widget)
         #  Sound object
         self.boombox = {'moved': SoundLoader.load('dshoof.wav'),
                         'attacked': SoundLoader.load('dspunch.wav'),
                         'exploded': SoundLoader.load('dsbarexp.wav')}
         #  Sound in kivy seems to be loaded lazily. Files are not actually read until they are necessary,
-        #  which leads to lags for up to half a second (on my computer at least). The following two lines are
-        #  forcing them to be loaded right now.
+        #  which leads to lags for up to half a second when a sound is used for the first time. The following
+        #  two lines are forcing them to be loaded right now.
         for sound in self.boombox.keys():
             self.boombox[sound].seek(0)
         #  Keyboard controls
@@ -208,7 +212,7 @@ class GameWidget(RelativeLayout):
                 if keycode[1] in self.map_keys:
                     #  If the key is a 'map-controlling' one, ie uses a turn without calling further windows
                     command = self.key_parser.key_to_command(keycode)
-                    self.map_widget.process_turn(command=command)
+                    self.game_manager.map.process_turn(command=command)
                 elif keycode[1] == 'escape':
                     App.get_running_app().stop()
                 #  The following checks set various game states but don't, by themselves, produce commands
@@ -276,7 +280,7 @@ class GameWidget(RelativeLayout):
                         command = Command(command_type='use_item', command_value=(n, ))
                         self.remove_widget(self.state_widget)
                         self.game_state = 'playing'
-                        self.map_widget.process_turn(command=command)
+                        self.game_manager.map.process_turn(command=command)
                     except ValueError:
                         #  This ValueError is expected to be raised by key_to_number if the keycode
                         #  is not numeric
@@ -289,7 +293,7 @@ class GameWidget(RelativeLayout):
                         #  Remove inventory widget upon using item
                         self.remove_widget(self.state_widget)
                         self.game_state = 'playing'
-                        self.map_widget.process_turn(command=command)
+                        self.game_manager.map.process_turn(command=command)
                     except ValueError:
                         pass
                 elif 'targeting' in self.game_state:
@@ -300,7 +304,7 @@ class GameWidget(RelativeLayout):
                         command = Command(command_type='jump', command_value=delta)
                         self.game_state = 'playing'
                         self.remove_widget(self.state_widget)
-                        self.map_widget.process_turn(command=command)
+                        self.game_manager.map.process_turn(command=command)
                     elif self.game_state == 'examine_targeting' and keycode[1] in ('x', 'enter', 'numpadenter'):
                         #  Examine whatever is under cursor
                         self.game_state = 'examine_window'
@@ -322,7 +326,7 @@ class GameWidget(RelativeLayout):
                         self.game_state = 'playing'
                         self.remove_widget(self.state_widget)
 
-                        self.map_widget.process_turn(command)
+                        self.game_manager.map.process_turn(command)
                     elif keycode[1] in self.key_parser.command_types.keys() and \
                                     self.key_parser.command_types[keycode[1]] == 'walk':
                         #  Move the targeting widget
@@ -412,6 +416,8 @@ class RLMapWidget(RelativeLayout):
             self.add_widget(self.layer_widgets[layer])
         #  This is set to True during animation to avoid mistakes
         self.animating = False
+        #  Queue of GameEvents to be animated
+        self.animation_queue = []
         #  A temporary widget slot for stuff like explosions, spell effects and such
         self.overlay_widget = None
         #  Debugging Dijkstra map view
@@ -419,32 +425,29 @@ class RLMapWidget(RelativeLayout):
             self.dijkstra_widget = DijkstraWidget(parent=self)
             self.add_widget(self.dijkstra_widget)
 
-    def process_turn(self, command=None):
-        """
-        Make one turn, passing command to PC.
-        This method passes the command to self.actors[0].controller, asks the same to make a turn and, if
-        successful, does the same for all the actors and constructions (in that order). Then it calls for animation
-        to be drawn, even if PC turn wasn't actually possible. That's because calling for impossible turn could've
-        potentially updated game log or caused other visible effects.
-        :return:
-        """
-        self.map.actors[0].controller.accept_command(command)
-        r = self.map.actors[0].make_turn()
-        if r:
-            for a in self.map.actors[1:]:
-                a.make_turn()
-            for a in self.map.constructions:
-                a.make_turn()
-        self.process_game_event()
+
 
 #########################################################
     #
     #  Stuff related to animation
     #
-########################################## ###############label
-    def process_game_event(self, widget=None, anim_duration=0.3):
+##########################################################
+    def process_game_event(self, event):
         """
-        Process a single event from self.map.game_events.
+        Process a GameEvent passed by queue
+        :param event: GameEvent
+        :return:
+        """
+        if event.event_type == 'queue_exhausted':
+            #  Shoot animations only after the entire event batch for the turn has arrived
+            #  Better to avoid multiple methods messing with self.animation_queue simultaneously
+            self.animate_game_event()
+        else:
+            self.animation_queue.append(event)
+
+    def animate_game_event(self, widget=None, anim_duration=0.3):
+        """
+        Process a single event from self.animation_queue
         Read the event and perform the correct actions on widgets (such as update text of log window,
         create and launch animation, maybe make some sound). The event is removed from self.map.game_events.
         After the actions required are performed, the method calls itself again, either recursively, or, in
@@ -456,13 +459,13 @@ class RLMapWidget(RelativeLayout):
             #  If the widget was given zero size, this means it should be removed
             #  This entire affair is kinda inefficient and should be rebuilt later
             widget.parent.remove_widget(widget)
-        if not self.map.game_events == []:
-            event = self.map.game_events.pop(0)
+        if not self.animation_queue == []:
+            event = self.animation_queue.pop(0)
             if event.event_type == 'moved':
                 final = self.get_screen_pos(event.actor.location)
                 a = Animation(x=final[0], y=final[1], duration=anim_duration)
                 a.bind(on_start=lambda x, y: self.remember_anim(),
-                       on_complete=lambda x, y: self.process_game_event(widget=y))
+                       on_complete=lambda x, y: self.animate_game_event(widget=y))
                 a.start(event.actor.widget)
             elif event.event_type == 'attacked':
                 current = self.get_screen_pos(event.actor.location)
@@ -472,7 +475,7 @@ class RLMapWidget(RelativeLayout):
                               duration=anim_duration/2)
                 a += Animation(x=current[0], y=current[1], duration=anim_duration/2)
                 a.bind(on_start=lambda x, y: self.remember_anim(),
-                       on_complete=lambda x, y: self.process_game_event(widget=y))
+                       on_complete=lambda x, y: self.animate_game_event(widget=y))
                 a.start(event.actor.widget)
                 self.parent.boombox['attacked'].play()
             elif event.event_type == 'was_destroyed':
@@ -482,46 +485,46 @@ class RLMapWidget(RelativeLayout):
                     #  different here, because in 'dropped' item is taken from map, where it's None by the time
                     #  this method runs. Here, on the other hand, Item object exists (in GameEvent), but has
                     #  no widget (and is not placed on map, but that's irrelevant).
-                    self.process_game_event()
+                    self.animate_game_event()
                     return
                 a = Animation(size=(0, 0), duration=anim_duration)
                 a.bind(on_start=lambda x, y: self.remember_anim(),
-                       on_complete=lambda x, y: self.process_game_event(widget=y))
+                       on_complete=lambda x, y: self.animate_game_event(widget=y))
                 a.start(event.actor.widget)
             elif event.event_type == 'log_updated':
                 self.parent.update_log()
-                self.process_game_event()
+                self.animate_game_event()
             elif event.event_type == 'picked_up':
                 #  It's assumed that newly added item will be the last in player inventory
                 self.layer_widgets['items'].remove_widget(self.map.actors[0].inventory[-1].widget)
-                self.process_game_event()
+                self.animate_game_event()
             elif event.event_type == 'dropped':
                 item = self.map.get_item(location=event.location, layer='items')
                 if not item:
                     #  Item could've been destroyed right after being drop, ie it didn't get a widget. Skip.
                     #  It's rather likely if someone was killed by landmine, dropped an item and had this item
                     #  destroyed in the same explosion
-                    self.process_game_event()
+                    self.animate_game_event()
                     return
                 if not item.widget:
                     self.tile_factory.create_widget(item)
                     item.widget.pos = self.get_screen_pos(event.location)
                 self.layer_widgets['items'].add_widget(item.widget)
-                self.process_game_event()
+                self.animate_game_event()
             elif event.event_type == 'actor_spawned':
                 a = event.actor
                 if not a.widget:
                     self.tile_factory.create_widget(a)
                     a.widget.pos = self.get_screen_pos(event.location)
                 self.layer_widgets['actors'].add_widget(a.widget)
-                self.process_game_event()
+                self.animate_game_event()
             elif event.event_type == 'construction_spawned':
                 a = event.actor
                 if not a.widget:
                     self.tile_factory.create_widget(a)
                     a.widget.pos = self.get_screen_pos(event.location)
                 self.layer_widgets['constructions'].add_widget(a.widget)
-                self.process_game_event()
+                self.animate_game_event()
             elif event.event_type == 'exploded':
                 loc = self.get_screen_pos(event.location)
                 loc = (loc[0]+16, loc[1]+16)
@@ -534,7 +537,7 @@ class RLMapWidget(RelativeLayout):
                 a += Animation(size=(0, 0), pos=loc,
                                duration=anim_duration)
                 a.bind(on_start=lambda x, y: self.remember_anim(),
-                       on_complete=lambda x, y: self.process_game_event(widget=y))
+                       on_complete=lambda x, y: self.animate_game_event(widget=y))
                 self.add_widget(self.overlay_widget)
                 self.parent.boombox['exploded'].play()
                 a.start(self.overlay_widget)
@@ -556,7 +559,7 @@ class RLMapWidget(RelativeLayout):
                 a = Animation(pos=self.get_screen_pos(event.location), duration=anim_duration)
                 a += Animation(size=(0,0), duration=0)
                 a.bind(on_start=lambda x, y: self.remember_anim(),
-                       on_complete=lambda x, y: self.process_game_event(widget=y))
+                       on_complete=lambda x, y: self.animate_game_event(widget=y))
                 self.add_widget(self.overlay_widget)
                 a.start(self.overlay_widget)
 
@@ -615,6 +618,7 @@ class CampApp(App):
     Main app class.
     """
     def __init__(self):
+        super(CampApp, self).__init__()
         self.game_manager = None
         self.game_widget = None
 

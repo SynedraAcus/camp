@@ -21,7 +21,8 @@ class GameEvent:
                         'actor_spawned',
                         'construction_spawned',
                         'exploded',
-                        'shot')
+                        'shot',
+                        'queue_exhausted')
 
     def __init__(self, event_type=None, actor=None, location=None):
         assert isinstance(event_type, str) and event_type in self.acceptable_types
@@ -98,8 +99,10 @@ class EventQueue:
 
     def pass_all_events(self):
         """
-        Pass all the events in the queue to listeners
+        Pass all the events in the queue to listeners. In addition, passes a special `queue_exhausted` event
+        that signalises that that's it for now. It allows eg animation system to start animating turn
         :return:
         """
+        self.append(GameEvent(event_type='queue_exhausted'))
         for x in range(len(self._deque)):
             self.pass_event()
