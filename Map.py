@@ -202,7 +202,6 @@ class RLMap(object):
             ret.append(location)
         return ret
 
-
     def get_neighbours(self, layers=['default'], location=(None, None), return_query=False):
         """
         Get all the items in the cells connected to this one on given layers

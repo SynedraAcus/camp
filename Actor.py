@@ -187,6 +187,7 @@ class Actor(MapItem):
                 self.map.extend_log('Inventory is full already!')
                 return False
         else:
+            self.map.extend_log('Nothing to pick up here!')
             return False
 
     def use_item(self, item_number, target=None):

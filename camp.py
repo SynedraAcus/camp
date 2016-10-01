@@ -93,6 +93,7 @@ class KeyParser(object):
 class GameManager():
     """
     A singleton game manager. It holds data about current map, GameEvent queue and so on.
+    Basically anything that is neither interface nor is limited to a single map/actor belongs here
     """
     def __init__(self):
         self.queue = EventQueue()
