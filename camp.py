@@ -18,7 +18,7 @@ from kivy.core.audio import SoundLoader
 from Factories import TileWidgetFactory, MapLoader
 from Controller import Command
 from GameEvent import EventQueue
-from Listeners import Listener, DeathListener
+from Listeners import Listener, DeathListener, MapChangeListener
 
 #  Others
 from math import atan2, degrees
@@ -106,14 +106,26 @@ class GameManager():
     def load_map(self, map_id='start'):
         """
         Load a new map with a given ID.
-        Current one, if any, is removed. Player instance is kept.
-        A newly added map is connected to the correct queue and such. It is also returned.
+        Doesn't do anything to widgets: just loads the map and connects the queue. The first map loaded is
+        drawn by GameWidget's __init__(), for others you should call self.switch_map() manually
         :param map_id: str
         :return: Map
         """
         self.map = self.map_loader.get_map_by_id(map_id)
         self.map.register_queue(self.queue)
         return self.map
+
+    def switch_map(self, map_id='start'):
+        """
+        Switch to a new map.
+        Assumes the map is available from self.map_loader. Also assumes there is some other map currently
+        connected that needs to be removed.
+        :param map_id:
+        :return:
+        """
+        self.queue.clear()
+        self.load_map(map_id)
+        self.game_widget.rebuild_widgets()
 
     def process_events(self):
         """
@@ -146,28 +158,7 @@ class GameWidget(RelativeLayout):
         super(GameWidget, self).__init__(**kwargs)
         self.game_manager = game_manager
         self.game_manager.game_widget = self
-        #  Initializing widgets
-        self.map_widget = RLMapWidget(map=self.game_manager.map,
-                                      size=(self.game_manager.map.size[0]*32,
-                                            self.game_manager.map.size[1]*32),
-                                      size_hint=(None, None),
-                                      pos=(0, 100))
-        self.log_widget = LogWindow(id='log_window',
-                                    text='\n'.join(self.game_manager.map.game_log[-3:]),
-                                    size=(self.map_widget.width, 100),
-                                    size_hint=(None, None),
-                                    pos=(0, 0),
-                                    text_size=(self.map_widget.width, 100),
-                                    padding=(20, 5),
-                                    font_size=10,
-                                    valign='top',
-                                    line_height=1)
-        self.height = self.map_widget.height+self.log_widget.height
-        self.width = self.map_widget.width
-        self.add_widget(self.map_widget)
-        self.add_widget(self.log_widget)
-        #  Registering MapWidget to receive events from GameManager
-        self.game_manager.queue.register_listener(self.map_widget)
+        self.rebuild_widgets()
         #  Sound object
         self.boombox = {'moved': SoundLoader.load('dshoof.wav'),
                         'attacked': SoundLoader.load('dspunch.wav'),
@@ -214,6 +205,35 @@ class GameWidget(RelativeLayout):
         #  Stuff for various game states
         self.state_widget = None
         self.target_coordinates = (None, None)
+
+    def rebuild_widgets(self):
+        """
+        Rebuild the widgets according to map in self.game_manager.
+        This method DOESN'T resize the window if the map size changes.
+        :return:
+        """
+        #  Initializing widgets
+        self.map_widget = RLMapWidget(map=self.game_manager.map,
+                                      size=(self.game_manager.map.size[0]*32,
+                                            self.game_manager.map.size[1]*32),
+                                      size_hint=(None, None),
+                                      pos=(0, 100))
+        self.log_widget = LogWindow(id='log_window',
+                                    text='\n'.join(self.game_manager.map.game_log[-3:]),
+                                    size=(self.map_widget.width, 100),
+                                    size_hint=(None, None),
+                                    pos=(0, 0),
+                                    text_size=(self.map_widget.width, 100),
+                                    padding=(20, 5),
+                                    font_size=10,
+                                    valign='top',
+                                    line_height=1)
+        self.height = self.map_widget.height+self.log_widget.height
+        self.width = self.map_widget.width
+        self.add_widget(self.map_widget)
+        self.add_widget(self.log_widget)
+        #  Registering MapWidget to receive events from GameManager
+        self.game_manager.queue.register_listener(self.map_widget)
 
     def _on_key_down(self, keyboard, keycode, text, modifier):
         """
@@ -645,11 +665,12 @@ class CampApp(App):
         root = BoxLayout(orientation='vertical')
         self.game_manager = GameManager(map_file='test_level.lvl')
         self.game_manager.load_map('start')
-        self.game_manager.register_listener(DeathListener())
         self.game_widget = GameWidget(game_manager=self.game_manager,
                                       size=Window.size,
                                       size_hint=(None, None),
                                       pos=(0, 0))
+        self.game_manager.register_listener(DeathListener())
+        self.game_manager.register_listener(MapChangeListener())
         Window.size = self.game_widget.size
         root.add_widget(self.game_widget)
         return root

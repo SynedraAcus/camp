@@ -24,3 +24,14 @@ class DeathListener(Listener):
         if event.event_type == 'was_destroyed':
             if isinstance(event.actor, Actor) and isinstance(event.actor.controller, PlayerController):
                 print('PC was killed. So it goes.')
+
+
+class MapChangeListener(Listener):
+    """
+    A test Listener that switches map to 'empty' if player moves to the bottom row of the map
+    """
+    def process_game_event(self, event):
+        if event.event_type == 'moved':
+            if isinstance(event.actor, Actor) and isinstance(event.actor.controller, PlayerController)\
+                        and event.actor.location[1] <= 1:
+                self.game_manager.switch_map('empty')

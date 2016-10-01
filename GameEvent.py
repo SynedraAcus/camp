@@ -52,6 +52,13 @@ class EventQueue:
             raise ValueError('Only GameEvents can be pushed to the event queue')
         self._deque.append(item)
 
+    def clear(self):
+        """
+        Remove all elements from EventQueue leaving it with length 0
+        :return:
+        """
+        self._deque.clear()
+
     def popleft(self):
         """
         Pop a GameEvent from the queue start
@@ -104,5 +111,5 @@ class EventQueue:
         :return:
         """
         self.append(GameEvent(event_type='queue_exhausted'))
-        for x in range(len(self._deque)):
+        while len(self._deque) > 0:
             self.pass_event()
