@@ -317,8 +317,8 @@ class MapLoader():
     the caller's problem.
     """
     def __init__(self):
-        #  A dict of tag-to-function mappings. Values should be callables that accept string a return an object of
-        #  required type
+        #  A dict of tag-to-function mappings. Values should be callables that accept string and return
+        #  an object of a required type
         self.tag_converters = {'height': int,
                                'width': int,
                                'aesthetic': str,
@@ -335,6 +335,8 @@ class MapLoader():
                        'L': 'items',
                        'B': 'items',
                        'F': 'items'}
+        #  All the maps loaded from file will be stored here
+        self.maps = {}
 
     def parse_tag_line(self, line):
         """
@@ -362,32 +364,42 @@ class MapLoader():
         """
         tags = {}
         map_lines = []
-        reading_map = False
         for line in open(file):
             if line[0] == '/':
-                if reading_map:
-                    #  Only read tags *before* the map
-                    break
                 l = self.parse_tag_line(line)
                 tags.update({l[0]: l[1]})
+            elif line == '\n':
+                #  Empty line means that one map ended and the next will maybe begin from the next line
+                #  Anyway, time to compile the map
+                map = RLMap(size=(tags['width'], tags['height']), layers=['bg', 'constructions', 'items', 'actors'])
+                for y in range(0, tags['height']):
+                    for x in range(0, tags['width']):
+                        map.add_item(GroundTile(passable=True, image_source='Tile_passable.png'),
+                                     layer='bg', location=(x, tags['height']-1-y))
+                        i = map_lines[y][x]
+                        if i == '.':
+                            #  Nothing to place here
+                            continue
+                        item = self.depot.get_item_by_glyph(i)
+                        map.add_item(item=item,
+                                     layer=self.layers[i],
+                                     location=(x, tags['height']-1-y))
+                self.maps[tags['map_id']] = map
+                print(tags['map_id'])
+                tags = {}
+                map_lines = []
             else:
                 map_lines.append(line)
-                reading_map = True
-        map = RLMap(size=(tags['width'], tags['height']), layers=['bg', 'constructions', 'items', 'actors'])
-        for y in range(0, tags['height']):
-            for x in range(0, tags['width']):
-                map.add_item(GroundTile(passable=True, image_source='Tile_passable.png'),
-                             layer='bg', location=(x, tags['height']-1-y))
-                i = map_lines[y][x]
-                if i == '.':
-                    #  Nothing to place here
-                    continue
-                item = self.depot.get_item_by_glyph(i)
-                map.add_item(item=item,
-                             layer=self.layers[i],
-                             location=(x, tags['height']-1-y))
-        return map
 
+    def get_map_by_id(self, map_id):
+        """
+        Return a map with a given ID.
+        This method assumes that map-loading was done before it was called and that there is, in fact,
+        such a map in the file
+        :param map_id:
+        :return:
+        """
+        return(self.maps[map_id])
 
 class ActorFactory(object):
     """

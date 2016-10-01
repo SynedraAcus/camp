@@ -106,7 +106,8 @@ class GameManager():
         A newly added map is connected to the correct queue and such. It is also returned.
         :return: Map
         """
-        self.map = self.map_loader.read_map_file(map_file)
+        self.map_loader.read_map_file(map_file)
+        self.map = self.map_loader.get_map_by_id('start')
         self.map.register_queue(self.queue)
         return self.map
 
