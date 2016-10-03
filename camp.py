@@ -500,7 +500,6 @@ class RLMapWidget(RelativeLayout, Listener):
             #  Shoot animations only after the entire event batch for the turn has arrived
             #  Better to avoid multiple methods messing with self.animation_queue simultaneously
             self.animate_game_event()
-            print(self.parent)
         #  Ignore log-related events
         elif not event.event_type == 'log_updated':
             self.animation_queue.append(event)
