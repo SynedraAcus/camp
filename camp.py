@@ -118,7 +118,7 @@ class GameManager():
         self.map.register_manager(self)
         return self.map
 
-    def switch_map(self, map_id='start'):
+    def switch_map(self, map_id='empty'):
         """
         Switch to a new map.
         Assumes the map is available from self.map_loader. The queue is cleaned up because otherwise
@@ -133,9 +133,9 @@ class GameManager():
         #  The creation and removal of PC is unnecessary, but the passing correct PC to map creator will be
         #  more headache than it's worth, at least for now
         if pc:
-            loc = self.map.actors[0].location
-            self.map.delete_item(layer='actors', location=loc)
-            self.map.add_item(item=pc, layer='actors', location=loc)
+            pc.location = self.map.actors[0].location
+            self.map.delete_item(layer='actors', location=pc.location)
+            self.map.add_item(item=pc, layer='actors', location=pc.location)
         self.game_widget.rebuild_widgets()
 
     def process_events(self):
@@ -482,6 +482,7 @@ class RLMapWidget(RelativeLayout, Listener):
         if DISPLAY_DIJKSTRA_MAP:
             self.dijkstra_widget = DijkstraWidget(parent=self)
             self.add_widget(self.dijkstra_widget)
+        self.counter = 0
 
 
 
@@ -499,6 +500,8 @@ class RLMapWidget(RelativeLayout, Listener):
         if event.event_type == 'queue_exhausted':
             #  Shoot animations only after the entire event batch for the turn has arrived
             #  Better to avoid multiple methods messing with self.animation_queue simultaneously
+            self.counter+=1
+            print(self.counter)
             self.animate_game_event()
         #  Ignore log-related events
         elif not event.event_type == 'log_updated':
