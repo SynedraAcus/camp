@@ -167,6 +167,8 @@ class GameWidget(RelativeLayout):
     """
     def __init__(self, game_manager=None, **kwargs):
         super(GameWidget, self).__init__(**kwargs)
+        self.map_widget = None
+        self.log_widget = None
         self.game_manager = game_manager
         self.game_manager.game_widget = self
         self.rebuild_widgets()
@@ -191,7 +193,7 @@ class GameWidget(RelativeLayout):
                              'up', 'down', 'left', 'right',
                              'numpad1', 'numpad2', 'numpad3', 'numpad4', 'numpad5',
                              'numpad6', 'numpad7', 'numpad8', 'numpad9', 'numpad0',
-                             #  PC stats view
+                             #  PC stats viewctory.create_widget(a)
                              'c',
                              #  Used for inventory & spell systems
                              '0', '1', '2', '3', '4', '5',
@@ -223,6 +225,9 @@ class GameWidget(RelativeLayout):
         This method DOESN'T resize the window if the map size changes.
         :return:
         """
+        if self.map_widget:
+            self.game_manager.queue.unregister_listener(self.map_widget)
+            self.remove_widget(self.map_widget)
         #  Initializing widgets
         self.map_widget = RLMapWidget(map=self.game_manager.map,
                                       size=(self.game_manager.map.size[0]*32,
@@ -495,6 +500,7 @@ class RLMapWidget(RelativeLayout, Listener):
             #  Shoot animations only after the entire event batch for the turn has arrived
             #  Better to avoid multiple methods messing with self.animation_queue simultaneously
             self.animate_game_event()
+            print(self.parent)
         #  Ignore log-related events
         elif not event.event_type == 'log_updated':
             self.animation_queue.append(event)
@@ -563,18 +569,16 @@ class RLMapWidget(RelativeLayout, Listener):
                 self.layer_widgets['items'].add_widget(item.widget)
                 self.animate_game_event()
             elif event.event_type == 'actor_spawned':
-                a = event.actor
-                if not a.widget:
-                    self.tile_factory.create_widget(a)
-                    a.widget.pos = self.get_screen_pos(event.location)
-                self.layer_widgets['actors'].add_widget(a.widget)
+                if not event.actor.widget:
+                    self.tile_factory.create_widget(event.actor)
+                event.actor.widget.pos = self.get_screen_pos(event.location)
+                self.layer_widgets['actors'].add_widget(event.actor.widget)
                 self.animate_game_event()
             elif event.event_type == 'construction_spawned':
-                a = event.actor
-                if not a.widget:
-                    self.tile_factory.create_widget(a)
-                    a.widget.pos = self.get_screen_pos(event.location)
-                self.layer_widgets['constructions'].add_widget(a.widget)
+                if not event.actor.widget:
+                    self.tile_factory.create_widget(event.actor)
+                event.actor.widget.pos = self.get_screen_pos(event.location)
+                self.layer_widgets['constructions'].add_widget(event.actor.widget)
                 self.animate_game_event()
             elif event.event_type == 'exploded':
                 loc = self.get_screen_pos(event.location)
@@ -687,7 +691,7 @@ class CampApp(App):
     def build(self):
         root = BoxLayout(orientation='vertical')
         self.game_manager = GameManager(map_file='test_level.lvl')
-        self.game_manager.load_map('entrance')
+        self.game_manager.load_map('twist')
         self.game_widget = GameWidget(game_manager=self.game_manager,
                                       size=Window.size,
                                       size_hint=(None, None),
