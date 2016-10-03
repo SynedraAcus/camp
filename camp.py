@@ -499,7 +499,7 @@ class RLMapWidget(RelativeLayout, Listener):
         elif not event.event_type == 'log_updated':
             self.animation_queue.append(event)
 
-    def animate_game_event(self, widget=None, anim_duration=0.3):
+    def animate_game_event(self, widget=None, anim_duration=0.2):
         """
         Process a single event from self.animation_queue
         Read the event and perform the correct actions on widgets (such as update text of log window,
@@ -584,9 +584,9 @@ class RLMapWidget(RelativeLayout, Listener):
                                             size_hint=(None, None),
                                             pos=loc)
                 a = Animation(size=(96, 96), pos=(loc[0]-32, loc[1]-32),
-                              duration=anim_duration)
+                              duration=0.3)
                 a += Animation(size=(0, 0), pos=loc,
-                               duration=anim_duration)
+                               duration=0.3)
                 a.bind(on_start=lambda x, y: self.remember_anim(),
                        on_complete=lambda x, y: self.animate_game_event(widget=y))
                 self.add_widget(self.overlay_widget)
