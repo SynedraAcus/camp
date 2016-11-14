@@ -323,10 +323,10 @@ class MapLoader():
                                'width': int,
                                'aesthetic': str,
                                'map_id': str,
-                               'neighbour_8': str,
-                               'neighbour_4': str,
-                               'neighbour_6': str,
-                               'neighbour_2': str}
+                               'neighbour_south': str,
+                               'neighbour_west': str,
+                               'neighbour_east': str,
+                               'neighbour_north': str}
         self.depot = MapItemDepot()
         self.layers = {'#': 'constructions',
                        '@': 'actors',
@@ -390,7 +390,9 @@ class MapLoader():
                                      location=(x, tags['height']-1-y))
                 #  Neighbouring map IDs
                 for tag in [x for x in tags.keys() if 'neighbour_' in x]:
-                    map.neighbour_maps[int(tag[-1])] = tags[tag]
+                    direction = tag.split('_')[1]
+                    map.neighbour_maps[direction] = tags[tag]
+                print(list(map.neighbour_maps.keys()))
                 self.maps[tags['map_id']] = map
                 tags = {}
                 map_lines = []

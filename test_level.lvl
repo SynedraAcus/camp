@@ -1,7 +1,7 @@
 /height 15
 /width 20
 /map_id entrance
-/neighbour_6 twist
+/neighbour_east twist
 ####################
 ####################
 #.......############
@@ -21,7 +21,7 @@
 /height 15
 /width 20
 /map_id twist
-/neighbour_4 entrance
+/neighbour_west entrance
 ####################
 ###..##########....#
 ##.S.########......#

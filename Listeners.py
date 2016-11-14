@@ -34,16 +34,16 @@ class BorderWalkListener(Listener):
         if event.event_type == 'moved':
             if isinstance(event.actor, Actor) and isinstance(event.actor.controller, PlayerController):
                 if event.actor.location[0] == 0:
-                    self.game_manager.switch_map(self.game_manager.map.neighbour_maps[4],
+                    self.game_manager.switch_map(self.game_manager.map.neighbour_maps['west'],
                                                  entrance_direction='west')
                 elif event.actor.location[0] == self.game_manager.map.size[0] - 1:
-                    self.game_manager.switch_map(self.game_manager.map.neighbour_maps[6],
+                    self.game_manager.switch_map(self.game_manager.map.neighbour_maps['east'],
                                                  entrance_direction='east')
                 elif event.actor.location[1] == 0:
-                    self.game_manager.switch_map(self.game_manager.map.neighbour_maps[2],
+                    self.game_manager.switch_map(self.game_manager.map.neighbour_maps['south'],
                                                  entrance_direction='north')
                 elif event.actor.location[1] == self.game_manager.map.size[1] - 1:
-                    self.game_manager.switch_map(self.game_manager.map.neighbour_maps[8],
+                    self.game_manager.switch_map(self.game_manager.map.neighbour_maps['north'],
                                                  entrance_direction='south')
 
 class MapChangeListener(Listener):
