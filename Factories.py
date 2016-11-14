@@ -407,7 +407,7 @@ class MapLoader():
         :param map_id:
         :return:
         """
-        return(self.maps[map_id])
+        return self.maps[map_id]
 
 class ActorFactory(object):
     """

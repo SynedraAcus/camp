@@ -146,7 +146,7 @@ class GameManager():
             if isinstance(self.map.actors[0].controller, PlayerController):
                 self.map.delete_item(layer='actors', location=self.map.actors[0].location)
             self.map.add_item(item=pc, layer='actors', location=pc.location)
-            self.game_widget.rebuild_widgets()
+            self.game_widget.rebuild_map_widget()
 
     def process_events(self):
         """
@@ -231,8 +231,9 @@ class GameWidget(RelativeLayout):
 
     def rebuild_widgets(self):
         """
-        Rebuild the widgets according to map in self.game_manager.
-        This method DOESN'T resize the window if the map size changes.
+        Rebuild all the widgets according to map in self.game_manager.
+        If there are currently no widgets, they are built from scratch. This method
+        DOESN'T resize the window if the map size changes.
         :return:
         """
         if self.map_widget:
@@ -261,6 +262,21 @@ class GameWidget(RelativeLayout):
         #  Registering MapWidget to receive events from GameManager
         self.game_manager.queue.register_listener(self.map_widget)
         self.game_manager.register_listener(self.log_widget)
+
+    def rebuild_map_widget(self):
+        """
+        Rebuild the map widget, leaving others as they are
+        :return:
+        """
+        self.game_manager.queue.unregister_listener(self.map_widget)
+        self.remove_widget(self.map_widget)
+        self.map_widget = RLMapWidget(map=self.game_manager.map,
+                                      size=(self.game_manager.map.size[0]*32,
+                                            self.game_manager.map.size[1]*32),
+                                      size_hint=(None, None),
+                                      pos=(0, 100))
+        self.add_widget(self.map_widget)
+        self.game_manager.queue.register_listener(self.map_widget)
 
     def _on_key_down(self, keyboard, keycode, text, modifier):
         """
@@ -466,10 +482,8 @@ class DijkstraWidget(RelativeLayout):
 class RLMapWidget(RelativeLayout, Listener):
     """
     Game map widget. Mostly is busy displaying character widgets and such.
-    Depends on its parent having the following attributes:
+    Assumes that its parent has the following attributes:
     self.parent.boombox  a dict of SoundLoader instances with correct sounds
-    and the following methods:
-    self.parent.update_log()  Update the visible game log with this object's self.map.game_log
     """
     def __init__(self, map=None, **kwargs):
         super(RLMapWidget, self).__init__(**kwargs)

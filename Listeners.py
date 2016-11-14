@@ -46,6 +46,9 @@ class BorderWalkListener(Listener):
                     self.game_manager.switch_map(self.game_manager.map.neighbour_maps['north'],
                                                  entrance_direction='south')
 
+
+
+#  Test Listener. Not actually used anywhere
 class MapChangeListener(Listener):
     """
     A test Listener that switches map to 'empty' if player moves to the bottom row of the map
