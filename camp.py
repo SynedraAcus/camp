@@ -118,7 +118,7 @@ class GameManager():
         self.map.register_manager(self)
         return self.map
 
-    def switch_map(self, map_id='empty'):
+    def switch_map(self, map_id='empty', entrance_direction=None):
         """
         Switch to a new map.
         Assumes the map is available from self.map_loader. The queue is cleaned up because otherwise
@@ -130,9 +130,19 @@ class GameManager():
         pc = None
         if self.map:
             pc = self.map.actors[0]
+            self.map.delete_item(layer='actors', location=pc.location)
         self._load_map(map_id)
         if pc:  #  pc is None only for the first map loaded just after starting the app
-            pc.location = self.map.actors[0].location
+            if entrance_direction == 'north':
+                pc.location = [pc.location[0], self.map.size[1]-1]
+            elif entrance_direction == 'south':
+                pc.location = [pc.location[0], 0]
+            elif entrance_direction == 'west':
+                pc.location = [self.map.size[0]-1, pc.location[1]]
+            elif entrance_direction == 'east':
+                pc.location = [0, pc.location[1]]
+            else:
+                raise ValueError('Only one of north, south, west or east is accepted as entrance_direction')
             self.map.delete_item(layer='actors', location=self.map.actors[0].location)
             self.map.add_item(item=pc, layer='actors', location=pc.location)
             self.game_widget.rebuild_widgets()
