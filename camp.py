@@ -620,6 +620,7 @@ class RLMapWidget(RelativeLayout, Listener):
                 a.bind(on_start=lambda x, y: self.remember_anim(),
                        on_complete=lambda x, y: self.animate_game_event(widget=y))
                 self.add_widget(self.overlay_widget)
+                self.parent.boombox['exploded'].seek(0)
                 self.parent.boombox['exploded'].play()
                 a.start(self.overlay_widget)
             elif event.event_type == 'shot':
