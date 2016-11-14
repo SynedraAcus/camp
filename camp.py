@@ -563,6 +563,7 @@ class RLMapWidget(RelativeLayout, Listener):
                 a.bind(on_start=lambda x, y: self.remember_anim(),
                        on_complete=lambda x, y: self.animate_game_event(widget=y))
                 a.start(event.actor.widget)
+                self.parent.boombox['attacked'].seek(0)
                 self.parent.boombox['attacked'].play()
             elif event.event_type == 'was_destroyed':
                 if not event.actor.widget:
