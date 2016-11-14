@@ -106,11 +106,11 @@ class GameManager():
         self.game_log = ['Игра начинается', 'Если вы видите этот текст, то кириллический лог работает',
                          'All the text below will be in English, so I guess Latin log works as well']
 
-    def load_map(self, map_id='start'):
+    def _load_map(self, map_id='start'):
         """
         Load a new map with a given ID.
         Doesn't do anything to widgets: just loads the map and connects the queue. The first map loaded is
-        drawn by GameWidget's __init__(), for others you should call self.switch_map() manually
+        drawn by GameWidget's __init__(), for others you should call self.switch_map(), not this method
         :param map_id: str
         :return: Map
         """
@@ -122,21 +122,20 @@ class GameManager():
         """
         Switch to a new map.
         Assumes the map is available from self.map_loader. The queue is cleaned up because otherwise
-        some animations on non-displayed items are run after switch. PC, if any, retains his parameters
+        some animations on non-displayed items are run after switch. PC, if any, is retained
         :param map_id:
         :return:
         """
         self.queue.clear()
+        pc = None
         if self.map:
             pc = self.map.actors[0]
-        self.load_map(map_id)
-        #  The creation and removal of PC is unnecessary, but the passing correct PC to map creator will be
-        #  more headache than it's worth, at least for now
-        if pc:
+        self._load_map(map_id)
+        if pc:  #  pc is None only for the first map loaded just after starting the app
             pc.location = self.map.actors[0].location
-            self.map.delete_item(layer='actors', location=pc.location)
+            self.map.delete_item(layer='actors', location=self.map.actors[0].location)
             self.map.add_item(item=pc, layer='actors', location=pc.location)
-        self.game_widget.rebuild_widgets()
+            self.game_widget.rebuild_widgets()
 
     def process_events(self):
         """
@@ -693,7 +692,7 @@ class CampApp(App):
     def build(self):
         root = BoxLayout(orientation='vertical')
         self.game_manager = GameManager(map_file='test_level.lvl')
-        self.game_manager.load_map('twist')
+        self.game_manager.switch_map('twist')
         self.game_widget = GameWidget(game_manager=self.game_manager,
                                       size=Window.size,
                                       size_hint=(None, None),
