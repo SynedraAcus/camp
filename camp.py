@@ -16,7 +16,7 @@ from kivy.core.audio import SoundLoader
 
 #  My own stuff
 from Factories import TileWidgetFactory, MapLoader
-from Controller import Command
+from Controller import Command, PlayerController
 from GameEvent import EventQueue
 from Listeners import Listener, DeathListener, BorderWalkListener
 
@@ -143,7 +143,8 @@ class GameManager():
                 pc.location = [0, pc.location[1]]
             else:
                 raise ValueError('Only one of north, south, west or east is accepted as entrance_direction')
-            self.map.delete_item(layer='actors', location=self.map.actors[0].location)
+            if isinstance(self.map.actors[0].controller, PlayerController):
+                self.map.delete_item(layer='actors', location=self.map.actors[0].location)
             self.map.add_item(item=pc, layer='actors', location=pc.location)
             self.game_widget.rebuild_widgets()
 
