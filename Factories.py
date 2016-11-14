@@ -156,9 +156,26 @@ class MapItemDepot():
                               'R': self.make_rocket,
                               'L': self.make_landmine,
                               'B': self.make_bottle,
-                              'F': self.make_flag}
+                              'F': self.make_flag,
+                              '.': self.make_passable_tile,
+                              '~': self.make_impassable_tile}
 
     #  Simple single-item methods
+    @staticmethod
+    def make_passable_tile():
+        """
+        A simple passable tile
+        :return:
+        """
+        return GroundTile(passable=True, air_passable=True)
+
+    @staticmethod
+    def make_impassable_tile():
+        """
+        Impassable water tile
+        :return:
+        """
+        return GroundTile(passable=False, air_passable=True)
 
     def make_pc(self):
         """
@@ -222,7 +239,7 @@ class MapItemDepot():
                                    fighter=FighterComponent(),
                                    faction=FactionComponent(faction='pc', enemies=['npc']),
                                    descriptor=DescriptorComponent(name='Headless dude',
-                                                               description='It fights on your side'),
+                                                                  description='It fights on your side'),
                                    controller=FighterSpawnController())
 
     def make_thug(self):
@@ -338,7 +355,9 @@ class MapLoader():
                        'R': 'items',
                        'L': 'items',
                        'B': 'items',
-                       'F': 'items'}
+                       'F': 'items',
+                       '.': 'bg',
+                       '~': 'bg'}
         #  All the maps loaded from file will be stored here
         self.maps = {}
 
@@ -378,7 +397,7 @@ class MapLoader():
                 map = RLMap(size=(tags['width'], tags['height']), layers=['bg', 'constructions', 'items', 'actors'])
                 for y in range(0, tags['height']):
                     for x in range(0, tags['width']):
-                        map.add_item(GroundTile(passable=True, image_source='Tile_passable.png'),
+                        map.add_item(self.depot.make_passable_tile(),
                                      layer='bg', location=(x, tags['height']-1-y))
                         i = map_lines[y][x]
                         if i == '.':
@@ -392,7 +411,6 @@ class MapLoader():
                 for tag in [x for x in tags.keys() if 'neighbour_' in x]:
                     direction = tag.split('_')[1]
                     map.neighbour_maps[direction] = tags[tag]
-                print(list(map.neighbour_maps.keys()))
                 self.maps[tags['map_id']] = map
                 tags = {}
                 map_lines = []
