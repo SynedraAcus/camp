@@ -732,7 +732,9 @@ class StatusWindow(BoxLayout):
         self.orientation = 'vertical'
         #  Subwidgets
         self.hp_widget = HPWidget()
+        self.inventory_widget = InventoryWidget()
         self.add_widget(self.hp_widget)
+        self.add_widget(self.inventory_widget)
         with self.canvas.before:
             Color(1, 0, 0)
             Rectangle(size=self.size, pos=self.pos)
@@ -764,6 +766,30 @@ class HPWidget(Label, Listener):
             self.canvas.ask_update()
 
 
+class InventoryWidget(BoxLayout, Listener):
+    """
+    A BoxLayout of item widgets to be used inside StatusWindow
+    """
+    def __init__(self, *args, **kwargs):
+        super(InventoryWidget, self).__init__(*args, **kwargs)
+        self.orientation = 'vertical'
+        self.spacing = 10
+        for x in range(10):
+            self.add_widget(InventoryItemWidget(x))
+
+
+class InventoryItemWidget(RelativeLayout):
+    """
+    A layout that shows the item and the number it's attached to
+    """
+    def __init__(self, number, *args, **kwargs):
+        super(InventoryItemWidget, self).__init__(*args, **kwargs)
+        self.item_image = Image(source='Target.png', size=(32, 32))
+        self.add_widget(self.item_image)
+        self.number = number
+
+    def change_item(self, item):
+        self.item_image = Image(source=item.image_source, size=(32, 32))
 
 class CampApp(App):
     """

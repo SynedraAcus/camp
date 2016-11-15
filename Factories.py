@@ -44,7 +44,7 @@ class ActorWidget(Widget):
     #     self.rect.pos = self.pos
 
 class TileWidget(Widget):
-    """widget
+    """
     The tile widget that currently contains only an image.
     """
     def __init__(self, source='PC.png', **kwargs):
