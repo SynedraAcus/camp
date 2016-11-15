@@ -177,8 +177,11 @@ class GameWidget(RelativeLayout):
     """
     def __init__(self, game_manager=None, **kwargs):
         super(GameWidget, self).__init__(**kwargs)
+        #  Widget-related stuff
         self.map_widget = None
         self.log_widget = None
+        self.status_widget = None
+        #  Connecting to manager
         self.game_manager = game_manager
         self.game_manager.game_widget = self
         self.rebuild_widgets()
@@ -255,13 +258,19 @@ class GameWidget(RelativeLayout):
                                     font_size=10,
                                     valign='top',
                                     line_height=1)
+        self.status_widget = StatusWindow(orientation='vertical',
+                                          size=(150, self.height),
+                                          pos=(self.map_widget.width, 0),
+                                          size_hint=(None, None))
         self.height = self.map_widget.height+self.log_widget.height
-        self.width = self.map_widget.width
+        self.width = self.map_widget.width+self.status_widget.width
         self.add_widget(self.map_widget)
         self.add_widget(self.log_widget)
+        self.add_widget(self.status_widget)
         #  Registering MapWidget to receive events from GameManager
-        self.game_manager.queue.register_listener(self.map_widget)
+        self.game_manager.register_listener(self.map_widget)
         self.game_manager.register_listener(self.log_widget)
+        self.game_manager.register_listener(self.status_widget)
 
     def rebuild_map_widget(self):
         """
@@ -706,6 +715,19 @@ class LogWindow(Label, Listener):
             self.canvas.ask_update()
 
 
+class StatusWindow(BoxLayout, Listener):
+    """
+    A status window to be displayed at the right side of game screen
+    Currently shows hitpoints and inventory
+    """
+    def __init__(self, *args, **kwargs):
+        super(StatusWindow, self).__init__(*args, **kwargs)
+        with self.canvas.before:
+            Color(1, 0, 0)
+            Rectangle(size=self.size, pos=(self.x, 0))
+
+    def process_game_event(self, event):
+        pass
 
 class CampApp(App):
     """
@@ -724,6 +746,7 @@ class CampApp(App):
                                       size=Window.size,
                                       size_hint=(None, None),
                                       pos=(0, 0))
+        #  Registering universal listeners
         self.game_manager.register_listener(DeathListener())
         self.game_manager.register_listener(BorderWalkListener())
         Window.size = self.game_widget.size
