@@ -71,6 +71,8 @@ class FighterComponent(Component):
                 self.actor.map.extend_log('{0} lost {1} health'.format(self.actor.descriptor.name,
                                                                        self._hp-hp))
             self._hp = hp
+        self.actor.map.game_events.append(GameEvent(event_type='hp_changed',
+                                                    actor=self.actor))
 
     def attack(self):
         return choice(self.attacks)

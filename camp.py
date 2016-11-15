@@ -17,7 +17,7 @@ from kivy.core.audio import SoundLoader
 #  My own stuff
 from Factories import TileWidgetFactory, MapLoader
 from Controller import Command, PlayerController
-from GameEvent import EventQueue
+from GameEvent import EventQueue, GameEvent
 from Listeners import Listener, DeathListener, BorderWalkListener
 
 #  Others
@@ -147,6 +147,9 @@ class GameManager():
                 self.map.delete_item(layer='actors', location=self.map.actors[0].location)
             self.map.add_item(item=pc, layer='actors', location=pc.location)
             self.game_widget.rebuild_map_widget()
+        #  Create the hp_changed event to update the HP display
+        self.queue.append(GameEvent(event_type='hp_changed',
+                                    actor=self.map.actors[0]))
 
     def process_events(self):
         """
@@ -470,6 +473,7 @@ class LayerWidget(RelativeLayout):
                     tile_widget.pos = parent.get_screen_pos((x, y))
                     self.add_widget(tile_widget)
 
+
 class DijkstraWidget(RelativeLayout):
     """
     The widget that displays little numbers on every tile to allow debugging Dijkstra maps.
@@ -489,12 +493,17 @@ class DijkstraWidget(RelativeLayout):
                                       text_size=(64, 64),
                                       font_size=7))
 
+
 class RLMapWidget(RelativeLayout, Listener):
     """
     Game map widget. Mostly is busy displaying character widgets and such.
     Assumes that its parent has the following attributes:
     self.parent.boombox  a dict of SoundLoader instances with correct sounds
     """
+    #  A list of events that should be ignored by the animation system
+    non_animated = {'log_updated',
+                    'hp_changed'}
+
     def __init__(self, map=None, **kwargs):
         super(RLMapWidget, self).__init__(**kwargs)
         #  Connecting to map, factories and other objects this class should know about
@@ -534,11 +543,9 @@ class RLMapWidget(RelativeLayout, Listener):
         if event.event_type == 'queue_exhausted':
             #  Shoot animations only after the entire event batch for the turn has arrived
             #  Better to avoid multiple methods messing with self.animation_queue simultaneously
-            self.counter+=1
-            print(self.counter)
             self.animate_game_event()
-        #  Ignore log-related events
-        elif not event.event_type == 'log_updated':
+        #  Ignore non-animatable events
+        elif event.event_type not in self.non_animated:
             self.animation_queue.append(event)
 
     def animate_game_event(self, widget=None, anim_duration=0.2):
@@ -678,7 +685,7 @@ class RLMapWidget(RelativeLayout, Listener):
         Return screen coordinates (in pixels) for a given location. Unless window parameter is set to true,
         returns coordinates relative to self
         :param location: int tuple
-        :param window: bool If true, return window coordinates.
+        :param parent: bool If true, return parent coordinates.
         :return: int tuple
         """
         if not parent:
@@ -751,8 +758,11 @@ class HPWidget(Label, Listener):
         self.rect.size = self.size
 
     def process_game_event(self, event):
-        if event.event_type == 'was_attacked':
-            pass
+        if event.event_type == 'hp_changed' and isinstance(event.actor.controller, PlayerController):
+            self.text = 'HP {0}/{1}'.format(event.actor.fighter.hp,
+                                            event.actor.fighter.max_hp)
+            self.canvas.ask_update()
+
 
 
 class CampApp(App):
@@ -777,6 +787,8 @@ class CampApp(App):
         self.game_manager.register_listener(BorderWalkListener())
         Window.size = self.game_widget.size
         root.add_widget(self.game_widget)
+        #  hp_changed event was created when the map was loaded to init hp display.
+        self.game_manager.queue.pass_all_events()
         return root
 
 if __name__ == '__main__':

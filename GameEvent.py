@@ -12,7 +12,7 @@ class GameEvent:
     Actor and location can be omitted for some event types. If actor is provided and location is not, it is
     assumed to be actor's location
     """
-    acceptable_types = ('moved',
+    acceptable_types = {'moved',
                         'was_destroyed',
                         'attacked',
                         'log_updated',
@@ -22,7 +22,8 @@ class GameEvent:
                         'construction_spawned',
                         'exploded',
                         'shot',
-                        'queue_exhausted')
+                        'hp_changed',
+                        'queue_exhausted'}
 
     def __init__(self, event_type=None, actor=None, location=None):
         assert isinstance(event_type, str) and event_type in self.acceptable_types
