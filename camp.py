@@ -261,8 +261,7 @@ class GameWidget(RelativeLayout):
                                     font_size=10,
                                     valign='top',
                                     line_height=1)
-        self.status_widget = StatusWindow(orientation='vertical',
-                                          spacing=10,
+        self.status_widget = StatusWindow(spacing=10,
                                           size=(150, self.height),
                                           pos=(self.map_widget.width, 0),
                                           size_hint=(None, None))
@@ -730,6 +729,7 @@ class StatusWindow(BoxLayout):
     """
     def __init__(self, *args, **kwargs):
         super(StatusWindow, self).__init__(*args, **kwargs)
+        self.orientation = 'vertical'
         #  Subwidgets
         self.hp_widget = HPWidget()
         self.add_widget(self.hp_widget)
