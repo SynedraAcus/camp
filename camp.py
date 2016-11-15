@@ -259,6 +259,7 @@ class GameWidget(RelativeLayout):
                                     valign='top',
                                     line_height=1)
         self.status_widget = StatusWindow(orientation='vertical',
+                                          spacing=10,
                                           size=(150, self.height),
                                           pos=(self.map_widget.width, 0),
                                           size_hint=(None, None))
@@ -270,7 +271,7 @@ class GameWidget(RelativeLayout):
         #  Registering MapWidget to receive events from GameManager
         self.game_manager.register_listener(self.map_widget)
         self.game_manager.register_listener(self.log_widget)
-        self.game_manager.register_listener(self.status_widget)
+        self.game_manager.register_listener(self.status_widget.hp_widget)
 
     def rebuild_map_widget(self):
         """
@@ -715,19 +716,44 @@ class LogWindow(Label, Listener):
             self.canvas.ask_update()
 
 
-class StatusWindow(BoxLayout, Listener):
+class StatusWindow(BoxLayout):
     """
     A status window to be displayed at the right side of game screen
     Currently shows hitpoints and inventory
     """
     def __init__(self, *args, **kwargs):
         super(StatusWindow, self).__init__(*args, **kwargs)
+        #  Subwidgets
+        self.hp_widget = HPWidget()
+        self.add_widget(self.hp_widget)
         with self.canvas.before:
             Color(1, 0, 0)
-            Rectangle(size=self.size, pos=(self.x, 0))
+            Rectangle(size=self.size, pos=self.pos)
+
+
+class HPWidget(Label, Listener):
+    """
+    A Label that displays player's HP
+    """
+    def __init__(self, *args, **kwargs):
+        super(HPWidget, self).__init__(*args, **kwargs)
+        self.text_size = self.size
+        self.halign = 'center'
+        self.valign = 'top'
+        self.text = 'test'
+        with self.canvas.before:
+            Color(0, 0, 1)
+            self.rect = Rectangle(size=self.size, pos=self.pos)
+        self.bind(size=self.rebuild_canvas, pos=self.rebuild_canvas)
+
+    def rebuild_canvas(self, *args):
+        self.rect.pos = self.pos
+        self.rect.size = self.size
 
     def process_game_event(self, event):
-        pass
+        if event.event_type == 'was_attacked':
+            pass
+
 
 class CampApp(App):
     """
