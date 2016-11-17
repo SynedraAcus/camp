@@ -803,7 +803,7 @@ class CampApp(App):
     def build(self):
         root = BoxLayout(orientation='vertical')
         self.game_manager = GameManager(map_file='test_level.lvl')
-        self.game_manager.switch_map('first_branch')
+        self.game_manager.switch_map('coast')
         self.game_widget = GameWidget(game_manager=self.game_manager,
                                       size=Window.size,
                                       size_hint=(None, None),

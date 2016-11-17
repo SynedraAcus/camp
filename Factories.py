@@ -412,6 +412,7 @@ class MapLoader():
                     direction = tag.split('_')[1]
                     map.neighbour_maps[direction] = tags[tag]
                 self.maps[tags['map_id']] = map
+                print('Loaded map: {0}'.format(tags['map_id']))
                 tags = {}
                 map_lines = []
             else:
