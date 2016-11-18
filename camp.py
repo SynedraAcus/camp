@@ -826,8 +826,8 @@ class InventoryItemWidget(RelativeLayout):
     def __init__(self, number, *args, **kwargs):
         super(InventoryItemWidget, self).__init__(*args, **kwargs)
         self.bg_image = Image(source='Target.png', size=(64, 64), allow_stretch=True)
-        self.item_image = None #  Things will be drawn here
         self.add_widget(self.bg_image)
+        self.item_image = None #  Things will be drawn here
         self.number = number  #  Will come handy when those will be buttons
         self.add_widget(Label(text=str(self.number),
                               pos_hint={'x': 0, 'y': 0},
@@ -839,6 +839,8 @@ class InventoryItemWidget(RelativeLayout):
         :param item:
         :return:
         """
+        if self.item_image:
+            self.remove_widget(self.item_image)
         self.item_image = Image(source=item.image_source, size=(64, 64))
         self.add_widget(self.item_image)
 
