@@ -261,7 +261,7 @@ class GameWidget(RelativeLayout):
                                     pos=(0, 0),
                                     text_size=(self.map_widget.width, 100),
                                     padding=(20, 5),
-                                    font_size=10,
+                                    font_size=16,
                                     valign='top',
                                     line_height=1)
         self.status_widget = StatusWindow(spacing=10,
@@ -721,8 +721,8 @@ class LogWindow(Label, Listener):
         :return:
         """
         if event.event_type == 'log_updated':
-            if len(self.game_manager.game_log) > 6:
-                self.text = '\n'.join(self.game_manager.game_log[-6:])
+            if len(self.game_manager.game_log) > 4:
+                self.text = '\n'.join(self.game_manager.game_log[-4:])
             else:
                 self.text = '\n'.join(self.game_manager.game_log)
             self.canvas.ask_update()
