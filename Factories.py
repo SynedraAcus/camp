@@ -184,7 +184,7 @@ class MapItemDepot():
         """
         return Actor(image_source='PC.png',
                      controller=PlayerController(),
-                     fighter=FighterComponent(),
+                     fighter=FighterComponent(max_hp=10),
                      inventory=InventoryComponent(volume=10, initial_items=self.get_all_items()),
                      faction=FactionComponent(faction='pc', enemies=['npc']),
                      descriptor=DescriptorComponent(name='PC', description='Player character'),
