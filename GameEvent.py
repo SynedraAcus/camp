@@ -23,6 +23,7 @@ class GameEvent:
                         'exploded',
                         'shot',
                         'hp_changed',
+                        'inventory_updated',
                         'queue_exhausted'}
 
     def __init__(self, event_type=None, actor=None, location=None):

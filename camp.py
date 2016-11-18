@@ -147,9 +147,12 @@ class GameManager():
                 self.map.delete_item(layer='actors', location=self.map.actors[0].location)
             self.map.add_item(item=pc, layer='actors', location=pc.location)
             self.game_widget.rebuild_map_widget()
-        #  Create the hp_changed event to update the HP display
-        self.queue.append(GameEvent(event_type='hp_changed',
-                                    actor=self.map.actors[0]))
+        else:
+            #  Create the hp_changed event to update the HP display
+            self.queue.append(GameEvent(event_type='hp_changed',
+                                        actor=self.map.actors[0]))
+            self.queue.append(GameEvent(event_type='inventory_updated',
+                                        actor=self.map.actors[0]))
 
     def process_events(self):
         """
@@ -274,6 +277,7 @@ class GameWidget(RelativeLayout):
         self.game_manager.register_listener(self.map_widget)
         self.game_manager.register_listener(self.log_widget)
         self.game_manager.register_listener(self.status_widget.hp_widget)
+        self.game_manager.register_listener(self.status_widget.inventory_widget)
 
     def rebuild_map_widget(self):
         """
@@ -500,7 +504,9 @@ class RLMapWidget(RelativeLayout, Listener):
     self.parent.boombox  a dict of SoundLoader instances with correct sounds
     """
     #  A list of events that should be ignored by the animation system
+    #  'queue_exhausted' is not included here as self.process_game_event() processes it separately
     non_animated = {'log_updated',
+                    'inventory_updated',
                     'hp_changed'}
 
     def __init__(self, map=None, **kwargs):
@@ -772,10 +778,39 @@ class InventoryWidget(BoxLayout, Listener):
     """
     def __init__(self, *args, **kwargs):
         super(InventoryWidget, self).__init__(*args, **kwargs)
-        self.orientation = 'vertical'
+        self.orientation = 'horizontal'
         self.spacing = 10
-        for x in range(10):
-            self.add_widget(InventoryItemWidget(x))
+        self.item_widgets = []
+        self.left_box = BoxLayout(orientation='vertical')
+        for x in range(5):
+            item_widget = InventoryItemWidget(x, size=(64, 64),
+                                              size_hint=(None, None))
+            self.item_widgets.append(item_widget)
+            self.left_box.add_widget(item_widget)
+        self.right_box = BoxLayout(orientation='vertical')
+        for x in range(5, 10):
+            item_widget = InventoryItemWidget(x, size=(64, 64),
+                                              size_hint=(None, None))
+            self.item_widgets.append(item_widget)
+            self.right_box.add_widget(item_widget)
+        self.add_widget(self.left_box)
+        self.add_widget(self.right_box)
+
+    def process_game_event(self, event):
+        """
+        Wait for inventory_updated events of actor
+        :param event:
+        :return:
+        """
+        if event.event_type == 'inventory_updated' and isinstance(event.actor.controller, PlayerController):
+            for x in range(10):
+                try:
+                    item = event.actor.inventory[x]
+                    self.item_widgets[x].change_item(item)
+                except IndexError:
+                    self.item_widgets[x].remove_item()
+            self.canvas.ask_update()
+
 
 
 class InventoryItemWidget(RelativeLayout):
@@ -784,12 +819,28 @@ class InventoryItemWidget(RelativeLayout):
     """
     def __init__(self, number, *args, **kwargs):
         super(InventoryItemWidget, self).__init__(*args, **kwargs)
-        self.item_image = Image(source='Target.png', size=(32, 32))
-        self.add_widget(self.item_image)
-        self.number = number
+        self.bg_image = Image(source='Target.png', size=(64, 64), allow_stretch=True)
+        self.item_image = None #  Things will be drawn here
+        self.add_widget(self.bg_image)
+        self.number = number  #  Will come handy when those will be buttons
 
     def change_item(self, item):
-        self.item_image = Image(source=item.image_source, size=(32, 32))
+        """
+        Change the item displayed to item
+        :param item:
+        :return:
+        """
+        self.item_image = Image(source=item.image_source, size=(64, 64))
+        self.add_widget(self.item_image)
+
+    def remove_item(self):
+        """
+        Remove the item widget
+        :return:
+        """
+        if self.item_image:
+            self.remove_widget(self.item_image)
+            self.item_image = None
 
 class CampApp(App):
     """
@@ -813,7 +864,7 @@ class CampApp(App):
         self.game_manager.register_listener(BorderWalkListener())
         Window.size = self.game_widget.size
         root.add_widget(self.game_widget)
-        #  hp_changed event was created when the map was loaded to init hp display.
+        #  Some events were shot during map loading to initialize display.
         self.game_manager.queue.pass_all_events()
         return root
 

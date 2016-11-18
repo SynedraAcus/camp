@@ -137,6 +137,11 @@ class InventoryComponent(Component):
         if len(self.items) < self.volume:
             item.owner = self
             self.items.append(item)
+            if self.actor:
+                #  Inventory can be filled during the InventoryComponent creation, which is
+                #  before it's assigned to any actor
+                self.actor.map.game_events.append(GameEvent(event_type='inventory_updated',
+                                                            actor=self.actor))
             return True
         else:
             return False
@@ -150,6 +155,8 @@ class InventoryComponent(Component):
         #  Let list raise exceptions, if needed
         item.owner = None
         self.items.remove(item)
+        self.actor.map.game_events.append(GameEvent(event_type='inventory_updated',
+                                                    actor=self.actor))
 
     def index(self, item):
         return self.items.index(item)
