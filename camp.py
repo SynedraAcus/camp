@@ -148,7 +148,7 @@ class GameManager():
             self.map.add_item(item=pc, layer='actors', location=pc.location)
             self.game_widget.rebuild_map_widget()
         else:
-            #  Create the hp_changed event to update the HP display
+            #  These events are necessary to initialize UI
             self.queue.append(GameEvent(event_type='hp_changed',
                                         actor=self.map.actors[0]))
             self.queue.append(GameEvent(event_type='inventory_updated',
@@ -256,7 +256,7 @@ class GameWidget(RelativeLayout):
                                       pos=(0, 100))
         self.log_widget = LogWindow(id='log_window',
                                     text='\n'.join(self.game_manager.game_log[-3:]),
-                                    size=(self.map_widget.width, 100),
+                                    size=(self.map_widget.width+150, 100),
                                     size_hint=(None, None),
                                     pos=(0, 0),
                                     text_size=(self.map_widget.width, 100),
@@ -265,8 +265,8 @@ class GameWidget(RelativeLayout):
                                     valign='top',
                                     line_height=1)
         self.status_widget = StatusWindow(spacing=10,
-                                          size=(150, self.height),
-                                          pos=(self.map_widget.width, 0),
+                                          size=(150, self.map_widget.height),
+                                          pos=(self.map_widget.width, self.log_widget.height),
                                           size_hint=(None, None))
         self.height = self.map_widget.height+self.log_widget.height
         self.width = self.map_widget.width+self.status_widget.width
@@ -712,7 +712,7 @@ class LogWindow(Label, Listener):
         self.halign = 'left'
         self.valign = 'top'
         with self.canvas.before:
-            Color(1, 0, 0)
+            Color(0, 0, 0)
             Rectangle(size=self.size, pos=self.pos)
 
     def process_game_event(self, event):
@@ -736,8 +736,9 @@ class StatusWindow(BoxLayout):
     def __init__(self, *args, **kwargs):
         super(StatusWindow, self).__init__(*args, **kwargs)
         self.orientation = 'vertical'
+        self.spacing = 10
         #  Subwidgets
-        self.hp_widget = HPWidget()
+        self.hp_widget = HPWidget(size_hint=(1, 0.3))
         self.inventory_widget = InventoryWidget()
         self.add_widget(self.hp_widget)
         self.add_widget(self.inventory_widget)
@@ -754,16 +755,18 @@ class HPWidget(Label, Listener):
         super(HPWidget, self).__init__(*args, **kwargs)
         self.text_size = self.size
         self.halign = 'center'
-        self.valign = 'top'
+        self.valign = 'middle'
         self.text = 'test'
         with self.canvas.before:
             Color(0, 0, 1)
             self.rect = Rectangle(size=self.size, pos=self.pos)
         self.bind(size=self.rebuild_canvas, pos=self.rebuild_canvas)
 
-    def rebuild_canvas(self, *args):
+    def rebuild_canvas(self, *args, **kwargs):
+        print('Size set to {0}'.format(str(self.size)))
         self.rect.pos = self.pos
         self.rect.size = self.size
+        self.canvas.ask_update()
 
     def process_game_event(self, event):
         if event.event_type == 'hp_changed' and isinstance(event.actor.controller, PlayerController):
@@ -780,14 +783,17 @@ class InventoryWidget(BoxLayout, Listener):
         super(InventoryWidget, self).__init__(*args, **kwargs)
         self.orientation = 'horizontal'
         self.spacing = 10
+        self.padding = 5
         self.item_widgets = []
-        self.left_box = BoxLayout(orientation='vertical')
+        self.left_box = BoxLayout(orientation='vertical',
+                                  spacing=10)
         for x in range(5):
             item_widget = InventoryItemWidget(x, size=(64, 64),
                                               size_hint=(None, None))
             self.item_widgets.append(item_widget)
             self.left_box.add_widget(item_widget)
-        self.right_box = BoxLayout(orientation='vertical')
+        self.right_box = BoxLayout(orientation='vertical',
+                                   spacing=10)
         for x in range(5, 10):
             item_widget = InventoryItemWidget(x, size=(64, 64),
                                               size_hint=(None, None))
@@ -823,6 +829,9 @@ class InventoryItemWidget(RelativeLayout):
         self.item_image = None #  Things will be drawn here
         self.add_widget(self.bg_image)
         self.number = number  #  Will come handy when those will be buttons
+        self.add_widget(Label(text=str(self.number),
+                              pos_hint={'x': 0, 'y': 0},
+                              size_hint=(None, None)))
 
     def change_item(self, item):
         """
