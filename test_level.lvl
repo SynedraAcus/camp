@@ -62,7 +62,7 @@
 /height 15
 /width 20
 /map_id coast
-/neighbour_west first_branch
+/neighbour_east first_branch
 ~~~~~~~~~~~~~~~#####
 ~~~~~~~~~~~~~.######
 ~~~~~~~~~~~~..######
