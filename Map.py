@@ -227,6 +227,7 @@ class RLMap(object):
         :return:
         """
         #  Just in case, for example self-targeting with rockets
+        #  `start == end` doesn't work for some reason
         if start[0] == end[0] and start[1] == end[1]:
             return [start]
         x1, y1 = start

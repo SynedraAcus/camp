@@ -22,6 +22,7 @@ class GameEvent:
                         'construction_spawned',
                         'exploded',
                         'shot',
+                        'rocket_shot',
                         'hp_changed',
                         'inventory_updated',
                         'queue_exhausted'}

@@ -86,7 +86,8 @@ class Item(MapItem):
     """
     Base class for the inventory item. Inherits from MapItem to allow placing items on map.
     """
-    def __init__(self, name='Item', image_source='Bottle.png', owner=None, descriptor=None, **kwargs):
+    def __init__(self, name='Item', image_source='Bottle.png', owner=None, descriptor=None,
+                 event_type=None, **kwargs):
         super(Item, self).__init__(**kwargs)
         #  Owner is an inventory component, not an actor
         self.owner = owner
@@ -94,6 +95,8 @@ class Item(MapItem):
         if self.descriptor:
             self.descriptor.actor = self
         self.image_source = image_source
+        #  event_type currently is used only by TileTargeted items used with Target
+        self.event_type = event_type
 
     @property
     def name(self):
@@ -144,6 +147,10 @@ class PotionTypeItem(Item):
                     self.owner.actor.map.extend_log('Better not to blow yourself up. Use [F]ire command.')
                     r = False
             else:
+                if self.event_type:
+                    self.owner.actor.map.game_events.append(GameEvent(event_type=self.event_type,
+                                                                      actor=self.owner.actor,
+                                                                      location=target))
                 r = self.effect.affect(self.owner.actor.map, target)
         #  Log usage and return result
         if r:

@@ -266,7 +266,8 @@ class MapItemDepot():
                                                              description='Can and should be [F]ired at enemies'),
                               image_source='Rocket.png',
                               effect=TileTargetedEffect(effect_type='explode', effect_value=5,
-                                                        require_targeting=True))
+                                                        require_targeting=True),
+                              event_type='rocket_shot')
 
     def make_landmine(self):
         """
