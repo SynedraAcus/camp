@@ -430,10 +430,13 @@ class GameWidget(RelativeLayout):
                         self.game_manager.map.process_turn(command)
                     elif self.game_state == 'item_targeting' and keycode[1] in ('enter', 'numpadenter'):
                         #  Using item on the tile towards the cursor
+                        hit_coordinates = self.game_manager.map.get_line(
+                            self.game_manager.map.actors[0].location,
+                            self.target_coordinates)[-1]
                         command = Command(command_type='use_item',
                                           command_value=(self.targeted_item_number,
-                                                         self.target_coordinates[0],
-                                                         self.target_coordinates[1]))
+                                                         hit_coordinates[0],
+                                                         hit_coordinates[1]))
                         self.game_state = 'playing'
                         self.remove_widget(self.state_widget)
                         self.game_manager.map.process_turn(command)
