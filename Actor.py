@@ -211,13 +211,13 @@ class Actor(MapItem):
         :return: bool
         """
         if self.fighter.ammo > 0:
-            victim = self.map.get_column(location)[-1]
-            if victim.fighter:
-                victim.fighter.get_damaged(self.fighter.ranged_attack())
             self.fighter.ammo -= 1
             self.map.game_events.append(GameEvent(event_type='shot',
                                                   location=location,
                                                   actor=self))
+            victim = self.map.get_column(location)[-1]
+            if victim.fighter:
+                victim.fighter.get_damaged(self.fighter.ranged_attack())
             return True
         else:
             self.map.extend_log('Out of ammo.')
