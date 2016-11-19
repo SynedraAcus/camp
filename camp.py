@@ -659,7 +659,7 @@ class RLMapWidget(RelativeLayout, Listener):
                 self.parent.boombox['exploded'].seek(0)
                 self.parent.boombox['exploded'].play()
                 a.start(self.overlay_widget)
-            elif event.event_type == 'rocket_shot':
+            elif event.event_type == 'rocket_shot' or event.event_type == 'shot':
                 self.overlay_widget = RelativeLayout(pos=self.get_screen_pos(event.actor.location),
                                                      size=(64, 64),
                                                      size_hint=(None, None))

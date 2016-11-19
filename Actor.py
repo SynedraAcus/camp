@@ -210,15 +210,17 @@ class Actor(MapItem):
         :param target:
         :return: bool
         """
-        rocket_id = None
-        for item in self.inventory.items:
-            if item.name == 'Rocket':
-                rocket_id = self.inventory.index(item)
-                # self.map.game_events.append(GameEvent(event_type='rocket_shot', actor=self, location=location))
-                self.use_item(rocket_id, target=self.map.get_line(self.location, location)[-1])
-                return True
-        if rocket_id is None:
-            self.map.extend_log('Out of rockets!')
+        if self.fighter.ammo > 0:
+            victim = self.map.get_column(location)[-1]
+            if victim.fighter:
+                victim.fighter.get_damaged(self.fighter.ranged_attack())
+            self.fighter.ammo -= 1
+            self.map.game_events.append(GameEvent(event_type='shot',
+                                                  location=location,
+                                                  actor=self))
+            return True
+        else:
+            self.map.extend_log('Out of ammo.')
             return False
 
     def drop_item(self, item_number):
