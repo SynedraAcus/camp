@@ -366,6 +366,10 @@ class GameWidget(RelativeLayout):
                                               size=(32, 32),
                                               size_hint=(None, None))
                     self.add_widget(self.state_widget)
+                elif keycode[1] in '1234567890':
+                    command = Command(command_type='use_item',
+                                      command_value=(self.key_parser.key_to_number(keycode), ))
+                    self.game_manager.map.process_turn(command=command)
             else:
                 #  Process various non-'playing' game states, hopefully making a command
                 if ('window' in self.game_state or 'targeting' in self.game_state) \
@@ -425,7 +429,6 @@ class GameWidget(RelativeLayout):
                                           command_value=self.target_coordinates)
                         self.game_state = 'playing'
                         self.remove_widget(self.state_widget)
-
                         self.game_manager.map.process_turn(command)
                     elif keycode[1] in self.key_parser.command_types.keys() and \
                                     self.key_parser.command_types[keycode[1]] == 'walk':

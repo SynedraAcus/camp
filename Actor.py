@@ -210,7 +210,6 @@ class Actor(MapItem):
         :param target:
         :return: bool
         """
-        #  This prototype remotely installs items because rocket Item is not yet available
         rocket_id = None
         for item in self.inventory.items:
             if item.name == 'Rocket':
