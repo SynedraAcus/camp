@@ -194,7 +194,8 @@ class GameWidget(RelativeLayout):
         #  Sound object
         self.boombox = {'moved': SoundLoader.load('dshoof.wav'),
                         'attacked': SoundLoader.load('dspunch.wav'),
-                        'exploded': SoundLoader.load('dsbarexp.wav')}
+                        'exploded': SoundLoader.load('dsbarexp.wav'),
+                        'shot': SoundLoader.load('dspistol.wav')}
         #  Sound in kivy seems to be loaded lazily. Files are not actually read until they are necessary,
         #  which leads to lags for up to half a second when a sound is used for the first time. The following
         #  two lines are forcing them to be loaded right now.
@@ -690,6 +691,8 @@ class RLMapWidget(RelativeLayout, Listener):
                 a.bind(on_start=lambda x, y: self.remember_anim(),
                        on_complete=lambda x, y: self.animate_game_event(widget=y))
                 self.add_widget(self.overlay_widget)
+                self.parent.boombox['shot'].seek(0)
+                self.parent.boombox['shot'].play()
                 a.start(self.overlay_widget)
 
         else:
