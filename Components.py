@@ -22,14 +22,15 @@ class FighterComponent(Component):
     The component that provides the actor with combat capabilities
     """
     def __init__(self, max_hp=5, attacks=(1, 2, 3), ranged_attacks=(0, 1, 2), defenses=(0, 0, 1),
-                 ammo=2, **kwargs):
+                 ammo=5, max_ammo=5, **kwargs):
         super(FighterComponent, self).__init__(**kwargs)
         self.max_hp = max_hp
         self._hp = max_hp
         self.attacks = attacks
         self.defenses = defenses
         self.ranged_attacks = ranged_attacks
-        self.ammo = ammo
+        self.max_ammo = max_ammo
+        self._ammo = ammo
 
     def get_damaged(self, attack=0):
         """
@@ -56,6 +57,19 @@ class FighterComponent(Component):
             #  references to them besides the event
             self.actor.map.game_events.append(GameEvent(event_type='was_destroyed',
                                                         actor=self.actor))
+
+    @property
+    def ammo(self):
+        return self._ammo
+
+    @ammo.setter
+    def ammo(self, ammo):
+        #  The setter is important only because it creates the event
+        self._ammo = ammo
+        if self._ammo > self.max_ammo:
+            self._ammo = self.max_ammo
+        self.actor.map.game_events.append(GameEvent(event_type='ammo_changed',
+                                                    actor=self.actor))
 
     @property
     def hp(self):

@@ -521,7 +521,8 @@ class RLMapWidget(RelativeLayout, Listener):
     #  'queue_exhausted' is not included here as self.process_game_event() processes it separately
     non_animated = {'log_updated',
                     'inventory_updated',
-                    'hp_changed'}
+                    'hp_changed',
+                    'ammo_changed'}
 
     def __init__(self, map=None, **kwargs):
         super(RLMapWidget, self).__init__(**kwargs)
@@ -776,14 +777,14 @@ class StatusWindow(BoxLayout):
 
 class HPWidget(Label, Listener):
     """
-    A Label that displays player's HP
+    A Label that displays player's HP and ammo
     """
     def __init__(self, *args, **kwargs):
         super(HPWidget, self).__init__(*args, **kwargs)
         self.text_size = self.size
         self.halign = 'center'
         self.valign = 'middle'
-        self.text = 'test'
+        self.text = 'SOMETHING WRONG'
         with self.canvas.before:
             Color(0, 0, 1)
             self.rect = Rectangle(size=self.size, pos=self.pos)
@@ -795,9 +796,12 @@ class HPWidget(Label, Listener):
         self.canvas.ask_update()
 
     def process_game_event(self, event):
-        if event.event_type == 'hp_changed' and isinstance(event.actor.controller, PlayerController):
-            self.text = 'HP {0}/{1}'.format(event.actor.fighter.hp,
-                                            event.actor.fighter.max_hp)
+        if (event.event_type == 'hp_changed' or event.event_type == 'ammo_changed')\
+                and isinstance(event.actor.controller, PlayerController):
+            self.text = 'HP {0}/{1}\n Ammo {2}/{3}'.format(event.actor.fighter.hp,
+                                                           event.actor.fighter.max_hp,
+                                                           event.actor.fighter.ammo,
+                                                           event.actor.fighter.max_ammo)
             self.canvas.ask_update()
 
 

@@ -24,6 +24,7 @@ class GameEvent:
                         'shot',
                         'rocket_shot',
                         'hp_changed',
+                        'ammo_changed',
                         'inventory_updated',
                         'queue_exhausted'}
 
