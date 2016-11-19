@@ -36,6 +36,8 @@ class FighterTargetedEffect(Effect):
         if self.effect_type == 'heal':
             actor.fighter.hp += choice(self.effect_value)
             return True
+        if self.effect_type == 'restore_ammo':
+            actor.fighter.ammo += self.effect_value
 
 
 class TileTargetedEffect(Effect):

@@ -145,7 +145,8 @@ class MapItemDepot():
         self.item_methods = [self.make_landmine,
                              self.make_bottle,
                              self.make_flag,
-                             self.make_rocket]
+                             self.make_rocket,
+                             self.make_ammo]
         self.glyph_methods = {'#': self.make_wall,
                               'S': self.make_spawner,
                               '^': self.make_mine,
@@ -290,6 +291,18 @@ class MapItemDepot():
                               image_source='Bottle.png',
                               effect=FighterTargetedEffect(effect_type='heal',
                                                            effect_value=[2, 3]))
+
+    @staticmethod
+    def make_ammo():
+        """
+        Restores 5 bullets
+        :return:
+        """
+        return PotionTypeItem(descriptor=DescriptorComponent(name='Ammo',
+                                                             description='Reloads bullets'),
+                              effect=FighterTargetedEffect(effect_type='restore_ammo',
+                                                           effect_value=5),
+                              image_source='Ammo.png')
 
     def make_flag(self):
         """
