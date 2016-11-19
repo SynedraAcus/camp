@@ -325,13 +325,6 @@ class GameWidget(RelativeLayout):
                                                   text=self.map_widget.map.actors[0].descriptor.get_description(
                                                      combat=True))
                     self.add_widget(self.state_widget)
-                elif keycode[1] in 'i':
-                    self.game_state = 'inv_window'
-                    self.state_widget = LogWindow(pos=(200, 200),
-                                                  size=(200, 200),
-                                                  size_hint=(None, None),
-                                                  text=self.map_widget.map.actors[0].inventory.get_string())
-                    self.add_widget(self.state_widget)
                 elif keycode[1] in 'd':
                     self.game_state = 'drop_window'
                     self.state_widget = LogWindow(pos=(200, 200),
@@ -377,18 +370,6 @@ class GameWidget(RelativeLayout):
                     #  Escape and window-calling buttons switch state to 'playing', doing nothing else
                     self.remove_widget(self.state_widget)
                     self.game_state = 'playing'
-                elif self.game_state == 'inv_window':
-                    #  Try to use keycode as inventory command
-                    try:
-                        n = self.key_parser.key_to_number(keycode)
-                        command = Command(command_type='use_item', command_value=(n, ))
-                        self.remove_widget(self.state_widget)
-                        self.game_state = 'playing'
-                        self.game_manager.map.process_turn(command=command)
-                    except ValueError:
-                        #  This ValueError is expected to be raised by key_to_number if the keycode
-                        #  is not numeric
-                        pass
                 elif self.game_state == 'drop_window':
                     #  Try to use keycode as drop command
                     try:
