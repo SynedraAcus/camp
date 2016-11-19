@@ -237,6 +237,7 @@ class GameWidget(RelativeLayout):
         #  Stuff for various game states
         self.state_widget = None
         self.target_coordinates = (None, None)
+        self.targeted_item_number = None
 
     def rebuild_widgets(self):
         """
@@ -360,9 +361,25 @@ class GameWidget(RelativeLayout):
                                               size_hint=(None, None))
                     self.add_widget(self.state_widget)
                 elif keycode[1] in '1234567890':
-                    command = Command(command_type='use_item',
-                                      command_value=(self.key_parser.key_to_number(keycode), ))
-                    self.game_manager.map.process_turn(command=command)
+                    try:
+                        item_number = self.key_parser.key_to_number(keycode)
+                        item = self.game_manager.map.actors[0].inventory[item_number]
+                        if not item.effect.require_targeting:
+                            command = Command(command_type='use_item',
+                                              command_value=(self.key_parser.key_to_number(keycode), ))
+                            self.game_manager.map.process_turn(command=command)
+                        else:
+                            self.game_state = 'item_targeting'
+                            self.target_coordinates = self.game_manager.map.actors[0].location
+                            self.state_widget = Image(source='FireTarget.png',
+                                                      pos=self.map_widget.get_screen_pos(self.target_coordinates,
+                                                                                         parent=True),
+                                                      size=(32, 32),
+                                                      size_hint=(None, None))
+                            self.targeted_item_number = item_number
+                            self.add_widget(self.state_widget)
+                    except IndexError:
+                        pass
             else:
                 #  Process various non-'playing' game states, hopefully making a command
                 if ('window' in self.game_state or 'targeting' in self.game_state) \
@@ -408,6 +425,15 @@ class GameWidget(RelativeLayout):
                         #  Shooting to the cursor
                         command = Command(command_type='shoot',
                                           command_value=self.target_coordinates)
+                        self.game_state = 'playing'
+                        self.remove_widget(self.state_widget)
+                        self.game_manager.map.process_turn(command)
+                    elif self.game_state == 'item_targeting' and keycode[1] in ('enter', 'numpadenter'):
+                        #  Using item on the tile towards the cursor
+                        command = Command(command_type='use_item',
+                                          command_value=(self.targeted_item_number,
+                                                         self.target_coordinates[0],
+                                                         self.target_coordinates[1]))
                         self.game_state = 'playing'
                         self.remove_widget(self.state_widget)
                         self.game_manager.map.process_turn(command)
@@ -747,7 +773,6 @@ class HPWidget(Label, Listener):
         self.bind(size=self.rebuild_canvas, pos=self.rebuild_canvas)
 
     def rebuild_canvas(self, *args, **kwargs):
-        print('Size set to {0}'.format(str(self.size)))
         self.rect.pos = self.pos
         self.rect.size = self.size
         self.canvas.ask_update()

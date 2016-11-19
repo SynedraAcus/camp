@@ -265,7 +265,8 @@ class MapItemDepot():
         return PotionTypeItem(descriptor=DescriptorComponent(name='Rocket',
                                                              description='Can and should be [F]ired at enemies'),
                               image_source='Rocket.png',
-                              effect=TileTargetedEffect(effect_type='explode', effect_value=5))
+                              effect=TileTargetedEffect(effect_type='explode', effect_value=5,
+                                                        require_targeting=True))
 
     def make_landmine(self):
         """
@@ -312,6 +313,10 @@ class MapItemDepot():
         return i
 
     def get_all_items(self):
+        """
+        Return the list of all inventory items supported by this object
+        :return:
+        """
         r = []
         for method in self.item_methods:
             r.append(method())

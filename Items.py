@@ -11,11 +11,18 @@ from MapItem import MapItem
 
 class Effect(object):
     """
-    Root effect class
+    Root effect class. Sets the following parameters:
+    effect_type: str. The description of effect that should be processed by one of the subclasses. For example,
+    'explode' or 'spawn_construction'.
+    effect_value: The value of effect. Its type depends on effect_type: it can be Construction object for
+    'spawn_construction' or int list for damage or healing
+    require_targeting: bool. If set to true, GameWidget sets targeting game state before actually using this item;
+     otherwise it is used immediately on PC or tile under PC. Defaults to False
     """
-    def __init__(self, effect_type, effect_value):
+    def __init__(self, effect_type, effect_value, require_targeting=False):
         self.effect_type = effect_type
         self.effect_value = effect_value
+        self.require_targeting = require_targeting
 
 
 class FighterTargetedEffect(Effect):
