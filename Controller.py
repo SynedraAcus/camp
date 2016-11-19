@@ -187,10 +187,15 @@ class ShooterSpawnController(Controller):
     Shoots at any enemy at the distance of 2-5 tiles if it has ammo. Otherwise behaves as FighterSpawnController
     """
     def choose_actor_action(self):
-        shootable_enemies = []
-        if self.actor.fighter.ammo > 0 and len(shootable_enemies)>0:
-            # Check for shootable enemies
-            pass
+        shootable = self.actor.map.get_shootable_in_range(location=self.actor.location,
+                                                          distance=5,
+                                                          layers=['actors', 'constructions'],
+                                                          exlcude_neighbours=True)
+        victims = list(filter(self._should_attack, shootable))
+        if len(victims) > 0 and self.actor.fighter.ammo >0:
+            victim = random.choice(victims)
+            self.last_command = Command(command_type='shoot',
+                                        command_value=victim.location)
         else:
             # The exact copypaste of analogous FighterSpawnController method
             neighbours = self.actor.map.get_neighbours(layers=('actors', 'constructions'), location=self.actor.location)

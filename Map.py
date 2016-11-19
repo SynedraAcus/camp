@@ -216,12 +216,58 @@ class RLMap(object):
         l = list(filter(lambda x: x is not None and not (x.location == location and not return_query), l))
         return l
 
+    def get_shootable_in_range(self, location=(None, None), layers=['default'], distance=1,
+                               exlcude_neighbours=False):
+        """
+        Get all the map items in the given layers that are no more than `range` steps away from `location` and can be shot.
+        This method is relatively slow as it performs air-entrance Bresenham check; for quicker lookup
+        other methods, such as `get_neighbours`, should be used. This method is linear from number of items found,
+        thus approx. O^2 from distance. Thus, it may cause lag for extremely large ranges
+        :param location: int tuple. location of shooter
+        :param distance: int. range of target search
+        :param layers: str list/tuple. Layers at which targets will be looked for
+        :param exlcude_neighbours: bool. If True, items at distance of 1 are not returned
+        :return:
+        """
+        #  This hack works solely because the cost of diagonal movement is the same as for cardinal direction, and,
+        #  therefore, a set of tiles with the same distance to target tile forms square. With more realistic
+        #  diagonal movement cost of sqrt(2) this set would've formed something circle-ish and the proper breadth
+        #  search would've been necessary
+        neighbours = set()
+        #  Border check. Will fail with negative distance, but that makes no sense anyway.
+        xrange = [location[0]-distance, location[0]+distance+1]
+        if xrange[0] < 0:
+            xrange[0] = 0
+        if xrange[1] > self.size[0]:
+            xrange[1] = self.size[0]
+        yrange = [location[1]-distance, location[1]+distance+1]
+        if yrange[0] < 0:
+            yrange[0] = 0
+        if yrange[1] > self.size[1]:
+            yrange[1] = self.size[1]
+        for x in range(xrange[0], xrange[1]):
+            for y in range(location[1]-distance, location[1]+distance+1):
+                for l in layers:
+                    i = self.get_item(location=(x, y), layer=l)
+                    if i:
+                        neighbours.add(i)
+        #  Select air-reachable items. Relies on item having `location` attribute and thus makes sense
+        #  only for Actors and Constructions (as of now)
+        r = []
+        for item in neighbours:
+            line = self.get_line(location, item.location)
+            if line[-1] == item.location and (len(line) > 2 or not exlcude_neighbours):
+                r.append(item)
+        return r
+
+
     def get_line(self, start=(None, None), end=(None, None)):
         """
         Return the path from starting point to endpoint as a list of coordinates.
         This method uses Bresenham line-drawing algorithm and stops iteration on reaching the tile,
-        that isn't air-passable, even if it hasn't reached end. The entire method, save for impassability check,
-        is copied from http://www.roguebasin.com/index.php?title=Bresenham%27s_Line_Algorithm#Python
+        that isn't air-passable, even if it hasn't reached end. The entire method, save for impassability check
+        and `if start==end` sanity check,is copied from Roguebasin:
+        http://www.roguebasin.com/index.php?title=Bresenham%27s_Line_Algorithm#Python
         :param start:
         :param end:
         :return:
@@ -259,7 +305,7 @@ class RLMap(object):
                 error += dx
         if swapped:
             points.reverse()
-        #  Shorten points until the first impassable tile, not including the very start
+        #  Shorten points until the first air-impassable tile, not including the very start
         for a in range(1, len(points)):
             if not self.air_entrance_possible(points[a]):
                 break
