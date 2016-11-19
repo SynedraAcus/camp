@@ -184,26 +184,25 @@ class FighterSpawnController(Controller):
 class ShooterSpawnController(Controller):
     """
     A controller for shooting-capable Construction.
-    Shoots at any enemy at the distance of 2-5 tiles if it has ammo. Otherwise behaves as FighterSpawnController
+    Tries to attack in melee, then shoot. Shoots at random enemy at the distance of 2-5 tiles if it has ammo.
     """
     def choose_actor_action(self):
-        shootable = self.actor.map.get_shootable_in_range(location=self.actor.location,
-                                                          distance=5,
-                                                          layers=['actors', 'constructions'],
-                                                          exlcude_neighbours=True)
-        victims = list(filter(self._should_attack, shootable))
-        if len(victims) > 0 and self.actor.fighter.ammo >0:
-            victim = random.choice(victims)
-            self.last_command = Command(command_type='shoot',
-                                        command_value=victim.location)
+        neighbours = self.actor.map.get_neighbours(layers=('actors', 'constructions'), location=self.actor.location)
+        victims = list(filter(self._should_attack, neighbours))
+        if len(victims) > 0:
+            victim = random.choice(neighbours)
+            self.last_command = Command(command_type='walk',
+                                        command_value=(victim.location[0]-self.actor.location[0],
+                                                       victim.location[1]-self.actor.location[1]))
         else:
-            # The exact copypaste of analogous FighterSpawnController method
-            neighbours = self.actor.map.get_neighbours(layers=('actors', 'constructions'), location=self.actor.location)
-            neighbours = list(filter(self._should_attack, neighbours))
-            if len(neighbours) > 0:
-                victim = random.choice(neighbours)
-                self.last_command = Command(command_type='walk',
-                                            command_value=(victim.location[0]-self.actor.location[0],
-                                                           victim.location[1]-self.actor.location[1]))
+            shootable = self.actor.map.get_shootable_in_range(location=self.actor.location,
+                                                              distance=5,
+                                                              layers=['actors', 'constructions'],
+                                                              exlcude_neighbours=True)
+            victims = list(filter(self._should_attack, shootable))
+            if len(victims) > 0 and self.actor.fighter.ammo >0:
+                victim = random.choice(victims)
+                self.last_command = Command(command_type='shoot',
+                                            command_value=victim.location)
             else:
                 self.last_command = Command(command_type='wait')
