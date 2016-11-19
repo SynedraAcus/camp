@@ -180,3 +180,25 @@ class FighterSpawnController(Controller):
                                                        victim.location[1]-self.actor.location[1]))
         else:
             self.last_command = Command(command_type='wait')
+
+class ShooterSpawnController(Controller):
+    """
+    A controller for shooting-capable Construction.
+    Shoots at any enemy at the distance of 2-5 tiles if it has ammo. Otherwise behaves as FighterSpawnController
+    """
+    def choose_actor_action(self):
+        shootable_enemies = []
+        if self.actor.fighter.ammo > 0 and len(shootable_enemies)>0:
+            # Check for shootable enemies
+            pass
+        else:
+            # The exact copypaste of analogous FighterSpawnController method
+            neighbours = self.actor.map.get_neighbours(layers=('actors', 'constructions'), location=self.actor.location)
+            neighbours = list(filter(self._should_attack, neighbours))
+            if len(neighbours) > 0:
+                victim = random.choice(neighbours)
+                self.last_command = Command(command_type='walk',
+                                            command_value=(victim.location[0]-self.actor.location[0],
+                                                           victim.location[1]-self.actor.location[1]))
+            else:
+                self.last_command = Command(command_type='wait')

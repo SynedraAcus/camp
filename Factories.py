@@ -10,9 +10,9 @@ from kivy.uix.widget import Widget
 from Map import RLMap
 from MapItem import GroundTile, MapItem
 from Actor import Actor
-from Constructions import Construction, FighterConstruction, Spawner, Trap
+from Constructions import Construction, FighterConstruction, Spawner, Trap, ShooterConstruction
 from Components import *
-from Controller import PlayerController, AIController, FighterSpawnController
+from Controller import PlayerController, AIController, FighterSpawnController, ShooterSpawnController
 from Items import PotionTypeItem, Item, FighterTargetedEffect, TileTargetedEffect
 
 #  Other imports
@@ -145,6 +145,7 @@ class MapItemDepot():
         self.item_methods = [self.make_landmine,
                              self.make_bottle,
                              self.make_flag,
+                             self.make_shooter_flag,
                              self.make_rocket,
                              self.make_ammo]
         self.glyph_methods = {'#': self.make_wall,
@@ -237,11 +238,24 @@ class MapItemDepot():
         :return:
         """
         return FighterConstruction(image_source='Headless.png', passable=False,
-                                   fighter=FighterComponent(),
+                                   fighter=FighterComponent(ammo=0, max_ammo=0),
                                    faction=FactionComponent(faction='pc', enemies=['npc']),
                                    descriptor=DescriptorComponent(name='Headless dude',
                                                                   description='It fights on your side'),
                                    controller=FighterSpawnController())
+
+    @staticmethod
+    def make_shooter():
+        """
+        Shooty headless dude
+        :return:
+        """
+        return ShooterConstruction(image_source='Shooter.png', passable=False,
+                                   fighter=FighterComponent(),
+                                   faction=FactionComponent(faction='pc', enemies=['npc']),
+                                   descriptor=DescriptorComponent(name='Shooter',
+                                                                  description='It shoots your enemies until run out of bullets. Then it acts like headless dude'),
+                                   controller=ShooterSpawnController())
 
     def make_thug(self):
         """
@@ -250,7 +264,7 @@ class MapItemDepot():
         """
         return Actor(image_source='NPC.png',
                      controller=AIController(),
-                     fighter=FighterComponent(max_hp=2),
+                     fighter=FighterComponent(max_hp=2, ammo=0, max_ammo=0),
                      descriptor=DescriptorComponent(name='A regular thug',
                                                     description='Not particularly smart, but rarely alone'),
                      inventory=InventoryComponent(volume=1,
@@ -314,6 +328,17 @@ class MapItemDepot():
                               image_source='Flag.png',
                               effect=TileTargetedEffect(effect_type='spawn_construction',
                                                         effect_value=self.make_fighter()))
+
+    def make_shooter_flag(self):
+        """
+        Shooter spawning flag
+        :return:
+        """
+        return PotionTypeItem(descriptor=DescriptorComponent(name='Shooter flag',
+                                                             description='Builds a shooter under the player'),
+                              image_source='ShooterFlag.png',
+                              effect=TileTargetedEffect(effect_type='spawn_construction',
+                                                        effect_value=self.make_shooter()))
 
     #  Following methods generate items according to some rule
 

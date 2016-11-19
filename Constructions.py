@@ -143,6 +143,35 @@ class FighterConstruction(Construction):
     def pause(self):
         pass
 
+class ShooterConstruction(FighterConstruction):
+    """
+    Expanded fighter construction that is also able to shoot if it has ammo
+    """
+    def __init__(self, *args, **kwargs):
+        super(ShooterConstruction, self).__init__(*args, **kwargs)
+
+    def make_turn(self):
+        self.controller.choose_actor_action()
+        self.controller.call_actor_method()
+
+    def shoot(self, location):
+        """
+        Shoot at location
+        :param location:
+        :return:
+        """
+        if self.fighter.ammo > 0:
+            self.fighter.ammo -= 1
+            self.map.game_events.append(GameEvent(event_type='shot',
+                                                  location=location,
+                                                  actor=self))
+            victim = self.map.get_column(location)[-1]
+            if victim.fighter:
+                victim.fighter.get_damaged(self.fighter.ranged_attack())
+            return True
+        else:
+            return False
+
 
 class Trap(Construction):
     """
