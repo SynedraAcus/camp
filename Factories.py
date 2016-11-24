@@ -156,6 +156,7 @@ class MapItemDepot():
                               '_': self.make_hole,
                               '@': self.make_pc,
                               'z': self.make_thug,
+                              'g': self.make_gunner,
                               'R': self.make_rocket,
                               'L': self.make_landmine,
                               'B': self.make_bottle,
@@ -274,7 +275,7 @@ class MapItemDepot():
 
     def make_gunner(self):
         """
-        A thug that gets three shots
+        A thug that gets three shots but only 1 HP
         :return:
         """
         return Actor(image_source='Gunner.png',
@@ -411,6 +412,7 @@ class MapLoader():
                        'f': 'constructions',
                        '_': 'constructions',
                        'z': 'actors',
+                       'g': 'actors',
                        'R': 'items',
                        'L': 'items',
                        'B': 'items',
