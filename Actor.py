@@ -216,7 +216,7 @@ class Actor(MapItem):
                                                   location=location,
                                                   actor=self))
             victim = self.map.get_column(location)[-1]
-            if victim.fighter:
+            if hasattr(victim, 'fighter'):
                 victim.fighter.get_damaged(self.fighter.ranged_attack())
             return True
         else:
