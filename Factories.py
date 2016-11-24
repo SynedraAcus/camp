@@ -502,11 +502,4 @@ class ActorFactory(object):
         and all the other components are (temporarily?) hardcoded
         :return:
         """
-        return Actor(image_source='NPC.png',
-                     controller=AIController(),
-                     fighter=FighterComponent(max_hp=2),
-                     descriptor=DescriptorComponent(name='A regular thug',
-                                                    description='Not very smart, but rarely alone'),
-                     inventory=InventoryComponent(volume=1,
-                                                  initial_items=[self.depot.make_random_item()]),
-                     faction=self.faction)
+        return self.depot.make_thug()
