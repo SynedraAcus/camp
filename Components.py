@@ -228,7 +228,7 @@ class FactionComponent(Component):
         :param other: FactionComponent
         :return:
         """
-        if other.faction in self.enemies:
+        if not (other.faction == self.faction) and other.faction in self.enemies:
             return True
         else:
             return False
