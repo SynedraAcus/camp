@@ -12,7 +12,8 @@ from MapItem import GroundTile, MapItem
 from Actor import Actor
 from Constructions import Construction, FighterConstruction, Spawner, Trap, ShooterConstruction
 from Components import *
-from Controller import PlayerController, AIController, FighterSpawnController, ShooterSpawnController
+from Controller import PlayerController, AIController, FighterSpawnController,\
+    ShooterSpawnController
 from Items import PotionTypeItem, Item, FighterTargetedEffect, TileTargetedEffect
 
 #  Other imports

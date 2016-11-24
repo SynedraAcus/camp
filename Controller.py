@@ -163,6 +163,37 @@ class AIController(Controller):
             self.last_command = Command(command_type='wait')
 
 
+class RangedAIController(AIController):
+    """
+    A controller for AI enemy capable of shooting. If there is an enemy within 2-3 tiles, it shoots.
+    Otherwise it behaves as a regular AIController
+    """
+
+    def __int__(self, *args, **kwargs):
+        super(RangedAIController, self).__init__(*args, **kwargs)
+
+    def choose_actor_action(self):
+        """
+        Create a shoot command if there is an enemy within 2-3 tiles (not nearby!), or walk command if
+        there is none, or wait command if there is no useful turn
+        :return:
+        """
+        if self.actor.fighter.ammo > 0:
+            shootable = self.actor.map.get_shootable_in_range(location=self.actor.location,
+                                                              distance=3,
+                                                              layers=['actors', 'constructions'],
+                                                              exlcude_neighbours=True)
+            victims = list(filter(self._should_attack, shootable))
+            if len(victims) > 0:
+                victim = random.choice(victims)
+                self.last_command = Command(command_type='shoot',
+                                            command_value=victim.location)
+                #  If shot appears a nice idea, do so and return. Otherwise allow parent method to choose melee
+                #  command
+                return
+        super(RangedAIController, self).choose_actor_action()
+
+
 class FighterSpawnController(Controller):
     """
     A controller for immobile melee fighter. Basically a stripped-down AIController.
@@ -200,7 +231,7 @@ class ShooterSpawnController(Controller):
                                                               layers=['actors', 'constructions'],
                                                               exlcude_neighbours=True)
             victims = list(filter(self._should_attack, shootable))
-            if len(victims) > 0 and self.actor.fighter.ammo >0:
+            if len(victims) > 0 and self.actor.fighter.ammo > 0:
                 victim = random.choice(victims)
                 self.last_command = Command(command_type='shoot',
                                             command_value=victim.location)
