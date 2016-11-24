@@ -121,8 +121,9 @@ class DescriptorComponent(Component):
             r += '\n{0}'.format(self.description)
         if combat:
             if hasattr(self.actor, 'fighter') and self.actor.fighter:
-                r += '\nThis Actor has {0} hp.\nIts attacks are {1}\nIts defenses are {2}'.format(
+                r += '\nThis Actor has {0}/{1} hp.\nIts attacks are {2}\nIts defenses are {3}'.format(
                     self.actor.fighter.hp,
+                    self.actor.fighter.max_hp,
                     '|'.join((str(x) for x in self.actor.fighter.attacks)),
                     '|'.join((str(x) for x in self.actor.fighter.defenses))
                 )
