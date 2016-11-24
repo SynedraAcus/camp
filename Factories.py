@@ -17,7 +17,7 @@ from Controller import PlayerController, AIController, FighterSpawnController,\
 from Items import PotionTypeItem, Item, FighterTargetedEffect, TileTargetedEffect
 
 #  Other imports
-from random import choice
+from random import choice, random
 
 
 class ActorWidget(Widget):
@@ -277,7 +277,7 @@ class MapItemDepot():
         A thug that gets three shots
         :return:
         """
-        return Actor(image_source='NPC.png',
+        return Actor(image_source='Gunner.png',
                      controller=RangedAIController(),
                      fighter=FighterComponent(max_hp=1, ammo=3, max_ammo=3),
                      descriptor=DescriptorComponent(name='Gunner',
@@ -502,4 +502,7 @@ class ActorFactory(object):
         and all the other components are (temporarily?) hardcoded
         :return:
         """
-        return self.depot.make_thug()
+        if random() < 0.3:
+            return self.depot.make_gunner()
+        else:
+            return self.depot.make_thug()
