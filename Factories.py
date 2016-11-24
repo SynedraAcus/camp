@@ -13,7 +13,7 @@ from Actor import Actor
 from Constructions import Construction, FighterConstruction, Spawner, Trap, ShooterConstruction
 from Components import *
 from Controller import PlayerController, AIController, FighterSpawnController,\
-    ShooterSpawnController
+    ShooterSpawnController, RangedAIController
 from Items import PotionTypeItem, Item, FighterTargetedEffect, TileTargetedEffect
 
 #  Other imports
@@ -268,6 +268,20 @@ class MapItemDepot():
                      fighter=FighterComponent(max_hp=2, ammo=0, max_ammo=0),
                      descriptor=DescriptorComponent(name='A regular thug',
                                                     description='Not particularly smart, but rarely alone'),
+                     inventory=InventoryComponent(volume=1,
+                                                  initial_items=[self.make_random_item()]),
+                     faction=FactionComponent(faction='npc', enemies=['pc']))
+
+    def make_gunner(self):
+        """
+        A thug that gets three shots
+        :return:
+        """
+        return Actor(image_source='NPC.png',
+                     controller=RangedAIController(),
+                     fighter=FighterComponent(max_hp=1, ammo=3, max_ammo=3),
+                     descriptor=DescriptorComponent(name='Gunner',
+                                                    description='Gets several shots, but is as fragile as it gets'),
                      inventory=InventoryComponent(volume=1,
                                                   initial_items=[self.make_random_item()]),
                      faction=FactionComponent(faction='npc', enemies=['pc']))
