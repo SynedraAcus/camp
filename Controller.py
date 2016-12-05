@@ -218,9 +218,9 @@ class ShooterSpawnController(Controller):
     Tries to attack in melee, then shoot. Shoots at random enemy at the distance of 2-5 tiles if it has ammo.
     """
     def choose_actor_action(self):
-        neighbours = self.actor.map.get_neighbours(layers=('actors', 'constructions'), location=self.actor.location)
-        victims = list(filter(self._should_attack, neighbours))
-        if len(victims) > 0:
+        neighbours = self.actor.map.get_neighbours(layers=['actors', 'constructions'], location=self.actor.location)
+        neighbours = list(filter(self._should_attack, neighbours))
+        if len(neighbours) > 0:
             victim = random.choice(neighbours)
             self.last_command = Command(command_type='walk',
                                         command_value=(victim.location[0]-self.actor.location[0],
