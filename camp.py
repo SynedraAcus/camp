@@ -423,12 +423,18 @@ class GameWidget(RelativeLayout):
                                                       text=t)
                         self.add_widget(self.state_widget)
                     elif self.game_state == 'fire_targeting' and keycode[1] in ('f', 'enter', 'numpadenter'):
-                        #  Shooting to the cursor
-                        command = Command(command_type='shoot',
-                                          command_value=self.target_coordinates)
                         self.game_state = 'playing'
                         self.remove_widget(self.state_widget)
-                        self.game_manager.map.process_turn(command)
+                        if self.target_coordinates == self.game_manager.map.actors[0].location:
+                            #  No shooting at yourself
+                            self.game_manager.game_log.append('Your life doesn\'t suck *that* much.')
+                            self.game_manager.queue.append(GameEvent(event_type='log_updated'))
+                            self.game_manager.queue.pass_all_events()
+                        else:
+                            #  Shooting at someone else is okay
+                            command = Command(command_type='shoot',
+                                              command_value=self.target_coordinates)
+                            self.game_manager.map.process_turn(command)
                     elif self.game_state == 'item_targeting' and keycode[1] in ('enter', 'numpadenter'):
                         #  Apply item to the nearest collidable tile towards the cursor
                         hit_coordinates = self.game_manager.map.get_line(
