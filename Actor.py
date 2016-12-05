@@ -204,19 +204,18 @@ class Actor(MapItem):
 
     def shoot(self, location):
         """
-        Shoot to the target location.
-        This method actually finds the first rocket in the player inventory and calls its' use_item
-        with the target location. It also fires 'shot' GameEvent to draw shooting animation
+        Shoot towards the target location.
         :param target:
         :return: bool
         """
         if self.fighter.ammo > 0:
             self.fighter.ammo -= 1
+            path = self.map.get_line(start=self.location, end=location)
             self.map.game_events.append(GameEvent(event_type='shot',
-                                                  location=location,
+                                                  location=path[-1],
                                                   actor=self))
-            victim = self.map.get_column(location)[-1]
-            if hasattr(victim, 'fighter'):
+            victim = self.map.get_column(path[-1])[-1]
+            if hasattr(victim, 'fighter') and victim.fighter is not None:
                 victim.fighter.get_damaged(self.fighter.ranged_attack())
             return True
         else:
