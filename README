@@ -1,6 +1,16 @@
 Прототип рогалика на Python. Используется фреймворк kivy, других зависимостей (помимо библиотек
-из стандартного питона, типа random и sys) нет.
+из стандартного питона, типа random и sys) нет. Описание управления и формата уровней доступно на
+гитхабе (https://github.com/SynedraAcus/camp/wiki)
 
 Код и ассеты распространяются под лицензией CC-BY 2.0
 Тайлы карты взяты с Kenney.nl, распространяются под лицензией CC-Zero
 Звуки бессовестно спёрты из doomRL, поэтому когда-нибудь будут заменены на открытые
+
+A Python roguelike prototype. Uses kivy for UI, but doesn't depend on any other Python libraries (except
+for those in standart distribution, like random and sys). Controls and level file specification are
+available from the project's wiki at https://github.com/SynedraAcus/camp/wiki
+
+Code and some of the tiles are distributed under the terms of CC-BY-2.0. Most tiles are from
+Kenney Roguelike Pack, available from http://www.kenney.nl under the terms of CC-Zero.
+Sound assets were shamelessly stolen from doomRL and are to be replaced with some sound with a clear
+legal status sometime in the future.
