@@ -243,10 +243,10 @@ class RLMap(object):
         yrange = [location[1]-distance, location[1]+distance+1]
         if yrange[0] < 0:
             yrange[0] = 0
-        if yrange[1] > self.size[1]:
-            yrange[1] = self.size[1]
+        if yrange[1] > self.size[1]-1:
+            yrange[1] = self.size[1]-1
         for x in range(xrange[0], xrange[1]):
-            for y in range(location[1]-distance, location[1]+distance+1):
+            for y in range(yrange[0], yrange[1]):
                 for l in layers:
                     i = self.get_item(location=(x, y), layer=l)
                     if i:
