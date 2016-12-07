@@ -114,6 +114,9 @@ class EventQueue:
         that signalises that that's it for now. It allows eg animation system to start animating turn
         :return:
         """
-        self.append(GameEvent(event_type='queue_exhausted'))
         while len(self._deque) > 0:
             self.pass_event()
+        #  This event cannot be added before other events are passed, because listeners can potentially add
+        #  something unforeseen to the queue
+        self.append(GameEvent(event_type='queue_exhausted'))
+        self.pass_event()
