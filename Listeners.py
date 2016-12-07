@@ -25,6 +25,27 @@ class DeathListener(Listener):
             if isinstance(event.actor, Actor) and isinstance(event.actor.controller, PlayerController):
                 print('PC was killed. So it goes.')
 
+class TutorialListener(Listener):
+    """
+    A Listener that displays a line explaining the use of item whenever that item is first picked up
+    """
+    def __init__(self):
+        self.item_lines = {'Landmine': 'Installed landmine explodes whenever someone steps on it. Yourself included.',
+                           'Bottle': 'A bottle is your regular healing potion.',
+                           'Spawning flag': 'A brown flag installs a melee tower under the player.',
+                           'Shooter flag': 'A green flag installs a shooter tower under the player.',
+                           'Rocket': 'Rockets can be launched for the great explosion. Best not used point-blank.',
+                           'Ammo': 'Ammo item recharges your pistol. Using with non-empty clip is usually wasteful.'}
+        self.must_display = {'Landmine', 'Bottle', 'Spawning flag',
+                             'Shooter flag', 'Rocket', 'Ammo'}
+
+    def process_game_event(self, event):
+        if event.event_type == 'picked_up' and isinstance(event.actor.controller, PlayerController):
+            item_name = event.actor.inventory[-1].descriptor.name
+            if item_name in self.must_display:
+                self.game_manager.map.extend_log(self.item_lines[item_name])
+                self.must_display.remove(item_name)
+
 
 class BorderWalkListener(Listener):
     """
