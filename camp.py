@@ -165,7 +165,8 @@ class GameManager():
         """
         Add a queue listener to both queue and self.
         Listeners registered here get their game_manager attribute set to self. It can allow them to interact
-        with the game, ordering GameManager to change levels, finish the game and so on.
+        with the game, ordering GameManager to change levels, finish the game and so on. This widget also gets
+        access to the entire game information via self.map and self.queue.
         Thus, it's advised to use this method only for listeners that need to do so; achievement trackers,
         interface listeners and whatever else *views* the game should be registered to queue directly.
         :param listener:
@@ -284,7 +285,7 @@ class GameWidget(RelativeLayout):
         #  Registering MapWidget to receive events from GameManager
         self.game_manager.register_listener(self.map_widget)
         self.game_manager.register_widget(self.log_widget)
-        self.game_manager.register_listener(self.status_widget.hp_widget)
+        self.game_manager.register_widget(self.status_widget.hp_widget)
         self.game_manager.register_listener(self.status_widget.inventory_widget)
 
     def rebuild_map_widget(self):
@@ -478,6 +479,9 @@ class GameWidget(RelativeLayout):
         """
         if event.event_type == 'log_updated':
             self.log_widget.draw_log_line()
+        elif (event.event_type == 'hp_changed' or event.event_type == 'ammo_changed') and\
+            isinstance(event.actor.controller, PlayerController):
+            self.status_widget.update_hp_and_ammo()
 
 
 class LayerWidget(RelativeLayout):
@@ -792,8 +796,11 @@ class StatusWindow(BoxLayout):
             Color(1, 0, 0)
             Rectangle(size=self.size, pos=self.pos)
 
+    def update_hp_and_ammo(self):
+        self.hp_widget.update_text()
 
-class HPWidget(Label, Listener):
+
+class HPWidget(Label):
     """
     A Label that displays player's HP and ammo
     """
@@ -813,14 +820,12 @@ class HPWidget(Label, Listener):
         self.rect.size = self.size
         self.canvas.ask_update()
 
-    def process_game_event(self, event):
-        if (event.event_type == 'hp_changed' or event.event_type == 'ammo_changed')\
-                and isinstance(event.actor.controller, PlayerController):
-            self.text = 'HP {0}/{1}\n Ammo {2}/{3}'.format(event.actor.fighter.hp,
-                                                           event.actor.fighter.max_hp,
-                                                           event.actor.fighter.ammo,
-                                                           event.actor.fighter.max_ammo)
-            self.canvas.ask_update()
+    def update_text(self):
+        self.text = 'HP {0}/{1}\n Ammo {2}/{3}'.format(self.game_manager.map.actors[0].fighter.hp,
+                                                       self.game_manager.map.actors[0].fighter.max_hp,
+                                                       self.game_manager.map.actors[0].fighter.ammo,
+                                                       self.game_manager.map.actors[0].fighter.max_ammo)
+        self.canvas.ask_update()
 
 
 class InventoryWidget(BoxLayout, Listener):
