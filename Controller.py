@@ -163,6 +163,11 @@ class MeleeAIController(AIController):
         Only walks to cells with Dijkstra value not higher than that of current cell. If several cells
         have equal value, a random one is chosen.
         """
+        #  This piece will be called by shooters only after they have failed to shoot someone. It's no problem
+        #  because with 1 max_hp they cannot possibly need healing and ammo isn't necessary unless their clip is empty
+        for item_number in range(len(self.actor.inventory)):
+            if self.is_useful(self.actor.inventory[item_number]):
+                self.last_command = Command(command_type='use_item', command_value=item_number)
         #  Get lowest-Dijkstra neighbours
         neighbours = self.actor.map.get_neighbour_coordinates(location=self.actor.location)
         candidates = []
