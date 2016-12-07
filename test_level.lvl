@@ -2,6 +2,7 @@
 /width 20
 /map_id entrance
 /neighbour_east twist
+/on_entrance Welcome to the game! Stay behind your allies and you'll be okay.
 ~~~~~~~~############
 ~~~~~#.#############
 ~~~.......##########
@@ -22,6 +23,7 @@
 /width 20
 /map_id twist
 /neighbour_west entrance
+/on_entrance Press 'z' to jump over tiles you'll rather not visit, like those landmines.
 ###.################
 ###..##########....#
 ##.S.#####.........#
@@ -44,6 +46,7 @@
 /neighbour_south twist
 /neighbour_west coast
 /neighbour_east end
+/on_entrance Nothing interesting to the west.
 ####################
 ####################
 ################....
@@ -64,6 +67,7 @@
 /width 20
 /map_id coast
 /neighbour_east first_branch
+/on_entrance Nothing interesting at all. Told you so.
 ~~~~~~~~~~~~~~~#####
 ~~~~~~~~~~~~~.######
 ~~~~~~~~~~~~..######
@@ -84,6 +88,7 @@
 /width 20
 /map_id end
 /neighbour_west first_branch
+/on_entrance Thank you for playing the prototype! Please send me suggestions and bugreports
 ####################
 #..................#
 ..#####.#...#.####.#

@@ -132,6 +132,8 @@ class GameManager():
             pc = self.map.actors[0]
             self.map.delete_item(layer='actors', location=pc.location)
         self._load_map(map_id)
+        if len(self.map.entrance_message) > 0:
+            self.game_log.append(self.map.entrance_message)
         if pc:  #  pc is None only for the first map loaded just after starting the app
             if entrance_direction == 'north':
                 pc.location = [pc.location[0], self.map.size[1]-1]
@@ -153,6 +155,7 @@ class GameManager():
                                         actor=self.map.actors[0]))
             self.queue.append(GameEvent(event_type='inventory_updated',
                                         actor=self.map.actors[0]))
+            self.queue.append(GameEvent(event_type='log_updated'))
 
     def process_events(self):
         """
@@ -697,7 +700,6 @@ class RLMapWidget(RelativeLayout, Listener):
                 self.overlay_widget.canvas.before.add(Translate(x=32, y=32))
                 a = degrees(atan2(event.actor.location[1]-event.location[1],
                                   event.actor.location[0]-event.location[0]))
-                # print(a)
                 if a > 180:
                     self.overlay_widget.y += 32
                 self.overlay_widget.canvas.before.add(Rotate(angle=a+90, axis=(0, 0, 1)))
@@ -721,7 +723,6 @@ class RLMapWidget(RelativeLayout, Listener):
                 self.parent.boombox['shot'].play()
                 a.start(self.overlay_widget)
             elif event.event_type in self.non_animated:
-                print('Non-animated event')
                 self.parent.process_nonmap_event(event)
                 self.animate_game_event()
 
@@ -778,7 +779,6 @@ class LogWindow(Label):
         Take a single log line from game_manager.game_log and append it to deque
         :return:
         """
-        print('Event accepted')
         line = self.game_manager.game_log.pop(0)
         self.lines.append(line)
         self.text = '\n'.join(self.lines)

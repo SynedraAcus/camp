@@ -404,7 +404,8 @@ class MapLoader():
                                'neighbour_south': str,
                                'neighbour_west': str,
                                'neighbour_east': str,
-                               'neighbour_north': str}
+                               'neighbour_north': str,
+                               'on_entrance': str}
         self.depot = MapItemDepot()
         self.layers = {'#': 'constructions',
                        '@': 'actors',
@@ -439,7 +440,11 @@ class MapLoader():
             except KeyError:
                 raise ValueError('Unknown tag {0} in the map file'.format(a[0]))
         else:
-            raise ValueError('Incorrect tag line "{0}"'.format(line))
+            #  Tag values can contain spaces
+            try:
+                r = a[0], self.tag_converters[a[0]](' '.join(a[1:]))
+            except KeyError:
+                raise ValueError('Unknown tag {0} in the map file'.format(a[0]))
         return r
 
     def read_map_file(self, file):
@@ -474,6 +479,8 @@ class MapLoader():
                 for tag in [x for x in tags.keys() if 'neighbour_' in x]:
                     direction = tag.split('_')[1]
                     map.neighbour_maps[direction] = tags[tag]
+                if 'on_entrance' in tags.keys():
+                    map.entrance_message = tags['on_entrance']
                 self.maps[tags['map_id']] = map
                 print('Loaded map: {0}'.format(tags['map_id']))
                 tags = {}

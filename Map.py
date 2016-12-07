@@ -28,6 +28,7 @@ class RLMap(object):
         self.updated_now = set()
         #  Neighbouring maps
         self.neighbour_maps = {}
+        self.entrance_message = ''
 
     def register_manager(self, game_manager):
         """
