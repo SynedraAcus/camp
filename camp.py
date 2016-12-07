@@ -168,7 +168,7 @@ class GameManager():
         with the game, ordering GameManager to change levels, finish the game and so on. This widget also gets
         access to the entire game information via self.map and self.queue.
         Thus, it's advised to use this method only for listeners that need to do so; achievement trackers,
-        interface listeners and whatever else *views* the game should be registered to queue directly.
+        whatever else *views* the game should be registered to queue directly.
         :param listener:
         :return:
         """
@@ -178,6 +178,11 @@ class GameManager():
     def register_widget(self, widget):
         """
         Introduce yourself to a widget that will need to refer to this object's data.
+        This is meant for widgets that need access to game data, but do not need to read queue. For example,
+        inventory widget needs to know what's in PC's pockets, but doesn't need access to the event queue. It is
+        told to update by RLMapWidget when its time comes. Unless absolutely necessary, it's better to avoid
+        subscribing widgets to queue and thus having their process_game_event called for everything that happened
+        in the game world.
         :param widget:
         :return:
         """
@@ -286,7 +291,7 @@ class GameWidget(RelativeLayout):
         self.game_manager.register_listener(self.map_widget)
         self.game_manager.register_widget(self.log_widget)
         self.game_manager.register_widget(self.status_widget.hp_widget)
-        self.game_manager.register_listener(self.status_widget.inventory_widget)
+        self.game_manager.register_widget(self.status_widget.inventory_widget)
 
     def rebuild_map_widget(self):
         """
@@ -482,6 +487,8 @@ class GameWidget(RelativeLayout):
         elif (event.event_type == 'hp_changed' or event.event_type == 'ammo_changed') and\
             isinstance(event.actor.controller, PlayerController):
             self.status_widget.update_hp_and_ammo()
+        elif event.event_type == 'inventory_updated' and isinstance(event.actor.controller, PlayerController):
+            self.status_widget.update_inventory()
 
 
 class LayerWidget(RelativeLayout):
@@ -797,7 +804,18 @@ class StatusWindow(BoxLayout):
             Rectangle(size=self.size, pos=self.pos)
 
     def update_hp_and_ammo(self):
+        """
+        Tell HP/ammo widget to update
+        :return:
+        """
         self.hp_widget.update_text()
+
+    def update_inventory(self):
+        """
+        Tell inventory widget to update
+        :return:
+        """
+        self.inventory_widget.redraw_inventory()
 
 
 class HPWidget(Label):
@@ -828,7 +846,7 @@ class HPWidget(Label):
         self.canvas.ask_update()
 
 
-class InventoryWidget(BoxLayout, Listener):
+class InventoryWidget(BoxLayout):
     """
     A BoxLayout of item widgets to be used inside StatusWindow
     """
@@ -855,20 +873,34 @@ class InventoryWidget(BoxLayout, Listener):
         self.add_widget(self.left_box)
         self.add_widget(self.right_box)
 
-    def process_game_event(self, event):
+    def redraw_inventory(self):
         """
-        Wait for inventory_updated events of actor
-        :param event:
+        Redraw the inventory
+        Read the map.actors[0] inventory and draw everything it finds inside it.
         :return:
         """
-        if event.event_type == 'inventory_updated' and isinstance(event.actor.controller, PlayerController):
-            for x in range(10):
-                try:
-                    item = event.actor.inventory[x]
-                    self.item_widgets[x].change_item(item)
-                except IndexError:
-                    self.item_widgets[x].remove_item()
-            self.canvas.ask_update()
+        for x in range(10):
+            try:
+                item = self.game_manager.map.actors[0].inventory[x]
+                self.item_widgets[x].change_item(item)
+            except IndexError:
+                self.item_widgets[x].remove_item()
+        self.canvas.ask_update()
+
+    # def process_game_event(self, event):
+    #     """
+    #     Wait for inventory_updated events of actor
+    #     :param event:
+    #     :return:
+    #     """
+    #     if event.event_type == 'inventory_updated' and isinstance(event.actor.controller, PlayerController):
+    #         for x in range(10):
+    #             try:
+    #                 item = event.actor.inventory[x]
+    #                 self.item_widgets[x].change_item(item)
+    #             except IndexError:
+    #                 self.item_widgets[x].remove_item()
+    #         self.canvas.ask_update()
 
 
 
