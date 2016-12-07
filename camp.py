@@ -104,8 +104,7 @@ class GameManager():
         self.map = None
         self.game_widget = None
         #  Log list. Initial values allow not to have empty log at the startup
-        self.game_log = ['Игра начинается', 'Если вы видите этот текст, то кириллический лог работает',
-                         'All the text below will be in English, so I guess Latin log works as well']
+        self.game_log = []
 
     def _load_map(self, map_id='start'):
         """
@@ -175,7 +174,13 @@ class GameManager():
         self.queue.register_listener(listener)
         listener.game_manager = self
 
-
+    def register_widget(self, widget):
+        """
+        Introduce yourself to a widget that will need to refer to this object's data.
+        :param widget:
+        :return:
+        """
+        widget.game_manager = self
 
 class GameWidget(RelativeLayout):
     """
@@ -278,7 +283,7 @@ class GameWidget(RelativeLayout):
         self.add_widget(self.status_widget)
         #  Registering MapWidget to receive events from GameManager
         self.game_manager.register_listener(self.map_widget)
-        self.game_manager.register_listener(self.log_widget)
+        self.game_manager.register_widget(self.log_widget)
         self.game_manager.register_listener(self.status_widget.hp_widget)
         self.game_manager.register_listener(self.status_widget.inventory_widget)
 
@@ -457,10 +462,22 @@ class GameWidget(RelativeLayout):
                         self.state_widget.pos = self.map_widget.get_screen_pos(self.target_coordinates,
                                                                                parent=True)
 
-
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_key_down)
         self._keyboard = None
+
+    def process_nonmap_event(self, event):
+        """
+        Takes an event and calls appropriate method of some of the subwidgets.
+        Most of the events are animated by RLMapWidget. Some, however, are relevant to LogWindow or StatusWindow,
+        but in order to display these events after whatever caused these events was drawn (not processed by
+        Map/Actor system), RLMapWidget needs to know about them. Those events are sent to this method, causing
+        them to be processed.
+        :param event:
+        :return:
+        """
+        if event.event_type == 'log_updated':
+            self.log_widget.draw_log_line()
 
 
 class LayerWidget(RelativeLayout):
@@ -562,7 +579,7 @@ class RLMapWidget(RelativeLayout, Listener):
             #  Better to avoid multiple methods messing with self.animation_queue simultaneously
             self.animate_game_event()
         #  Ignore non-animatable events
-        elif event.event_type not in self.non_animated:
+        else:
             self.animation_queue.append(event)
 
     def animate_game_event(self, widget=None, anim_duration=0.2):
@@ -692,6 +709,10 @@ class RLMapWidget(RelativeLayout, Listener):
                 self.parent.boombox['shot'].seek(0)
                 self.parent.boombox['shot'].play()
                 a.start(self.overlay_widget)
+            elif event.event_type in self.non_animated:
+                print('Non-animated event')
+                self.parent.process_nonmap_event(event)
+                self.animate_game_event()
 
         else:
             #  Reactivating keyboard after finishing animation
@@ -728,8 +749,8 @@ class RLMapWidget(RelativeLayout, Listener):
         self.rect.size = self.size
 
 
-class LogWindow(Label, Listener):
-    """ Text widget that shows the last 3 items from game_log
+class LogWindow(Label):
+    """ Text widget that shows the last 4 items from game_log
     """
     def __init__(self, *args, **kwargs):
         super(LogWindow, self).__init__(*args, **kwargs)
@@ -741,19 +762,12 @@ class LogWindow(Label, Listener):
             Color(0, 0, 0)
             Rectangle(size=self.size, pos=self.pos)
 
-    def process_game_event(self, event):
-        """
-        Update text according to the event
-        :return:
-        """
-        if event.event_type == 'log_updated':
-            self.draw_log_line()
-
     def draw_log_line(self):
         """
         Take a single log line from game_manager.game_log and append it to deque
         :return:
         """
+        print('Event accepted')
         line = self.game_manager.game_log.pop(0)
         self.lines.append(line)
         self.text = '\n'.join(self.lines)
