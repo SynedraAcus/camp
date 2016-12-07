@@ -12,7 +12,7 @@ from MapItem import GroundTile, MapItem
 from Actor import Actor
 from Constructions import Construction, FighterConstruction, Spawner, Trap, ShooterConstruction
 from Components import *
-from Controller import PlayerController, AIController, FighterSpawnController,\
+from Controller import PlayerController, MeleeAIController, FighterSpawnController,\
     ShooterSpawnController, RangedAIController
 from Items import PotionTypeItem, Item, FighterTargetedEffect, TileTargetedEffect
 
@@ -266,7 +266,7 @@ class MapItemDepot():
         :return:
         """
         return Actor(image_source='NPC.png',
-                     controller=AIController(),
+                     controller=MeleeAIController(),
                      fighter=FighterComponent(max_hp=2, ammo=0, max_ammo=0),
                      descriptor=DescriptorComponent(name='A regular thug',
                                                     description='Not particularly smart, but rarely alone'),

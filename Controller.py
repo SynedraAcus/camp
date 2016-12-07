@@ -126,15 +126,36 @@ class PlayerController(Controller):
             self.last_command = command
             return True
 
-
 class AIController(Controller):
+    """
+    An AI controller superclass. Contains useful methods for finding best dijkstra cells, deciding whether to
+    use an item and so on
+    """
+    def __init__(self, *args, **kwargs):
+        super(AIController, self).__init__(*args, **kwargs)
+
+    def is_useful(self, item):
+        """
+        Returns True if using this item right now is the best thing to do.
+        Currently thinks it's a nice idea to use bottle when under half HP and use ammo when there is none of it
+        (but there could be some)
+        :param item:
+        :return:
+        """
+        if item.descriptor.name == 'Bottle' and self.actor.fighter.hp <= self.actor.fighter.max_hp/2:
+            return True
+        if item.descriptor.name == 'Ammo' and self.actor.fighter.ammo == 0 and self.actor.fighter.max_ammo > 0:
+            return True
+        return False
+
+class MeleeAIController(AIController):
     """
     Controller subclass that controls a generic AI enemy.
     Is blindly rushes towards nearest visible enemy (ie someone of player faction)
     and charges them in melee
     """
     def __init__(self, **kwargs):
-        super(AIController, self).__init__(**kwargs)
+        super(MeleeAIController, self).__init__(**kwargs)
 
     def choose_actor_action(self):
         """
@@ -163,10 +184,10 @@ class AIController(Controller):
             self.last_command = Command(command_type='wait')
 
 
-class RangedAIController(AIController):
+class RangedAIController(MeleeAIController):
     """
     A controller for AI enemy capable of shooting. If there is an enemy within 2-3 tiles, it shoots.
-    Otherwise it behaves as a regular AIController
+    Otherwise it behaves as a regular MeleeAIController
     """
 
     def __int__(self, *args, **kwargs):
@@ -196,7 +217,7 @@ class RangedAIController(AIController):
 
 class FighterSpawnController(Controller):
     """
-    A controller for immobile melee fighter. Basically a stripped-down AIController.
+    A controller for immobile melee fighter. Basically a stripped-down MeleeAIController.
     It attacks any enemy that gets nearby, but does nothing else.
     Doesn't depend on Dijkstra map to find a victim
     """
