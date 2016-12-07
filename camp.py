@@ -133,7 +133,7 @@ class GameManager():
             self.map.delete_item(layer='actors', location=pc.location)
         self._load_map(map_id)
         if len(self.map.entrance_message) > 0:
-            self.game_log.append(self.map.entrance_message)
+            self.map.extend_log(self.map.entrance_message)
         if pc:  #  pc is None only for the first map loaded just after starting the app
             if entrance_direction == 'north':
                 pc.location = [pc.location[0], self.map.size[1]-1]
@@ -155,7 +155,6 @@ class GameManager():
                                         actor=self.map.actors[0]))
             self.queue.append(GameEvent(event_type='inventory_updated',
                                         actor=self.map.actors[0]))
-            self.queue.append(GameEvent(event_type='log_updated'))
 
     def process_events(self):
         """

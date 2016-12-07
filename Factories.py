@@ -267,7 +267,7 @@ class MapItemDepot():
         """
         return Actor(image_source='NPC.png',
                      controller=MeleeAIController(),
-                     fighter=FighterComponent(max_hp=2, ammo=0, max_ammo=0),
+                     fighter=FighterComponent(max_hp=3, ammo=0, max_ammo=0),
                      descriptor=DescriptorComponent(name='A regular thug',
                                                     description='Not particularly smart, but rarely alone'),
                      inventory=InventoryComponent(volume=1,
