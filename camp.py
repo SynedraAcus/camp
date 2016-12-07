@@ -22,6 +22,7 @@ from Listeners import Listener, DeathListener, BorderWalkListener
 
 #  Others
 from math import atan2, degrees
+from collections import deque
 
 #  A collection of constants. Most definitely needs to be refactored into a proper option container
 
@@ -461,16 +462,6 @@ class GameWidget(RelativeLayout):
         self._keyboard.unbind(on_key_down=self._on_key_down)
         self._keyboard = None
 
-    def update_log(self):
-        """
-        Updating the log window under the map.
-        :return:
-        """
-        if len(self.map_widget.map.game_log) > 6:
-            self.log_widget.text = '\n'.join(self.map_widget.map.game_log[-6:])
-        else:
-            self.log_widget.text = '\n'.join(self.map_widget.map.game_log)
-        self.log_widget.canvas.ask_update()
 
 class LayerWidget(RelativeLayout):
     """
@@ -745,6 +736,7 @@ class LogWindow(Label, Listener):
         self.text_size = self.size
         self.halign = 'left'
         self.valign = 'top'
+        self.lines = deque(maxlen=4)
         with self.canvas.before:
             Color(0, 0, 0)
             Rectangle(size=self.size, pos=self.pos)
@@ -755,11 +747,17 @@ class LogWindow(Label, Listener):
         :return:
         """
         if event.event_type == 'log_updated':
-            if len(self.game_manager.game_log) > 4:
-                self.text = '\n'.join(self.game_manager.game_log[-4:])
-            else:
-                self.text = '\n'.join(self.game_manager.game_log)
-            self.canvas.ask_update()
+            self.draw_log_line()
+
+    def draw_log_line(self):
+        """
+        Take a single log line from game_manager.game_log and append it to deque
+        :return:
+        """
+        line = self.game_manager.game_log.pop(0)
+        self.lines.append(line)
+        self.text = '\n'.join(self.lines)
+        self.canvas.ask_update()
 
 
 class StatusWindow(BoxLayout):
