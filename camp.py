@@ -277,7 +277,7 @@ class GameWidget(RelativeLayout):
                                     pos=(0, 0),
                                     text_size=(self.map_widget.width, 100),
                                     padding=(20, 5),
-                                    font_size=16,
+                                    font_size=20,
                                     valign='top',
                                     line_height=1)
         self.status_widget = StatusWindow(spacing=10,
@@ -768,6 +768,7 @@ class LogWindow(Label):
         self.text_size = self.size
         self.halign = 'left'
         self.valign = 'top'
+        self.font_name = 'gost_type_a_cursive.ttf'
         self.lines = deque(maxlen=4)
         with self.canvas.before:
             Color(0, 0, 0)
