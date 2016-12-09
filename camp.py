@@ -827,6 +827,9 @@ class HPWidget(Label):
         self.text_size = self.size
         self.halign = 'center'
         self.valign = 'middle'
+        self.font_name = 'gost_type_a.ttf'
+        #  HARDCODE IS BAD! MAKE SOME MORE ADAPTIVE THINGIE SOME OTHER TIME
+        self.font_size = 22
         self.text = 'SOMETHING WRONG'
         with self.canvas.before:
             Color(0, 0, 1)
@@ -915,6 +918,7 @@ class InventoryItemWidget(RelativeLayout):
         self.item_image = None #  Things will be drawn here
         self.number = number  #  Will come handy when those will be buttons
         self.add_widget(Label(text=str(self.number),
+                              font_name='gost_type_a_cursive.ttf',
                               pos_hint={'x': 0, 'y': 0},
                               size_hint=(None, None)))
 
