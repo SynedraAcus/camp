@@ -915,14 +915,18 @@ class InventoryItemWidget(RelativeLayout):
     """
     def __init__(self, number, *args, **kwargs):
         super(InventoryItemWidget, self).__init__(*args, **kwargs)
-        self.bg_image = Image(source='Target.png', size=(64, 64), allow_stretch=True)
+        self.bg_image = Image(source='Inv_box.png', size=(64, 64))
         self.add_widget(self.bg_image)
         self.item_image = None #  Things will be drawn here
         self.number = number  #  Will come handy when those will be buttons
         self.add_widget(Label(text=str(self.number),
+                              font_size=14,
+                              halign='left',
+                              valign='bottom',
                               font_name='gost_type_a_cursive.ttf',
-                              pos_hint={'x': 0, 'y': 0},
-                              size_hint=(None, None)))
+                              pos_hint={'x': 0.7, 'y': 0.7},
+                              color=(0, 0, 0, 1),
+                              size_hint=(0.25, 0.25)))
 
     def change_item(self, item):
         """
