@@ -768,10 +768,11 @@ class LogWindow(Label):
         self.text_size = self.size
         self.halign = 'left'
         self.valign = 'top'
+        self.color = (0, 0, 0, 1)
         self.font_name = 'gost_type_a_cursive.ttf'
         self.lines = deque(maxlen=4)
         with self.canvas.before:
-            Color(0, 0, 0)
+            Color(1, 1, 1)
             Rectangle(size=self.size, pos=self.pos)
 
     def draw_log_line(self):
@@ -800,7 +801,7 @@ class StatusWindow(BoxLayout):
         self.add_widget(self.hp_widget)
         self.add_widget(self.inventory_widget)
         with self.canvas.before:
-            Color(1, 0, 0)
+            Color(1, 1, 1)
             Rectangle(size=self.size, pos=self.pos)
 
     def update_hp_and_ammo(self):
@@ -828,11 +829,12 @@ class HPWidget(Label):
         self.halign = 'center'
         self.valign = 'middle'
         self.font_name = 'gost_type_a.ttf'
+        self.color = (0, 0, 0, 1)
         #  HARDCODE IS BAD! MAKE SOME MORE ADAPTIVE THINGIE SOME OTHER TIME
         self.font_size = 22
         self.text = 'SOMETHING WRONG'
         with self.canvas.before:
-            Color(0, 0, 1)
+            Color(1, 1, 1)
             self.rect = Rectangle(size=self.size, pos=self.pos)
         self.bind(size=self.rebuild_canvas, pos=self.rebuild_canvas)
 
