@@ -4,6 +4,7 @@
 
 Код и ассеты распространяются под лицензией CC-BY 2.0
 Тайлы карты взяты с Kenney.nl, распространяются под лицензией CC-Zero
+Шрифт ГОСТ тип А, распространяется под лицензией SIL OFL 1.1
 Звуки бессовестно спёрты из doomRL, поэтому когда-нибудь будут заменены на открытые
 
 A Python roguelike prototype. Uses kivy for UI, but doesn't depend on any other Python libraries (except
@@ -12,5 +13,6 @@ available from the project's wiki at https://github.com/SynedraAcus/camp/wiki
 
 Code and some of the tiles are distributed under the terms of CC-BY-2.0. Most tiles are from
 Kenney Roguelike Pack, available from http://www.kenney.nl under the terms of CC-Zero.
+GOST type A font is distributed under SIL OFL 1.1
 Sound assets were shamelessly stolen from doomRL and are to be replaced with some sound with a clear
 legal status sometime in the future.
