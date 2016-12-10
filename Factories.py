@@ -95,7 +95,7 @@ class TileWidgetFactory(object):
                              Actor: self.create_actor_widget,
                              Item: self.create_item_widget,
                              Construction: self.create_construction_widget}
-        self.passable_tiles = ('Tile_passable.png')
+        self.passable_tiles = ('Tile_passable.png', )
 
     def create_widget(self, item):
         """
