@@ -2,7 +2,7 @@
 /width 20
 /map_id entrance
 /neighbour_east twist
-/on_entrance The robots may be numerous, but they are just empty chassis. Keep your distance.
+/on_entrance The robots may be numerous, but they are only empty chassis. Just keep your distance.
 ~~~~~~~~############
 ~~~~~#.#############
 ~~~.......##########
@@ -114,11 +114,11 @@
 #..................#
 #.....r....z.......#
 #..................#
-#.....r....z.......#
+#.....r....g.......#
 #..................#
 #.@...r....z.......#
 #..................#
-#.....r....z.......#
+#.....r....g.......#
 #..................#
 #.....r....z.......#
 #..................#

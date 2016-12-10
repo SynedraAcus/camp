@@ -279,11 +279,11 @@ class MapItemDepot():
         A thug that gets three shots but only 1 HP
         :return:
         """
-        return Actor(image_source='Gunner.png',
+        return Actor(image_source='GunnerChassis.png',
                      controller=RangedAIController(),
                      fighter=FighterComponent(max_hp=1, ammo=3, max_ammo=3),
                      descriptor=DescriptorComponent(name='Gunner',
-                                                    description='Gets several shots, but is as fragile as it gets'),
+                                                    description='A short-range gunner assembly.'),
                      inventory=InventoryComponent(volume=1,
                                                   initial_items=[self.make_random_item()]),
                      faction=FactionComponent(faction='npc', enemies=['pc']))
