@@ -265,10 +265,10 @@ class MapItemDepot():
         A regular thug
         :return:
         """
-        return Actor(image_source='NPC.png',
+        return Actor(image_source='Chassis.png',
                      controller=MeleeAIController(),
                      fighter=FighterComponent(max_hp=3, ammo=0, max_ammo=0),
-                     descriptor=DescriptorComponent(name='A regular thug',
+                     descriptor=DescriptorComponent(name='An empty chassis',
                                                     description='Not particularly smart, but rarely alone'),
                      inventory=InventoryComponent(volume=1,
                                                   initial_items=[self.make_random_item()]),
