@@ -844,10 +844,14 @@ class HPWidget(Label):
         self.canvas.ask_update()
 
     def update_text(self):
-        self.text = 'HP {0}/{1}\n Ammo {2}/{3}'.format(self.game_manager.map.actors[0].fighter.hp,
-                                                       self.game_manager.map.actors[0].fighter.max_hp,
-                                                       self.game_manager.map.actors[0].fighter.ammo,
-                                                       self.game_manager.map.actors[0].fighter.max_ammo)
+        #  Check that zeroth actor is, in fact, PC. After PC death it could be some other actor
+        if isinstance(self.game_manager.map.actors[0].controller, PlayerController):
+            self.text = 'HP {0}/{1}\nAmmo {2}/{3}'.format(self.game_manager.map.actors[0].fighter.hp,
+                                                           self.game_manager.map.actors[0].fighter.max_hp,
+                                                           self.game_manager.map.actors[0].fighter.ammo,
+                                                           self.game_manager.map.actors[0].fighter.max_ammo)
+        else:
+            self.text = 'So it goes'
         self.canvas.ask_update()
 
 
