@@ -269,7 +269,7 @@ class MapItemDepot():
                      controller=MeleeAIController(),
                      fighter=FighterComponent(max_hp=3, ammo=0, max_ammo=0),
                      descriptor=DescriptorComponent(name='An empty chassis',
-                                                    description='Not particularly smart, but rarely alone'),
+                                                    description='The chassis on which weapons or tools could be installed.'),
                      inventory=InventoryComponent(volume=1,
                                                   initial_items=[self.make_random_item()]),
                      faction=FactionComponent(faction='npc', enemies=['pc']))
