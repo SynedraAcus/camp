@@ -851,6 +851,7 @@ class HPWidget(Label):
                                                            self.game_manager.map.actors[0].fighter.ammo,
                                                            self.game_manager.map.actors[0].fighter.max_ammo)
         else:
+            #  Easter eggs are bad, except when they are over half a century old
             self.text = 'So it goes'
         self.canvas.ask_update()
 
@@ -895,22 +896,6 @@ class InventoryWidget(BoxLayout):
             except IndexError:
                 self.item_widgets[x].remove_item()
         self.canvas.ask_update()
-
-    # def process_game_event(self, event):
-    #     """
-    #     Wait for inventory_updated events of actor
-    #     :param event:
-    #     :return:
-    #     """
-    #     if event.event_type == 'inventory_updated' and isinstance(event.actor.controller, PlayerController):
-    #         for x in range(10):
-    #             try:
-    #                 item = event.actor.inventory[x]
-    #                 self.item_widgets[x].change_item(item)
-    #             except IndexError:
-    #                 self.item_widgets[x].remove_item()
-    #         self.canvas.ask_update()
-
 
 
 class InventoryItemWidget(RelativeLayout):

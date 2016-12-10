@@ -240,10 +240,10 @@ class MapItemDepot():
         Headless dude
         :return:
         """
-        return FighterConstruction(image_source='Headless.png', passable=False,
+        return FighterConstruction(image_source='MeleeTower.png', passable=False,
                                    fighter=FighterComponent(ammo=0, max_ammo=0),
                                    faction=FactionComponent(faction='pc', enemies=['npc']),
-                                   descriptor=DescriptorComponent(name='Headless dude',
+                                   descriptor=DescriptorComponent(name='Melee tower',
                                                                   description='It fights on your side'),
                                    controller=FighterSpawnController())
 
@@ -254,10 +254,10 @@ class MapItemDepot():
         :return:
         """
         return ShooterConstruction(image_source='Shooter.png', passable=False,
-                                   fighter=FighterComponent(),
+                                   fighter=FighterComponent(max_ammo=10),
                                    faction=FactionComponent(faction='pc', enemies=['npc']),
                                    descriptor=DescriptorComponent(name='Shooter',
-                                                                  description='It shoots your enemies until run out of bullets. Then it acts like headless dude'),
+                                                                  description='Shoots your enemies until it runs out of bullets. Then it acts like melee tower'),
                                    controller=ShooterSpawnController())
 
     def make_thug(self):
@@ -341,7 +341,7 @@ class MapItemDepot():
         :return:
         """
         return PotionTypeItem(descriptor=DescriptorComponent(name='Spawning flag',
-                                                             description='Builds a headless dude under the player'),
+                                                             description='Builds a melee tower under the player'),
                               image_source='Flag.png',
                               effect=TileTargetedEffect(effect_type='spawn_construction',
                                                         effect_value=self.make_fighter()))
@@ -352,7 +352,7 @@ class MapItemDepot():
         :return:
         """
         return PotionTypeItem(descriptor=DescriptorComponent(name='Shooter flag',
-                                                             description='Builds a shooter under the player'),
+                                                             description='Builds a shooter tower under the player'),
                               image_source='ShooterFlag.png',
                               effect=TileTargetedEffect(effect_type='spawn_construction',
                                                         effect_value=self.make_shooter()))
