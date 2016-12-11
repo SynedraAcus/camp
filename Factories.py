@@ -244,7 +244,7 @@ class MapItemDepot():
                                    fighter=FighterComponent(ammo=0, max_ammo=0),
                                    faction=FactionComponent(faction='pc', enemies=['npc']),
                                    descriptor=DescriptorComponent(name='Melee tower',
-                                                                  description='It fights on your side'),
+                                                                  description='This simple mechanism drops its heavy axe onto anything it considers an enemy.'),
                                    controller=FighterSpawnController())
 
     @staticmethod
@@ -257,7 +257,7 @@ class MapItemDepot():
                                    fighter=FighterComponent(ammo=10, max_ammo=10),
                                    faction=FactionComponent(faction='pc', enemies=['npc']),
                                    descriptor=DescriptorComponent(name='Shooter',
-                                                                  description='Shoots your enemies until it runs out of bullets. Then it acts like melee tower'),
+                                                                  description='This construction shoots your enemies. Swinging at their weak points with a hefty barrel also works surprisingly well.'),
                                    controller=ShooterSpawnController())
 
     def make_thug(self):
