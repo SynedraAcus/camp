@@ -689,21 +689,22 @@ class RLMapWidget(RelativeLayout, Listener):
                 self.parent.boombox['exploded'].play()
                 a.start(self.overlay_widget)
             elif event.event_type == 'rocket_shot':
-                self.overlay_widget = RelativeLayout(pos=self.get_screen_pos(event.actor.location),
+                self.overlay_widget = RelativeLayout(center=self.get_screen_pos(event.actor.location, center=True),
                                                      size=(64, 64),
                                                      size_hint=(None, None))
                 i = Image(source='Rocket.png',
                           size=(32, 32),
                           size_hint=(None, None))
                 self.overlay_widget.add_widget(i)
-                self.overlay_widget.canvas.before.add(Translate(x=32, y=32))
+                self.overlay_widget.canvas.before.add(Translate(x=16, y=16))
                 a = degrees(atan2(event.actor.location[1]-event.location[1],
                                   event.actor.location[0]-event.location[0]))
-                if a > 180:
-                    self.overlay_widget.y += 32
+                print(a)
+                if abs(a) >= 90:
+                    self.overlay_widget.center_y += 64
                 self.overlay_widget.canvas.before.add(Rotate(angle=a+90, axis=(0, 0, 1)))
-                a = Animation(pos=self.get_screen_pos(event.location), duration=anim_duration)
-                a += Animation(size=(0,0), duration=0)
+                a = Animation(center=self.get_screen_pos(event.location, center=True), duration=anim_duration)
+                a += Animation(size=(0, 0), duration=0)
                 a.bind(on_start=lambda x, y: self.remember_anim(),
                        on_complete=lambda x, y: self.animate_game_event(widget=y))
                 self.add_widget(self.overlay_widget)
