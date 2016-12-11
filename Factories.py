@@ -384,12 +384,10 @@ class MapItemDepot():
         :param glyph:
         :return:
         """
-        method = self.glyph_methods[glyph]
-        item = method()
-        return item
+        return self.glyph_methods[glyph]()
 
 
-class MapLoader():
+class MapLoader:
     """
     The map file interface. It takes a filehandle and returns a complete map. Everything it needs to do so is not
     the caller's problem.

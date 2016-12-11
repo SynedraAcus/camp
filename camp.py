@@ -514,7 +514,7 @@ class LayerWidget(RelativeLayout):
                 item = parent.map.get_item(layer=self.layer, location=(x, y))
                 if item:
                     tile_widget = parent.tile_factory.create_widget(item)
-                    tile_widget.pos = parent.get_screen_pos((x, y))
+                    tile_widget.center = parent.get_screen_pos((x, y), center=True)
                     self.add_widget(tile_widget)
 
 
@@ -605,25 +605,25 @@ class RLMapWidget(RelativeLayout, Listener):
         empty.
         :return:
         """
-        if widget and widget.parent and widget.height < 1:
+        if widget and widget.parent and widget.height == 0:
             #  If the widget was given zero size, this means it should be removed
             #  This entire affair is kinda inefficient and should be rebuilt later
             widget.parent.remove_widget(widget)
         if not self.animation_queue == []:
             event = self.animation_queue.pop(0)
             if event.event_type == 'moved':
-                final = self.get_screen_pos(event.actor.location)
-                a = Animation(x=final[0], y=final[1], duration=anim_duration)
+                final = self.get_screen_pos(event.actor.location, center=True)
+                a = Animation(center=final, duration=anim_duration)
                 a.bind(on_start=lambda x, y: self.remember_anim(),
                        on_complete=lambda x, y: self.animate_game_event(widget=y))
                 a.start(event.actor.widget)
             elif event.event_type == 'attacked':
-                current = self.get_screen_pos(event.actor.location)
-                target = self.get_screen_pos(event.location)
-                a = Animation(x=current[0]+int((target[0]-current[0])/2),
-                              y=current[1]+int((target[1]-current[1])/2),
+                current = self.get_screen_pos(event.actor.location, center=True)
+                target = self.get_screen_pos(event.location, center=True)
+                a = Animation(center_x=current[0]+int((target[0]-current[0])/2),
+                              center_y=current[1]+int((target[1]-current[1])/2),
                               duration=anim_duration/2)
-                a += Animation(x=current[0], y=current[1], duration=anim_duration/2)
+                a += Animation(center_x=current[0], center_y=current[1], duration=anim_duration/2)
                 a.bind(on_start=lambda x, y: self.remember_anim(),
                        on_complete=lambda x, y: self.animate_game_event(widget=y))
                 a.start(event.actor.widget)
@@ -656,19 +656,19 @@ class RLMapWidget(RelativeLayout, Listener):
                     return
                 if not item.widget:
                     self.tile_factory.create_widget(item)
-                    item.widget.pos = self.get_screen_pos(event.location)
+                    item.widget.center = self.get_screen_pos(event.location, center=True)
                 self.layer_widgets['items'].add_widget(item.widget)
                 self.animate_game_event()
             elif event.event_type == 'actor_spawned':
                 if not event.actor.widget:
                     self.tile_factory.create_widget(event.actor)
-                event.actor.widget.pos = self.get_screen_pos(event.location)
+                event.actor.widget.center = self.get_screen_pos(event.location, center=True)
                 self.layer_widgets['actors'].add_widget(event.actor.widget)
                 self.animate_game_event()
             elif event.event_type == 'construction_spawned':
                 if not event.actor.widget:
                     self.tile_factory.create_widget(event.actor)
-                event.actor.widget.pos = self.get_screen_pos(event.location)
+                event.actor.widget.center = self.get_screen_pos(event.location, center=True)
                 self.layer_widgets['constructions'].add_widget(event.actor.widget)
                 self.animate_game_event()
             elif event.event_type == 'exploded':
@@ -742,7 +742,7 @@ class RLMapWidget(RelativeLayout, Listener):
         '''
         self.animating = True
 
-    def get_screen_pos(self, location, parent=False):
+    def get_screen_pos(self, location, parent=False, center=False):
         """
         Return screen coordinates (in pixels) for a given location. Unless window parameter is set to true,
         returns coordinates relative to self
@@ -750,10 +750,14 @@ class RLMapWidget(RelativeLayout, Listener):
         :param parent: bool If true, return parent coordinates.
         :return: int tuple
         """
+        r = [location[0]*32, location[1]*32]
+        if center:
+            r[0] += 16
+            r[1] += 16
         if not parent:
-            return (location[0]*32, location[1]*32)
+            return r
         else:
-            return(self.to_parent(location[0]*32, location[1]*32))
+            return(self.to_parent(r[0], r[1]))
 
     def update_rect(self, pos, size):
         self.rect.pos = self.pos
