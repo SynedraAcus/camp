@@ -87,9 +87,6 @@ class Spawner(Construction):
             if not self.map.get_item(location=self.location,
                                      layer='actors'):
                 #  Only spawn if the tile is empty
-                # baby = Actor(player=False, controller=MeleeAIController(), fighter=FighterComponent(),
-                #              descriptor=DescriptorComponent(name='NPC2'), faction=self.faction,
-                #              image_source='NPC.png')
                 baby = self.spawn_factory.create_thug()
                 self.map.extend_log('{0} spawned {1}'.format(self.descriptor.name,
                                                              baby.descriptor.name))

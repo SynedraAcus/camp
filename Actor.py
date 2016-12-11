@@ -10,7 +10,7 @@ from MapItem import MapItem
 
 class Actor(MapItem):
     def __init__(self,
-                 image_source='NPC.png',
+                 image_source='Chassis.png',
                  controller=None, fighter=None, descriptor=None,
                  inventory=None, faction=None, breath=None,
                  **kwargs):
