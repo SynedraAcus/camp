@@ -340,9 +340,9 @@ class MapItemDepot():
         Spawning flag
         :return:
         """
-        return PotionTypeItem(descriptor=DescriptorComponent(name='Spawning flag',
-                                                             description='Builds a melee tower under the player'),
-                              image_source='Flag.png',
+        return PotionTypeItem(descriptor=DescriptorComponent(name='Melee tower (unactive)',
+                                                             description='Installs a melee tower under the player'),
+                              image_source='MeleeBox.png',
                               effect=TileTargetedEffect(effect_type='spawn_construction',
                                                         effect_value=self.make_fighter()))
 
@@ -351,9 +351,9 @@ class MapItemDepot():
         Shooter spawning flag
         :return:
         """
-        return PotionTypeItem(descriptor=DescriptorComponent(name='Shooter flag',
-                                                             description='Builds a shooter tower under the player'),
-                              image_source='ShooterFlag.png',
+        return PotionTypeItem(descriptor=DescriptorComponent(name='Shooter tower (inactive)',
+                                                             description='Installs a shooter tower under the player'),
+                              image_source='ShooterBox.png',
                               effect=TileTargetedEffect(effect_type='spawn_construction',
                                                         effect_value=self.make_shooter()))
 
