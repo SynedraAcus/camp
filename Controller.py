@@ -212,7 +212,7 @@ class RangedAIController(MeleeAIController):
                                                               exlcude_neighbours=True)
             victims = list(filter(self._should_attack, shootable))
             if len(victims) > 0:
-                victim = random.choice(victims)
+                victim = victims[0]
                 self.last_command = Command(command_type='shoot',
                                             command_value=victim.location)
                 #  If shot appears a nice idea, do so and return. Otherwise allow parent method to choose melee
@@ -259,7 +259,7 @@ class ShooterSpawnController(Controller):
                                                               exlcude_neighbours=True)
             victims = list(filter(self._should_attack, shootable))
             if len(victims) > 0 and self.actor.fighter.ammo > 0:
-                victim = random.choice(victims)
+                victim = victims[0]
                 self.last_command = Command(command_type='shoot',
                                             command_value=victim.location)
             else:

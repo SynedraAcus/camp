@@ -234,7 +234,7 @@ class RLMap(object):
         #  therefore, a set of tiles with the same distance to target tile forms square. With more realistic
         #  diagonal movement cost of sqrt(2) this set would've formed something circle-ish and the proper breadth
         #  search would've been necessary
-        neighbours = set()
+        neighbours = {}
         #  Border check. Will fail with negative distance, but that makes no sense anyway.
         xrange = [location[0]-distance, location[0]+distance+1]
         if xrange[0] < 0:
@@ -251,14 +251,14 @@ class RLMap(object):
                 for l in layers:
                     i = self.get_item(location=(x, y), layer=l)
                     if i:
-                        neighbours.add(i)
+                        neighbours[i] = None
         #  Select air-reachable items. Relies on item having `location` attribute and thus makes sense
         #  only for Actors and Constructions (as of now)
-        r = []
-        for item in neighbours:
+        for item in neighbours.keys():
             line = self.get_line(location, item.location)
             if line[-1] == item.location and (len(line) > 2 or not exlcude_neighbours):
-                r.append(item)
+                neighbours[item] = len(line)
+        r = list(sorted((x for x in neighbours.keys() if neighbours[x]), key=lambda x: neighbours[x]))
         return r
 
 

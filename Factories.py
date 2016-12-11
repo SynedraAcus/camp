@@ -254,7 +254,7 @@ class MapItemDepot():
         :return:
         """
         return ShooterConstruction(image_source='Shooter.png', passable=False,
-                                   fighter=FighterComponent(max_ammo=10),
+                                   fighter=FighterComponent(ammo=10, max_ammo=10),
                                    faction=FactionComponent(faction='pc', enemies=['npc']),
                                    descriptor=DescriptorComponent(name='Shooter',
                                                                   description='Shoots your enemies until it runs out of bullets. Then it acts like melee tower'),
