@@ -210,12 +210,12 @@ class MapItemDepot():
         Thug spawner
         :return:
         """
-        return Spawner(image_source='DownStairs.png', spawn_frequency=3,
+        return Spawner(image_source='ChassisFactory.png', spawn_frequency=3,
                        spawn_factory=ActorFactory(faction=FactionComponent(faction='npc',
                                                                            enemies=['pc'])),
                        faction=FactionComponent(faction='npc', enemies=['pc']),
-                       descriptor=DescriptorComponent(name='A dark hole in the ground'),
-                       fighter=FighterComponent(max_hp=10, defenses=[0,0]))
+                       descriptor=DescriptorComponent(name='Chassis factory'),
+                       fighter=FighterComponent(max_hp=10, defenses=[0, 0]))
 
     @staticmethod
     def make_mine():
