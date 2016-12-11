@@ -690,7 +690,7 @@ class RLMapWidget(RelativeLayout, Listener):
                 a.start(self.overlay_widget)
             elif event.event_type == 'rocket_shot':
                 self.overlay_widget = RelativeLayout(center=self.get_screen_pos(event.actor.location, center=True),
-                                                     size=(64, 64),
+                                                     size=(64,64),
                                                      size_hint=(None, None))
                 i = Image(source='Rocket.png',
                           size=(32, 32),
@@ -699,10 +699,10 @@ class RLMapWidget(RelativeLayout, Listener):
                 self.overlay_widget.canvas.before.add(Translate(x=16, y=16))
                 a = degrees(atan2(event.actor.location[1]-event.location[1],
                                   event.actor.location[0]-event.location[0]))
-                print(a)
-                if abs(a) >= 90:
-                    self.overlay_widget.center_y += 64
-                self.overlay_widget.canvas.before.add(Rotate(angle=a+90, axis=(0, 0, 1)))
+                # if abs(a) >= 90:
+                #     self.overlay_widget.center_y += 64
+                self.overlay_widget.canvas.before.add(Rotate(angle=a+90, axis=(0, 0, 1),
+                                                             origin=i.center))
                 a = Animation(center=self.get_screen_pos(event.location, center=True), duration=anim_duration)
                 a += Animation(size=(0, 0), duration=0)
                 a.bind(on_start=lambda x, y: self.remember_anim(),
