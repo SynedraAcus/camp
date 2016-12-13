@@ -42,6 +42,10 @@ class ActorWidget(Scatter):
         """
         self.apply_transform(Matrix().scale(-1, 1, 1),
                              anchor=self.center)
+        if self.direction == 'right':
+            self.direction = 'left'
+        else:
+            self.direction = 'right'
 
     def update_img(self, a, b):
         #  Needs to be updated manually, as Scatter does not automatically affect its children sizes
@@ -86,12 +90,25 @@ class ConstructionWidget(Scatter):
     """
     def __init__(self, source='DownStairs.png', **kwargs):
         super(ConstructionWidget, self).__init__(**kwargs)
+        self.direction='right'
         self.img = Image(source=source, size=(32, 32))
         self.add_widget(self.img)
         self.bind(size=self.update_img)
 
     def update_img(self, a, b):
         self.img.size = self.size
+
+    def flip(self):
+        """
+        Flip widget horizontally
+        :return:
+        """
+        self.apply_transform(Matrix().scale(-1, 1, 1),
+                             anchor=self.center)
+        if self.direction == 'right':
+            self.direction = 'left'
+        else:
+            self.direction = 'right'
 
 
 class TileWidgetFactory(object):

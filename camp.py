@@ -613,6 +613,9 @@ class RLMapWidget(RelativeLayout, Listener):
             event = self.animation_queue.pop(0)
             if event.event_type == 'moved':
                 final = self.get_screen_pos(event.actor.location, center=True)
+                if final[0] < event.actor.widget.pos[0] and event.actor.widget.direction == 'right'\
+                        or final[0] > event.actor.widget.pos[0] and event.actor.widget.direction == 'left':
+                    event.actor.widget.flip()
                 a = Animation(center=final, duration=anim_duration)
                 a.bind(on_start=lambda x, y: self.remember_anim(),
                        on_complete=lambda x, y: self.animate_game_event(widget=y))
@@ -620,6 +623,9 @@ class RLMapWidget(RelativeLayout, Listener):
             elif event.event_type == 'attacked':
                 current = self.get_screen_pos(event.actor.location, center=True)
                 target = self.get_screen_pos(event.location, center=True)
+                if target[0] > current[0] and event.actor.widget.direction == 'left' or\
+                        target[0] < current[0] and event.actor.widget.direction == 'right':
+                    event.actor.widget.flip()
                 a = Animation(center_x=current[0]+int((target[0]-current[0])/2),
                               center_y=current[1]+int((target[1]-current[1])/2),
                               duration=anim_duration/2)
