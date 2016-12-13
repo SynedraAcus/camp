@@ -4,7 +4,7 @@ Creates both Widgets and MapItems
 """
 
 from kivy.uix.image import Image
-from kivy.uix.widget import Widget
+from kivy.uix.scatter import Scatter
 
 #  Importing my own stuff
 from Map import RLMap
@@ -19,32 +19,28 @@ from Items import PotionTypeItem, Item, FighterTargetedEffect, TileTargetedEffec
 #  Other imports
 from random import choice, random
 
+#  I don't remember why exactly there even are three different classes for tile widgets, but I get a feeling
+#  that refactoring it will break something somewhere
 
-class ActorWidget(Widget):
+
+class ActorWidget(Scatter):
     """
-    The actor widget that contains an actor image
+    The actor widget that contains an actor image. It's a scatter to allow scaling.
     """
     def __init__(self, source='PC.png', **kwargs):
         super(ActorWidget, self).__init__(**kwargs)
-        self.img = Image(source=source, size=(32, 32), allow_stretch=True)
+        self.img = Image(source=source, size=(32, 32), allow_stretch=False)
         self.add_widget(self.img)
         self.bind(pos=self.update_img)
         self.bind(size=self.update_img)
-        # self.last_move_animated = True
-        #  Flag that controls whether this widget is to be animated
-
-    # def update_size(self, a, b):
-    #     self.img.size=self.size
 
     def update_img(self, a, b):
-        self.img.pos = self.pos
+        #  Needs to be updated manually, as Scatter does not automatically affect its children sizes
+        #  positions work out themselves, though
         self.img.size = self.size
 
-    # def update_texture(self, size, pos):
-    #     self.rect.size = self.size
-    #     self.rect.pos = self.pos
 
-class TileWidget(Widget):
+class TileWidget(Scatter):
     """
     The tile widget that currently contains only an image.
     """
@@ -52,16 +48,17 @@ class TileWidget(Widget):
         super(TileWidget, self).__init__(**kwargs)
         self.img = Image(source=source, size=(32, 32))
         self.add_widget(self.img)
-        self.bind(pos=self.update_img)
+        self.bind(size=self.update_img)
 
     def update_img(self, a, b):
-        self.img.pos = self.pos
+        self.img.size = self.size
+        pass
 
     def update_texture(self, size, pos):
         self.rect.size = self.size
         self.rect.pos = self.pos
 
-class ItemWidget(Widget):
+class ItemWidget(Scatter):
     """
     Widget for an item. Used both for item on the ground and item in the inventory
     """
@@ -69,12 +66,12 @@ class ItemWidget(Widget):
         super(ItemWidget, self).__init__(**kwargs)
         self.img = Image(source=source, size=(32, 32))
         self.add_widget(self.img)
-        self.bind(pos=self.update_img)
+        self.bind(size=self.update_img)
 
     def update_img(self, a, b):
-        self.img.pos = self.pos
+        self.img.size = self.size
 
-class ConstructionWidget(Widget):
+class ConstructionWidget(Scatter):
     """
     Widget for a construction
     """
@@ -82,10 +79,10 @@ class ConstructionWidget(Widget):
         super(ConstructionWidget, self).__init__(**kwargs)
         self.img = Image(source=source, size=(32, 32))
         self.add_widget(self.img)
-        self.bind(pos=self.update_img)
+        self.bind(size=self.update_img)
 
     def update_img(self, a, b):
-        self.img.pos = self.pos
+        self.img.size = self.size
 
 
 class TileWidgetFactory(object):
@@ -120,7 +117,9 @@ class TileWidgetFactory(object):
     def create_actor_widget(self, actor):
         s = actor.image_source
         widget = ActorWidget(source=s, size=(32, 32),
-                             size_hint=(None, None))
+                             size_hint=(None, None),
+                             #  Better not allow multitouch transformations
+                             do_rotation=False, do_translation=False)
         actor.widget = widget
         return widget
 
