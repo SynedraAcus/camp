@@ -3,6 +3,7 @@ Various factories, generating functions and other things.
 Creates both Widgets and MapItems
 """
 
+from kivy.graphics.transformation import Matrix
 from kivy.uix.image import Image
 from kivy.uix.scatter import Scatter
 
@@ -29,10 +30,18 @@ class ActorWidget(Scatter):
     """
     def __init__(self, source='PC.png', **kwargs):
         super(ActorWidget, self).__init__(**kwargs)
+        self.direction = 'right'
         self.img = Image(source=source, size=(32, 32), allow_stretch=False)
         self.add_widget(self.img)
-        self.bind(pos=self.update_img)
         self.bind(size=self.update_img)
+
+    def flip(self):
+        """
+        Flip widget horizontally
+        :return:
+        """
+        self.apply_transform(Matrix().scale(-1, 1, 1),
+                             anchor=self.center)
 
     def update_img(self, a, b):
         #  Needs to be updated manually, as Scatter does not automatically affect its children sizes
