@@ -24,12 +24,12 @@ from random import choice, random
 #  that refactoring it will break something somewhere
 
 
-class ActorWidget(Scatter):
+class MapItemWidget(Scatter):
     """
     The actor widget that contains an actor image. It's a scatter to allow scaling.
     """
     def __init__(self, source='PC.png', **kwargs):
-        super(ActorWidget, self).__init__(**kwargs)
+        super(MapItemWidget, self).__init__(**kwargs)
         self.direction = 'right'
         self.img = Image(source=source, size=(32, 32), allow_stretch=False)
         self.add_widget(self.img)
@@ -51,64 +51,6 @@ class ActorWidget(Scatter):
         #  Needs to be updated manually, as Scatter does not automatically affect its children sizes
         #  positions work out themselves, though
         self.img.size = self.size
-
-
-class TileWidget(Scatter):
-    """
-    The tile widget that currently contains only an image.
-    """
-    def __init__(self, source='PC.png', **kwargs):
-        super(TileWidget, self).__init__(**kwargs)
-        self.img = Image(source=source, size=(32, 32))
-        self.add_widget(self.img)
-        self.bind(size=self.update_img)
-
-    def update_img(self, a, b):
-        self.img.size = self.size
-        pass
-
-    def update_texture(self, size, pos):
-        self.rect.size = self.size
-        self.rect.pos = self.pos
-
-class ItemWidget(Scatter):
-    """
-    Widget for an item. Used both for item on the ground and item in the inventory
-    """
-    def __init__(self, source='Bottle.png', **kwargs):
-        super(ItemWidget, self).__init__(**kwargs)
-        self.img = Image(source=source, size=(32, 32))
-        self.add_widget(self.img)
-        self.bind(size=self.update_img)
-
-    def update_img(self, a, b):
-        self.img.size = self.size
-
-class ConstructionWidget(Scatter):
-    """
-    Widget for a construction
-    """
-    def __init__(self, source='DownStairs.png', **kwargs):
-        super(ConstructionWidget, self).__init__(**kwargs)
-        self.direction='right'
-        self.img = Image(source=source, size=(32, 32))
-        self.add_widget(self.img)
-        self.bind(size=self.update_img)
-
-    def update_img(self, a, b):
-        self.img.size = self.size
-
-    def flip(self):
-        """
-        Flip widget horizontally
-        :return:
-        """
-        self.apply_transform(Matrix().scale(-1, 1, 1),
-                             anchor=self.center)
-        if self.direction == 'right':
-            self.direction = 'left'
-        else:
-            self.direction = 'right'
 
 
 class TileWidgetFactory(object):
@@ -136,32 +78,34 @@ class TileWidgetFactory(object):
         #  There is no true randomness now, because the tiles are simple white bg.
         #  When aesthetics get implemented, some floors, underground piping, etc. will be added
         s = choice(self.passable_tiles) if tile.passable else 'Tile_impassable.png'
-        tile.widget = TileWidget(source=s, size=(32, 32),
-                                 size_hint=(None, None))
+        tile.widget = MapItemWidget(source=s, size=(32, 32),
+                                    size_hint=(None, None),
+                                    do_rotation=False, do_translation=False)
         return tile.widget
 
+    #  These three methods are similar, but I'll retain three different methods in case something changes about them
     def create_actor_widget(self, actor):
         s = actor.image_source
-        widget = ActorWidget(source=s, size=(32, 32),
-                             size_hint=(None, None),
-                             #  Better not allow multitouch transformations
-                             do_rotation=False, do_translation=False)
+        widget = MapItemWidget(source=s, size=(32, 32),
+                               size_hint=(None, None),
+                               #  Better not allow multitouch transformations
+                               do_rotation=False, do_translation=False)
         actor.widget = widget
         return widget
 
     def create_item_widget(self, item):
         s = item.image_source
-        item.widget = ItemWidget(source=s, size=(32, 32),
+        item.widget = MapItemWidget(source=s, size=(32, 32),
                                  size_hint=(None, None))
         return item.widget
 
     def create_construction_widget(self, constr):
-        constr.widget = ConstructionWidget(source=constr.image_source, size=(32, 32),
+        constr.widget = MapItemWidget(source=constr.image_source, size=(32, 32),
                                            size_hint=(None, None))
         return constr.widget
 
 
-class MapItemDepot():
+class MapItemDepot:
     """
     A class that contains definitions of every item that can be placed on map during map generation.
     Every make_* method returns the instance of object in question.
