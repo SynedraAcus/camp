@@ -36,10 +36,10 @@ class KeyParser(object):
     and other interface commands. Keyboard layout is stored here as well.
     Currently class is little more than stub for later moving controls to separate file
     """
-    command_type_dict = {'walk': ('h', 'numpad8', 'up', # Up
-                                  'l', 'numpad2', 'down',
-                                  'j', 'numpad4', 'left',
-                                  'k', 'numpad6', 'right',
+    command_type_dict = {'walk': ('k', 'numpad8', 'up', # Up
+                                  'j', 'numpad2', 'down',
+                                  'h', 'numpad4', 'left',
+                                  'l', 'numpad6', 'right',
                                   'y', 'numpad7',  #NW
                                   'u', 'numpad9',  #NE
                                   'b', 'numpad1',  #SW
@@ -51,10 +51,10 @@ class KeyParser(object):
     #  Values for travel commands are (dx, dy)
     #  Values for inventory use and drop are not kept here, as those are used from window
     #  For some commands value may be None, if there is no target associated with them
-    command_value_dict = {(0, 1): ('w', 'h', 'numpad8', 'up'),
-                          (0, -1): ('s', 'l', 'numpad2', 'down'),
-                          (-1, 0): ('a', 'j', 'numpad4', 'left'),
-                          (1, 0): ('d', 'k', 'numpad6', 'right'),
+    command_value_dict = {(0, 1): ('w', 'k', 'numpad8', 'up'),
+                          (0, -1): ('s', 'j', 'numpad2', 'down'),
+                          (-1, 0): ('a', 'h', 'numpad4', 'left'),
+                          (1, 0): ('d', 'l', 'numpad6', 'right'),
                           (-1, 1): ('y', 'numpad7'),
                           (1, 1): ('u', 'numpad9'),
                           (-1, -1): ('b', 'numpad1'),
