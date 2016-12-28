@@ -21,9 +21,10 @@ from GameEvent import EventQueue, GameEvent
 from Listeners import Listener, DeathListener, BorderWalkListener, TutorialListener
 
 #  Others
+import sys
+import traceback
 from math import atan2, degrees
 from collections import deque
-import logging
 
 #  A collection of constants. Most definitely needs to be refactored into a proper option container
 
@@ -975,16 +976,18 @@ class CampApp(App):
         root.add_widget(self.game_widget)
         #  Some events were shot during map loading to initialize display.
         self.game_manager.queue.pass_all_events()
-        raise Exception('test exception')
         return root
 
 if __name__ == '__main__':
     Config.set('kivy', 'exit_on_escape', 0)
-    logging.basicConfig(filename='crash_log.txt', filemode='w', level=logging.DEBUG)
-    logging.debug('Crash log for camp prototype')
     try:
-        # raise Exception('Test exception')
         CampApp().run()
     except:
-        logging.exception('Crashed with exception')
-        raise
+        # This (rather ugly) exception redirection is necessary because kivy does some magic with `logging`
+        # module and I don't have a slightest idea how to make it work as necessary. All the sys.stderr messages
+        # get sent to ~/.kivy/logs/*.txt, at least on Linux Mint, but trying to redirect them to some file in game
+        # folder leads to exception that says "Too many logfile" even though the file in question doesn't even
+        # get created
+        log_file = open('crash_log.txt', mode='w')
+        log_file.write(''.join(traceback.format_exception(*sys.exc_info())))
+        quit()

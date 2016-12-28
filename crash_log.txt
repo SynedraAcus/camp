@@ -1,1 +1,10 @@
-If the game happens to crash with exception, log will be here
+Traceback (most recent call last):
+  File "/home/morozov/tools/Games/camp/camp.py", line 986, in <module>
+    CampApp().run()
+  File "/usr/local/lib/python3.4/dist-packages/kivy/app.py", line 802, in run
+    root = self.build()
+  File "/home/morozov/tools/Games/camp/camp.py", line 967, in build
+    self.game_manager = GameManager(map_file='test_level.lvl')
+  File "/home/morozov/tools/Games/camp/camp.py", line 111, in __init__
+    raise Exception('test exception')
+Exception: test exception
