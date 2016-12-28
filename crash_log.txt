@@ -1,0 +1,1 @@
+If the game happens to crash with exception, log will be here

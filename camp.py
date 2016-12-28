@@ -23,6 +23,7 @@ from Listeners import Listener, DeathListener, BorderWalkListener, TutorialListe
 #  Others
 from math import atan2, degrees
 from collections import deque
+import logging
 
 #  A collection of constants. Most definitely needs to be refactored into a proper option container
 
@@ -974,8 +975,16 @@ class CampApp(App):
         root.add_widget(self.game_widget)
         #  Some events were shot during map loading to initialize display.
         self.game_manager.queue.pass_all_events()
+        raise Exception('test exception')
         return root
 
 if __name__ == '__main__':
     Config.set('kivy', 'exit_on_escape', 0)
-    CampApp().run()
+    logging.basicConfig(filename='crash_log.txt', filemode='w', level=logging.DEBUG)
+    logging.debug('Crash log for camp prototype')
+    try:
+        # raise Exception('Test exception')
+        CampApp().run()
+    except:
+        logging.exception('Crashed with exception')
+        raise
