@@ -989,5 +989,7 @@ if __name__ == '__main__':
         # folder leads to exception that says "Too many logfile" even though the file in question doesn't even
         # get created
         log_file = open('crash_log.txt', mode='w')
-        log_file.write(''.join(traceback.format_exception(*sys.exc_info())))
+        exception_text = ''.join(traceback.format_exception(*sys.exc_info()))
+        sys.stderr.write(exception_text)
+        log_file.write(exception_text)
         quit()
