@@ -23,6 +23,7 @@
 /width 20
 /map_id twist
 /neighbour_west entrance
+/neighbour_north first_branch
 /on_entrance Press 'z' to jump over tiles you'd rather not visit, like those landmines.
 ###.################
 ###..##########....#

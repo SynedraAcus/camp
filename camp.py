@@ -145,7 +145,8 @@ class GameManager():
                 pc.location = [0, pc.location[1]]
             else:
                 raise ValueError('Only one of north, south, west or east is accepted as entrance_direction')
-            if isinstance(self.map.actors[0].controller, PlayerController):
+            #  There may be zero actors on the map, if there are no enemies and (wrong) PC was removed upon load
+            if len(self.map.actors) >= 1 and isinstance(self.map.actors[0].controller, PlayerController):
                 self.map.delete_item(layer='actors', location=self.map.actors[0].location)
             self.map.add_item(item=pc, layer='actors', location=pc.location)
             self.game_widget.rebuild_map_widget()
