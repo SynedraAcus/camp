@@ -38,6 +38,7 @@ class FighterTargetedEffect(Effect):
             return True
         if self.effect_type == 'restore_ammo':
             actor.fighter.ammo += self.effect_value
+            return True
 
 
 class TileTargetedEffect(Effect):
