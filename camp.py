@@ -745,7 +745,12 @@ class RLMapWidget(RelativeLayout, Listener):
             if DISPLAY_DIJKSTRA_MAP:
                 if self.dijkstra_widget:
                     self.remove_widget(self.dijkstra_widget)
-                self.map.prototype_dijkstra.rebuild_self()
+                #  Manually calling Dijkstra map update is temporary and should be removed in a few commits
+                else:
+                    self.map.prototype_dijkstra.rebuild_self()
+                self.map.prototype_dijkstra.update(location=self.map.actors[0].location,
+                                                   value=-5)
+                self.map.prototype_dijkstra.update(location=(19, 3), value=-3)
                 self.dijkstra_widget = DijkstraWidget(parent=self)
                 self.add_widget(self.dijkstra_widget)
 

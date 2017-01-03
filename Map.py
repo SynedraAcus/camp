@@ -34,7 +34,7 @@ class DijkstraMap(Listener):
                 if self.should_ignore((x, y)):
                     self.set_value(location=(x, y), value=None)
                 else:
-                    self.set_value(location=(x, y), value=0)
+                    self.set_value(location=(x, y), value=1000)
 
     def should_ignore(self, location):
         """
@@ -51,7 +51,6 @@ class DijkstraMap(Listener):
             return True
         return False
 
-
     def _breadth_fill(self, filled=set(), value=-5):
         """
         Fill Dijkstra map breadth-first.
@@ -65,19 +64,17 @@ class DijkstraMap(Listener):
         """
         s = set()
         for cell in filled:
-            for n in self.get_neighbour_coordinates(cell):
-                bg = self.get_item(layer='bg', location=n)
-                c = self.get_item(layer='constructions', location=n)
-                #  Ignore impassable cells and cells with impassable factionless constructions
+            for n in self.map.get_neighbour_coordinates(cell):
                 if n not in self.updated_now:
-                    if bg.passable and (not c or c.passable or c.faction):
+                    if not self.should_ignore(n):
                         s.add(n)
                     else:
-                        self.set_value(location=([n[0]][n[1]]), value=1000)
+                        self.set_value(location=(n[0], n[1]), value=None)
                         self.updated_now.add(n)
         if s:
             for cell in s:
-                self.dijkstra[cell[0]][cell[1]] = value + 1
+                if self[cell[0]][cell[1]] > value+1:
+                    self.set_value(location=cell, value=value + 1)
             self.updated_now = self.updated_now.union(s)
             self._breadth_fill(filled=s, value=value+1)
         else:
@@ -90,22 +87,23 @@ class DijkstraMap(Listener):
         :param value:
         :return:
         """
-        pass
+        self.updated_now = set()
+        self.updated_now.add(tuple(location))
+        self.set_value(location=location, value=value)
+        self._breadth_fill(value=value, filled=set((tuple(location), )))
 
     def __getitem__(self, item):
         """
         Allows DijkstraMap()[x][y]. DijkstraMap()[x, y] is not supported.
+        Neither is __setitem__, because it creates unnecessary problems with nested lists
         :param item:
         :return:
         """
         #  This class is two-dimensional and is expected to be called like this: `map_object[x][y]`
         #  Therefore, call to __getitem__ returns a whole row and getting to element within it is a row's
         #  business. It's a list, BTW.
-        print(item, len(self._values))
         return self._values[item]
 
-    def get_item(self, location=(None, None)):
-        return self._values[location[0]][location[1]]
 
     def set_value(self, location=(None, None), value=None):
         """
