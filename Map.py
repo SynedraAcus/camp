@@ -3,7 +3,7 @@ Game map and its pathfinding representation.
 """
 
 from Actor import Actor
-from Constructions import Construction
+from Constructions import Construction, Upgrader
 from Controller import PlayerController
 from GameEvent import GameEvent
 from Listeners import Listener
@@ -198,7 +198,15 @@ class RLMap(object):
                                             attractor_filters=[
                                               lambda x: isinstance(x, Actor)
                                                   and isinstance(x.controller, PlayerController)
-                                            ])}
+                                            ]),
+                        #  A map that uses all upgraders as attractors. Doesn't (yet) check factions
+                        'upgraders': DijkstraMap(map=self, event_filters={
+                            'construction_spawned': lambda x: isinstance(x.actor, Upgrader),
+                            'was_destroyed': lambda x: isinstance(x.actor, Upgrader)},
+                                                attractor_filters=[
+                                                    lambda x: isinstance(x, Upgrader)
+                                                ]
+                                                )}
         #  Neighbouring maps
         self.neighbour_maps = {}
         self.entrance_message = ''
