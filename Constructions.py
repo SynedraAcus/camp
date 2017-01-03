@@ -194,7 +194,7 @@ class Spawner(Construction):
             if not self.map.get_item(location=self.location,
                                      layer='actors'):
                 #  Only spawn if the tile is empty
-                baby = self.spawn_factory.create_thug()
+                baby = self.spawn_factory.create_unit()
                 self.map.extend_log('{0} spawned {1}'.format(self.descriptor.name,
                                                              baby.descriptor.name))
                 self.map.add_item(item=baby, location=self.location, layer='actors')

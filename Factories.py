@@ -18,7 +18,7 @@ from Controller import PlayerController, MeleeAIController, FighterSpawnControll
 from Items import PotionTypeItem, Item, FighterTargetedEffect, TileTargetedEffect
 
 #  Other imports
-from random import choice, random
+from random import choice, randint
 
 #  I don't remember why exactly there even are three different classes for tile widgets, but I get a feeling
 #  that refactoring it will break something somewhere
@@ -126,7 +126,7 @@ class MapItemDepot:
                               'r': self.make_shooter,
                               '_': self.make_hole,
                               '@': self.make_pc,
-                              'z': self.make_thug,
+                              'z': self.make_chassis,
                               'g': self.make_gunner,
                               'R': self.make_rocket,
                               'L': self.make_landmine,
@@ -242,7 +242,7 @@ class MapItemDepot:
                                                                   description='This construction shoots your enemies. Swinging at their weak points with a hefty barrel also works surprisingly well.'),
                                    controller=ShooterSpawnController())
 
-    def make_thug(self):
+    def make_chassis(self):
         """
         A regular thug
         :return:
@@ -480,22 +480,31 @@ class MapLoader:
         """
         return self.maps[map_id]
 
+
 class ActorFactory(object):
     """
     Factory that produces Actors of a given faction
     """
-    def __init__(self, faction):
+    def __init__(self, faction, weights={'z': 0, 'g': 1}):
         assert isinstance(faction, FactionComponent)
         self.faction = faction
         self.depot = MapItemDepot()
+        self.unit_methods = {'z': self.depot.make_chassis,
+                             'g': self.depot.make_gunner}
+        self.weights = weights
 
-    def create_thug(self):
+    def create_unit(self):
         """
-        Creates a simple melee combatant. It has default FighterComponent
-        and all the other components are (temporarily?) hardcoded
+        Creates a random unit that this class knows about
         :return:
         """
-        if random() < 0.3:
-            return self.depot.make_gunner()
-        else:
-            return self.depot.make_thug()
+        r = randint(1, sum(self.weights.values()))
+        print(r)
+        s = 0
+        child = None
+        for x in self.weights.keys():
+            s += self.weights[x]
+            if s >= r:
+                child = x
+                break
+        return self.unit_methods[child]()
