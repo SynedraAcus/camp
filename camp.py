@@ -28,9 +28,9 @@ from collections import deque
 
 #  A collection of constants. Most definitely needs to be refactored into a proper option container
 
-#  Whether to display Dijkstra map values overlay. Extremely laggy and should be False unless debugging
-#  Dijkstra maps
-DISPLAY_DIJKSTRA_MAP = True
+#  If set, this Dijkstra map will be shown as overlay. Set to something that doesn't evaluate to True to disable
+#  Dijkstra display altogether. To avoid creating a new event type, this is redrawn at the end of every turn.
+DISPLAY_DIJKSTRA_MAP = 'PC'
 
 class KeyParser(object):
     """
@@ -537,7 +537,7 @@ class DijkstraWidget(RelativeLayout):
                 self.add_widget(Label(size=(64, 64),
                                       size_hint=(None, None),
                                       pos=parent.get_screen_pos((x, y)),
-                                      text=str(parent.map.prototype_dijkstra[x][y]),
+                                      text=str(parent.map.dijkstras[DISPLAY_DIJKSTRA_MAP][x][y]),
                                       text_size=(64, 64),
                                       font_size=7,
                                       color=(0, 0, 0, 1)))
@@ -745,8 +745,8 @@ class RLMapWidget(RelativeLayout, Listener):
             if DISPLAY_DIJKSTRA_MAP:
                 if self.dijkstra_widget:
                     self.remove_widget(self.dijkstra_widget)
-                else:
-                    self.map.prototype_dijkstra.rebuild_self()
+                # else:
+                #     self.map.dijkstras['PC'].rebuild_self()
                 self.dijkstra_widget = DijkstraWidget(parent=self)
                 self.add_widget(self.dijkstra_widget)
 

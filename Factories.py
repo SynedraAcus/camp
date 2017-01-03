@@ -448,6 +448,7 @@ class MapLoader:
                     map.neighbour_maps[direction] = tags[tag]
                 if 'on_entrance' in tags.keys():
                     map.entrance_message = tags['on_entrance']
+                map.rebuild_dijkstras()
                 self.maps[tags['map_id']] = map
                 print('Loaded map: {0}'.format(tags['map_id']))
                 tags = {}

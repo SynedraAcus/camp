@@ -16,7 +16,14 @@ class DijkstraMap(Listener):
     A container for Dijkstra map data.
     Any particular instance of this map listens to events so that it could update.
     """
-    def __init__(self, map=None, event_filters={}):
+    def __init__(self, map=None, event_filters={}, attractor_filters=[]):
+        """
+        Constructor
+        :param map: RLMap instance
+        :param event_filters: dict of {event_type: lambda event: event_is_attractor(event)}. Can accept functions.
+        :param attractor_filters: list of functions that accept MapItem and return True if it's an attractor
+        :return:
+        """
         self._values = []
         if not map:
             raise ValueError('DijkstraMap requires map to be created')
@@ -25,6 +32,9 @@ class DijkstraMap(Listener):
         if len(event_filters.keys()) == 0:
             raise ValueError('DijkstraMap cannot be created with empty event filter')
         self.event_filters = event_filters
+        #  There can be no attractor_filters if whatever this map is about doesn't get created before
+        #  the game starts.
+        self.attractor_filters = attractor_filters
 
     def rebuild_self(self):
         """
@@ -41,6 +51,14 @@ class DijkstraMap(Listener):
                     #  Way above anything possible on a reasonable-sized map of a reasonable topology, but
                     #  can be easily raised to 10k or something for obscure cases.
                     self.set_value(location=(x, y), value=1000)
+        #  Now that initial values are placed, initial attractors (if any) are used to place initial values
+        if len(self.attractor_filters) > 0:
+            for x in range(self.map.size[0]):
+                for y in range(self.map.size[1]):
+                    for item in self.map.get_column(location=(x, y)):
+                        for attractor_function in self.attractor_filters:
+                            if attractor_function(item):
+                                self.update(location=(x,y), value=-5)
 
     def should_ignore(self, location):
         """
@@ -152,9 +170,13 @@ class RLMap(object):
         self.dijkstra = [[1000 for y in range(self.size[1])] for x in range(self.size[0])]
         self.empty_dijkstra = deepcopy(self.dijkstra)
         self.updated_now = set()
-        self.prototype_dijkstra = DijkstraMap(map=self,
-                                              event_filters={'moved':
-                                                         lambda x: isinstance(x.actor.controller, PlayerController)})
+        self.dijkstras = {'PC': DijkstraMap(map=self,
+                                            event_filters={'moved':
+                                              lambda x: isinstance(x.actor.controller, PlayerController)},
+                                            attractor_filters=[
+                                              lambda x: isinstance(x, Actor)
+                                                  and isinstance(x.controller, PlayerController)
+                                            ])}
         #  Neighbouring maps
         self.neighbour_maps = {}
         self.entrance_message = ''
@@ -166,7 +188,16 @@ class RLMap(object):
         """
         self.game_manager = game_manager
         self.game_events = game_manager.queue
-        self.game_events.register_listener(self.prototype_dijkstra)
+        for dijkstra in self.dijkstras.values():
+            self.game_events.register_listener(dijkstra)
+
+    def rebuild_dijkstras(self):
+        """
+        This method should be called after MapFactory has finished building this map
+        :return:
+        """
+        for x in self.dijkstras.values():
+            x.rebuild_self()
 
     #  Actions on map items: addition, removal and so on
 
