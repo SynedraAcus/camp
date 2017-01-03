@@ -3,6 +3,7 @@ GameEvent base class and the event queue
 """
 from collections import deque
 
+
 class GameEvent:
     """
     Something that has happened in the game.

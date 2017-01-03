@@ -3,7 +3,7 @@ Construction classes. All the stuff here is to be placed at 'constructions' laye
 A construction is, basically, a sort of Actor: it can make turn, it have components,
 it can be collided into. The reason to have a separate layer is that only one actor
 may be present at a cell at a time, but there may be both actor and construction.
-Typical constructions are immobile interactive stuff: traps, chests, stairs and such.
+Typical constructions are immobile (possibly) interactive stuff: traps, chests, stairs, walls and such.
 """
 
 from Actor import GameEvent

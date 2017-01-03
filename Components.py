@@ -1,5 +1,5 @@
 """
-Component classes that add various functionality to Actors
+Component classes that add various functionality to Actors and Constructions
 """
 
 from random import choice

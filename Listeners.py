@@ -1,5 +1,6 @@
 """
-Various Listeners that check for win/fail, level switch conditions, achievements and so on
+Various Listeners that check for win/fail, level switch conditions, achievements and so on.
+NB: There are Listeners defined outside this file, eg some Widgets in camp.py and DijkstraMap in Map.py
 """
 from Actor import Actor
 from Controller import PlayerController

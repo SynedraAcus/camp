@@ -1,6 +1,7 @@
+"""
+Controllers, ie MapItem components that control actors' and constructions' behaviour
+"""
 import random
-
-
 
 class Command(object):
     """
@@ -10,6 +11,7 @@ class Command(object):
     command_value should be an iterable or None
     """
     acceptable_commands = ('walk', 'use_item', 'wait', 'grab', 'drop_item', 'jump', 'shoot')
+
     def __init__(self, command_type=None, command_value=None):
         assert command_type in self.acceptable_commands
         self.command_type = command_type

@@ -1,6 +1,6 @@
-#  Map and tile classes.
-#  These contain only the information about things in game and some gameplay logic, so they don't inherit from
-#  any of Kivy classes. MVC and all that.
+"""
+Game map and its pathfinding representation.
+"""
 
 from Actor import Actor
 from Constructions import Construction
@@ -118,10 +118,10 @@ class DijkstraMap(Listener):
         """
         for x in range(len(self)):
             for y in range(len(self[0])):
-                if self.should_ignore((x,y)):
-                    self.set_value(location=(x,y), value=None)
+                if self.should_ignore((x, y)):
+                    self.set_value(location=(x, y), value=None)
                 else:
-                    self.set_value(location=(x,y), value=1000)
+                    self.set_value(location=(x, y), value=1000)
         filled = set()
         for attractor in self.attractors:
             self.updated_now = set()
@@ -129,8 +129,6 @@ class DijkstraMap(Listener):
             filled.add(tuple(attractor.location))
             self.set_value(location=attractor.location, value=-5)
         self._breadth_fill(value=-5, filled=filled)
-
-
 
     def set_value(self, location=(None, None), value=None):
         """
@@ -172,6 +170,7 @@ class DijkstraMap(Listener):
 
     def __len__(self):
         return len(self._values)
+
 
 class RLMap(object):
     def __init__(self, size=(10, 10), layers=['default']):

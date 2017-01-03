@@ -1,7 +1,8 @@
 """
-Map item classes. This module contains the base MapItem class and all of its children
-that are not Actors (those are in Actor.py).
+Map item classes. This module contains the base MapItem class and its primitive GroundTile child.
+More complex MapItems are in their own files
 """
+
 
 class MapItem(object):
     """
