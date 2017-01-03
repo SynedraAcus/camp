@@ -8,6 +8,30 @@ from Actor import Actor
 from Constructions import Construction
 from Controller import PlayerController
 from GameEvent import GameEvent
+from Listeners import Listener
+
+class DijkstraMap(Listener):
+    """
+    A container for Dijkstra map data.
+    Any particular instance of this map listens to events so that it could update.
+    """
+    def __init__(self):
+        pass
+
+    def rebuild_self(self):
+        pass
+
+    def _breadth_fill(self, filled=set(), value=-5):
+        pass
+
+    def update(self):
+        pass
+
+    def get_item(self, location):
+        pass
+
+    def process_game_event(self, event):
+        pass
 
 
 class RLMap(object):
