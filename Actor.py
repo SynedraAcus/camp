@@ -84,8 +84,6 @@ class Actor(MapItem):
         #  Stuff to be done *after* actor turn
         if self.breath and not self.breath.is_ready():
             self.breath.regenerate()
-        if isinstance(self.controller, PlayerController):
-            self.map.update_dijkstra()
         return r
 
     #  These methods are expected to be called by Controller. They all return True if action could be performed

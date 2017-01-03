@@ -2,8 +2,6 @@
 #  These contain only the information about things in game and some gameplay logic, so they don't inherit from
 #  any of Kivy classes. MVC and all that.
 
-from copy import deepcopy
-
 from Actor import Actor
 from Constructions import Construction
 from Controller import PlayerController
@@ -166,11 +164,11 @@ class RLMap(object):
         #  GameEvent queue and GameManager object
         self.game_events = None
         self.game_manager = None
-        #  The Dijkstra map list and related variables
-        self.dijkstra = [[1000 for y in range(self.size[1])] for x in range(self.size[0])]
-        self.empty_dijkstra = deepcopy(self.dijkstra)
-        self.updated_now = set()
-        self.dijkstras = {'PC': DijkstraMap(map=self,
+        #  The Dijkstra maps
+        #  Somehow it feels like it doesn't belong here, but I'm not sure where it should be
+        self.dijkstras = {
+                        #  A map that has PC as the sole attractor. Used by all AI for combat
+                        'PC': DijkstraMap(map=self,
                                             event_filters={'moved':
                                               lambda x: isinstance(x.actor.controller, PlayerController)},
                                             attractor_filters=[
@@ -292,51 +290,6 @@ class RLMap(object):
         #  widget deletion. That one should be called according to GameEvent somehow
         #  Actor objects remain briefly within Controller method and are then kept in the inventory
         #  via Item.owner.actor
-
-    #  Dijkstra map
-
-    def _breadth_fill(self, filled=set(), value=-5):
-        """
-        Fill Dijkstra map breadth-first.
-        This method is recursive and is intended to be started from a single point. Multiple attractors are
-        currently not supported (although multiple starting points *may* work if they all have exactly the same
-        value. This method relies on at least one cell of Dijkstra map being filled with value and placed
-        in self.updated_now by the moment it's (non-recursively) called.
-        :param filled: set. Set of cells (as coordinate tuples) filled on a previous iteration
-        :param value: int. Value that the cells from a `filled` set contain
-        :return:
-        """
-        s = set()
-        for cell in filled:
-            for n in self.get_neighbour_coordinates(cell):
-                bg = self.get_item(layer='bg', location=n)
-                c = self.get_item(layer='constructions', location=n)
-                #  Ignore impassable cells and cells with impassable factionless constructions
-                if n not in self.updated_now:
-                    if bg.passable and (not c or c.passable or c.faction):
-                        s.add(n)
-                    else:
-                        self.dijkstra[n[0]][n[1]] = 1000
-                        self.updated_now.add(n)
-        if s:
-            for cell in s:
-                self.dijkstra[cell[0]][cell[1]] = value + 1
-            self.updated_now = self.updated_now.union(s)
-            self._breadth_fill(filled=s, value=value+1)
-        else:
-            return
-
-    def update_dijkstra(self):
-        """
-        Update the Dijkstra map based on positions of PC and any PC-allied constructions.
-        :return:
-        """
-        # self.dijkstra = list(self.empty_dijkstra)
-        self.updated_now = set()
-        actor = self.actors[0]
-        self.dijkstra[actor.location[0]][actor.location[1]] = -5
-        self.updated_now.add(tuple(actor.location))
-        self._breadth_fill(value=-5, filled=set((tuple(actor.location),)))
 
     #  Complex operations on map
 
