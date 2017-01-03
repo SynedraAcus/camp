@@ -10,25 +10,102 @@ from Controller import PlayerController
 from GameEvent import GameEvent
 from Listeners import Listener
 
+
 class DijkstraMap(Listener):
     """
     A container for Dijkstra map data.
     Any particular instance of this map listens to events so that it could update.
     """
-    def __init__(self):
-        pass
+    def __init__(self, map=None):
+        self._values = []
+        self.map = map
+        self.updated_now = set()
 
     def rebuild_self(self):
-        pass
+        """
+        Build a fresh Dijkstra map for a newly-attached map
+        :return:
+        """
+        #  Initialize data container. It should be the same size as the map in question
+        self._values = [[None for x in range(self.map.size[1])] for y in range(self.map.size[0])]
+        #  There should be some initial values
+        for x in range(self.map.size[0]):
+            for y in range(self.map.size[1]):
+                if self.map.get_column(location=(x,y)):
+                    pass
+
+    def should_ignore(self, column):
+        """
+        Return True if this column should be ignored during DijkstraMap upgrade.
+        Currently impassable BG and impassable factionless constructs are ignored
+        :param column:
+        :return:
+        """
 
     def _breadth_fill(self, filled=set(), value=-5):
+        """
+        Fill Dijkstra map breadth-first.
+        This method is recursive and is intended to be started from a single point. Multiple attractors are
+        currently not supported (although multiple starting points *may* work if they all have exactly the same
+        value. This method relies on at least one cell of Dijkstra map being filled with value and placed
+        in self.updated_now by the moment it's (non-recursively) called.
+        :param filled: set. Set of cells (as coordinate tuples) filled on a previous iteration
+        :param value: int. Value that the cells from a `filled` set contain
+        :return:
+        """
+        s = set()
+        for cell in filled:
+            for n in self.get_neighbour_coordinates(cell):
+                bg = self.get_item(layer='bg', location=n)
+                c = self.get_item(layer='constructions', location=n)
+                #  Ignore impassable cells and cells with impassable factionless constructions
+                if n not in self.updated_now:
+                    if bg.passable and (not c or c.passable or c.faction):
+                        s.add(n)
+                    else:
+                        self.set_value(location=([n[0]][n[1]]), value=1000)
+                        self.updated_now.add(n)
+        if s:
+            for cell in s:
+                self.dijkstra[cell[0]][cell[1]] = value + 1
+            self.updated_now = self.updated_now.union(s)
+            self._breadth_fill(filled=s, value=value+1)
+        else:
+            return
+
+    def update(self, location=(None, None), value=None):
+        """
+        Set a single cell to a given value and update everything it can change
+        :param location:
+        :param value:
+        :return:
+        """
         pass
 
-    def update(self):
-        pass
+    def __getitem__(self, item):
+        """
+        Allows DijkstraMap()[x][y]. DijkstraMap()[x, y] is not supported.
+        :param item:
+        :return:
+        """
+        #  This class is two-dimensional and is expected to be called like this: `map_object[x][y]`
+        #  Therefore, call to __getitem__ returns a whole row and getting to element within it is a row's
+        #  business. It's a list, BTW.
+        return self._values[item]
 
-    def get_item(self, location):
-        pass
+    def get_item(self, location=(None, None)):
+        return self._values[location[0]][location[1]]
+
+    def set_value(self, location=(None, None), value=None):
+        """
+        Set value of a single cell.
+        This method shouldn't be used outside the class, because it doesn't trigger recursive update of a map.
+        For that, use `self.update()`
+        :param location:
+        :param value:
+        :return:
+        """
+        self._values[location[0]][location[1]] = value
 
     def process_game_event(self, event):
         pass
