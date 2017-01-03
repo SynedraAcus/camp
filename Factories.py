@@ -11,7 +11,7 @@ from kivy.uix.scatter import Scatter
 from Map import RLMap
 from MapItem import GroundTile, MapItem
 from Actor import Actor
-from Constructions import Construction, FighterConstruction, Spawner, Trap, ShooterConstruction
+from Constructions import Construction, FighterConstruction, Spawner, Trap, ShooterConstruction, Upgrader
 from Components import *
 from Controller import PlayerController, MeleeAIController, FighterSpawnController,\
     ShooterSpawnController, RangedAIController
@@ -120,6 +120,7 @@ class MapItemDepot:
                              self.make_ammo]
         self.glyph_methods = {'#': self.make_wall,
                               'S': self.make_spawner,
+                              'G': self.make_gunner_upgrader,
                               '^': self.make_mine,
                               'f': self.make_fighter,
                               'r': self.make_shooter,
@@ -185,6 +186,18 @@ class MapItemDepot:
                        faction=FactionComponent(faction='npc', enemies=['pc']),
                        descriptor=DescriptorComponent(name='Chassis factory'),
                        fighter=FighterComponent(max_hp=10, defenses=[0, 0]))
+
+    @staticmethod
+    def make_gunner_upgrader():
+        """
+        Gunner chassis upgrader
+        :return:
+        """
+        return Upgrader(image_source='GunnerUpgrader.png',
+                        faction=FactionComponent(faction='npc', enemies=['pc']),
+                        descriptor=DescriptorComponent(name='Gunner upgrader',
+                                                       description='Fits chassis with a gun, producing Gunners'),
+                        fighter=FighterComponent(max_hp=10, defenses=[0, 0]))
 
     @staticmethod
     def make_mine():
@@ -377,6 +390,7 @@ class MapLoader:
         self.layers = {'#': 'constructions',
                        '@': 'actors',
                        'S': 'constructions',
+                       'G': 'constructions',
                        '^': 'constructions',
                        'f': 'constructions',
                        'r': 'constructions',

@@ -69,31 +69,6 @@ class Construction(MapItem):
         pass
 
 
-class Spawner(Construction):
-    """
-    A construction that spawns enemies every few turns
-    """
-    def __init__(self, spawn_frequency=5, spawn_factory=None, **kwargs):
-        super(Spawner, self).__init__(**kwargs)
-        self.spawn_frequency = spawn_frequency
-        self.spawn_counter = 1
-        self.spawn_factory = spawn_factory
-
-    def make_turn(self):
-        if self.spawn_counter < self.spawn_frequency:
-            self.spawn_counter += 1
-        else:
-            self.spawn_counter = 1
-            if not self.map.get_item(location=self.location,
-                                     layer='actors'):
-                #  Only spawn if the tile is empty
-                baby = self.spawn_factory.create_thug()
-                self.map.extend_log('{0} spawned {1}'.format(self.descriptor.name,
-                                                             baby.descriptor.name))
-                self.map.add_item(item=baby, location=self.location, layer='actors')
-                self.map.game_events.append(GameEvent(event_type='actor_spawned', location=self.location,
-                                                      actor=baby))
-
 class FighterConstruction(Construction):
     """
     Melee fighter construction. Supports 'move' method to enable melee combat
@@ -139,6 +114,7 @@ class FighterConstruction(Construction):
 
     def pause(self):
         pass
+
 
 class ShooterConstruction(FighterConstruction):
     """
@@ -198,3 +174,44 @@ class Trap(Construction):
             #  This is to prevent it from exploding under the player right after he installed it
             if not self.primed:
                 self.primed = True
+
+
+class Spawner(Construction):
+    """
+    A construction that spawns enemies every few turns
+    """
+    def __init__(self, spawn_frequency=5, spawn_factory=None, **kwargs):
+        super(Spawner, self).__init__(**kwargs)
+        self.spawn_frequency = spawn_frequency
+        self.spawn_counter = 1
+        self.spawn_factory = spawn_factory
+
+    def make_turn(self):
+        if self.spawn_counter < self.spawn_frequency:
+            self.spawn_counter += 1
+        else:
+            self.spawn_counter = 1
+            if not self.map.get_item(location=self.location,
+                                     layer='actors'):
+                #  Only spawn if the tile is empty
+                baby = self.spawn_factory.create_thug()
+                self.map.extend_log('{0} spawned {1}'.format(self.descriptor.name,
+                                                             baby.descriptor.name))
+                self.map.add_item(item=baby, location=self.location, layer='actors')
+                self.map.game_events.append(GameEvent(event_type='actor_spawned', location=self.location,
+                                                      actor=baby))
+                return True
+
+
+class Upgrader(Construction):
+    """
+    A Construction that, on its turn, changes Chassis standing on it into something else
+    If at this construction's turn there is a Chassis of the same faction standing on top of it,
+    if removes said Chassis and spawns a unit on top of it
+    """
+    def __init__(self, spawn_factory=None, *args, **kwargs):
+        super(Upgrader, self).__init__(*args, **kwargs)
+        self.spawn_factory = spawn_factory
+
+    def make_turn(self):
+        pass
