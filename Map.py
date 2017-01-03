@@ -16,10 +16,11 @@ class DijkstraMap(Listener):
     A container for Dijkstra map data.
     Any particular instance of this map listens to events so that it could update.
     """
-    def __init__(self, map=None):
+    def __init__(self, map=None, event_filters={}, event_counters={}):
         self._values = []
         self.map = map
         self.updated_now = set()
+        self.event_filters = event_filters
 
     def rebuild_self(self):
         """
@@ -104,7 +105,6 @@ class DijkstraMap(Listener):
         #  business. It's a list, BTW.
         return self._values[item]
 
-
     def set_value(self, location=(None, None), value=None):
         """
         Set value of a single cell.
@@ -117,7 +117,10 @@ class DijkstraMap(Listener):
         self._values[location[0]][location[1]] = value
 
     def process_game_event(self, event):
-        pass
+        if event.event_type in self.event_filters.keys():
+            if self.event_filters[event.event_type](event):
+                self.update(location=event.location,
+                            value=-5)
 
 
 class RLMap(object):
@@ -136,7 +139,9 @@ class RLMap(object):
         self.dijkstra = [[1000 for y in range(self.size[1])] for x in range(self.size[0])]
         self.empty_dijkstra = deepcopy(self.dijkstra)
         self.updated_now = set()
-        self.prototype_dijkstra = DijkstraMap(map=self)
+        self.prototype_dijkstra = DijkstraMap(map=self,
+                                              event_filters={'moved':
+                                                         lambda x: isinstance(x.actor.controller, PlayerController)})
         #  Neighbouring maps
         self.neighbour_maps = {}
         self.entrance_message = ''
@@ -148,6 +153,7 @@ class RLMap(object):
         """
         self.game_manager = game_manager
         self.game_events = game_manager.queue
+        self.game_events.register_listener(self.prototype_dijkstra)
 
     #  Actions on map items: addition, removal and so on
 
