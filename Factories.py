@@ -182,7 +182,8 @@ class MapItemDepot:
         """
         return Spawner(image_source='ChassisFactory.png', spawn_frequency=3,
                        spawn_factory=ActorFactory(faction=FactionComponent(faction='npc',
-                                                                           enemies=['pc'])),
+                                                                           enemies=['pc']),
+                                                  weights={'z': 1, 'g': 0}),
                        faction=FactionComponent(faction='npc', enemies=['pc']),
                        descriptor=DescriptorComponent(name='Chassis factory'),
                        fighter=FighterComponent(max_hp=10, defenses=[0, 0]))
@@ -251,7 +252,8 @@ class MapItemDepot:
         :return:
         """
         return Actor(image_source='Chassis.png',
-                     controller=MeleeAIController(),
+                     controller=MeleeAIController(dijkstra_weights={'PC': 1,
+                                                                    'upgraders': 1}),
                      fighter=FighterComponent(max_hp=3, ammo=0, max_ammo=0),
                      descriptor=DescriptorComponent(name='An empty chassis',
                                                     description='The chassis on which weapons or tools could be installed.'),
