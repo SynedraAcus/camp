@@ -111,8 +111,8 @@
 /map_id test
 /on_entrance This is a test level. Please inform me if you see it
 ####################
-#.....r....z.......#
-#........G....S....#
+#.....r...Gz.......#
+#.........GG..S....#
 #.....r....z.......#
 #.............S....#
 #.....r....g.......#

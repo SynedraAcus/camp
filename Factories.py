@@ -197,7 +197,10 @@ class MapItemDepot:
                         faction=FactionComponent(faction='npc', enemies=['pc']),
                         descriptor=DescriptorComponent(name='Gunner upgrader',
                                                        description='Fits chassis with a gun, producing Gunners'),
-                        fighter=FighterComponent(max_hp=10, defenses=[0, 0]))
+                        fighter=FighterComponent(max_hp=10, defenses=[0, 0]),
+                        spawn_factory=ActorFactory(weights={'z': 0, 'g': 1},
+                                                   faction=FactionComponent(faction='npc', enemies=['pc'])),
+                        passable=True, allow_entrance=True)
 
     @staticmethod
     def make_mine():
@@ -495,7 +498,8 @@ class ActorFactory(object):
 
     def create_unit(self):
         """
-        Creates a random unit that this class knows about
+        Creates a random unit that this class knows about.
+        Units that are assigned zero in self.weights will never be produced.
         :return:
         """
         r = randint(1, sum(self.weights.values()))

@@ -22,8 +22,11 @@ class Construction(MapItem):
                  inventory=None,
                  controller=None,
                  faction=None,
+                 allow_entrance=False,
                  **kwargs):
         super(Construction, self).__init__(**kwargs)
+        #  If True, this construction doesn't mind being entered by allied actors
+        self.allow_entrance = allow_entrance
         #  Components
         self.fighter = fighter
         self.descriptor = descriptor
@@ -58,12 +61,15 @@ class Construction(MapItem):
         :return:
         """
         if self.fighter and other.fighter:
-            #  Process melee attack
-            self.map.game_events.append(GameEvent(event_type='attacked',
-                                                  actor=other, location=self.location))
-            self.fighter.get_damaged(other.fighter.attack())
-            #  Collision did happen and take colliding actor's turn, whether it damaged target or not
-            return True
+            if self.allow_entrance and self.faction.is_friendly(other.faction):
+                return False
+            else:
+                #  Process melee attack
+                self.map.game_events.append(GameEvent(event_type='attacked',
+                                                      actor=other, location=self.location))
+                self.fighter.get_damaged(other.fighter.attack())
+                #  Collision did happen and take colliding actor's turn, whether it damaged target or not
+                return True
 
     def make_turn(self):
         pass
@@ -214,4 +220,12 @@ class Upgrader(Construction):
         self.spawn_factory = spawn_factory
 
     def make_turn(self):
-        pass
+        visitor = self.map.get_item(location=self.location, layer='actors')
+        if visitor and self.faction.is_friendly(visitor.faction):
+            self.map.delete_item(location=visitor.location, layer='actors')
+            self.map.game_events.append(GameEvent(event_type='was_destroyed', actor=visitor,
+                                                  location=self.location))
+            baby = self.spawn_factory.create_unit()
+            self.map.add_item(location=self.location, layer='actors', item=baby)
+            self.map.game_events.append(GameEvent(event_type='actor_spawned', actor=baby,
+                                                  location=self.location))

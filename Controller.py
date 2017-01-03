@@ -81,7 +81,8 @@ class Controller(object):
         #  Check if there is a non-enemy fighter on the tile that Actor wants to enter
         for item in self.actor.map.get_column(location):
             try:
-                if item.fighter and not self._should_attack(item):
+                if item.fighter and not self._should_attack(item) and not (hasattr(item, 'allow_entrance')
+                                                                           and item.allow_entrance):
                     return False
             except AttributeError:
                 #  There may not even be a fighter attribute
