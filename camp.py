@@ -30,7 +30,8 @@ from collections import deque
 
 #  If set, this Dijkstra map will be shown as overlay. Set to something that doesn't evaluate to True to disable
 #  Dijkstra display altogether. To avoid creating a new event type, this is redrawn at the end of every turn.
-DISPLAY_DIJKSTRA_MAP = 'PC'
+DISPLAY_DIJKSTRA_MAP = None
+
 
 class KeyParser(object):
     """
@@ -136,7 +137,7 @@ class GameManager():
         self._load_map(map_id)
         if len(self.map.entrance_message) > 0:
             self.map.extend_log(self.map.entrance_message)
-        if pc:  #  pc is None only for the first map loaded just after starting the app
+        if pc:  # pc is None only for the first map loaded just after starting the app
             if entrance_direction == 'north':
                 pc.location = [pc.location[0], self.map.size[1]-1]
             elif entrance_direction == 'south':
@@ -193,6 +194,7 @@ class GameManager():
         """
         widget.game_manager = self
 
+
 class GameWidget(RelativeLayout):
     """
     Main game widget. Includes map, as well as various other widgets, as children.
@@ -223,7 +225,7 @@ class GameWidget(RelativeLayout):
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
         self._keyboard.bind(on_key_down=self._on_key_down)
         #  Keys not in this list are ignored by _on_key_down
-        self.allowed_keys = [#  Movement
+        self.allowed_keys = [  # Movement
                              'spacebar', '.',
                              'h', 'j', 'k', 'l',
                              'y', 'u', 'b', 'n',
@@ -268,7 +270,6 @@ class GameWidget(RelativeLayout):
             self.game_manager.queue.unregister_listener(self.map_widget)
             self.remove_widget(self.map_widget)
         #  Initializing widgets
-
         self.map_widget = RLMapWidget(map=self.game_manager.map,
                                       size=(self.game_manager.map.size[0]*32,
                                             self.game_manager.map.size[1]*32),
@@ -357,7 +358,7 @@ class GameWidget(RelativeLayout):
                     self.target_coordinates = self.map_widget.map.actors[0].location
                     self.state_widget = Image(source='JumpTarget.png',
                                               pos=self.map_widget.get_screen_pos(self.target_coordinates,
-                                                                                  parent=True),
+                                                                                 parent=True),
                                               size=(32, 32),
                                               size_hint=(None, None))
                     self.add_widget(self.state_widget)
@@ -491,7 +492,7 @@ class GameWidget(RelativeLayout):
         if event.event_type == 'log_updated':
             self.log_widget.draw_log_line()
         elif (event.event_type == 'hp_changed' or event.event_type == 'ammo_changed') and\
-            isinstance(event.actor.controller, PlayerController):
+                isinstance(event.actor.controller, PlayerController):
             self.status_widget.update_hp_and_ammo()
         elif event.event_type == 'inventory_updated' and isinstance(event.actor.controller, PlayerController):
             self.status_widget.update_inventory()
@@ -579,7 +580,6 @@ class RLMapWidget(RelativeLayout, Listener):
             # self.dijkstra_widget = DijkstraWidget(parent=self)
             # self.add_widget(self.dijkstra_widget)
         self.counter = 0
-
 
 
 #########################################################
@@ -764,6 +764,7 @@ class RLMapWidget(RelativeLayout, Listener):
         returns coordinates relative to self
         :param location: int tuple
         :param parent: bool If true, return parent coordinates.
+        :param center: bool. If True, return coordinates for tile center, otherwise return bottom-left corner
         :return: int tuple
         """
         r = [location[0]*32, location[1]*32]
@@ -773,7 +774,7 @@ class RLMapWidget(RelativeLayout, Listener):
         if not parent:
             return r
         else:
-            return(self.to_parent(r[0], r[1]))
+            return self.to_parent(r[0], r[1])
 
     def update_rect(self, pos, size):
         self.rect.pos = self.pos
@@ -867,9 +868,9 @@ class HPWidget(Label):
         #  Check that zeroth actor is, in fact, PC. After PC death it could be some other actor
         if isinstance(self.game_manager.map.actors[0].controller, PlayerController):
             self.text = 'HP {0}/{1}\nAmmo {2}/{3}'.format(self.game_manager.map.actors[0].fighter.hp,
-                                                           self.game_manager.map.actors[0].fighter.max_hp,
-                                                           self.game_manager.map.actors[0].fighter.ammo,
-                                                           self.game_manager.map.actors[0].fighter.max_ammo)
+                                                          self.game_manager.map.actors[0].fighter.max_hp,
+                                                          self.game_manager.map.actors[0].fighter.ammo,
+                                                          self.game_manager.map.actors[0].fighter.max_ammo)
         else:
             #  Easter eggs are bad, except when they are over half a century old
             self.text = 'So it goes'
@@ -926,8 +927,8 @@ class InventoryItemWidget(RelativeLayout):
         super(InventoryItemWidget, self).__init__(*args, **kwargs)
         self.bg_image = Image(source='Inv_box.png', size=(64, 64))
         self.add_widget(self.bg_image)
-        self.item_image = None #  Things will be drawn here
-        self.number = number  #  Will come handy when those will be buttons
+        self.item_image = None  # Things will be drawn here
+        self.number = number  # Will come handy when those will be buttons
         self.add_widget(Label(text=str(self.number),
                               font_size=14,
                               halign='left',
@@ -956,6 +957,7 @@ class InventoryItemWidget(RelativeLayout):
         if self.item_image:
             self.remove_widget(self.item_image)
             self.item_image = None
+
 
 class CampApp(App):
     """
