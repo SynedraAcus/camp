@@ -18,7 +18,9 @@ class DijkstraMap(Listener):
         """
         Constructor
         :param map: RLMap instance
-        :param event_filters: dict of {event_type: lambda event: event_is_attractor(event)}. Can accept functions.
+        :param event_filters: dict of {event_type: lambda event: event_is_attractor(event)}. If True, DijkstraMap
+        will set event's actor as an attractor (if it's not one already) and trigger map rebuilding. If event is
+        of `was_destroyed` type, actor is instead removed from attractors and map is rebuilt.
         :param attractor_filters: list of functions that accept MapItem and return True if it's an attractor
         :return:
         """
@@ -33,6 +35,7 @@ class DijkstraMap(Listener):
         #  There can be no attractor_filters if whatever this map is about doesn't get created before
         #  the game starts.
         self.attractor_filters = attractor_filters
+        self.attractors = []
 
     def rebuild_self(self):
         """
@@ -50,18 +53,22 @@ class DijkstraMap(Listener):
                     #  can be easily raised to 10k or something for obscure cases.
                     self.set_value(location=(x, y), value=1000)
         #  Now that initial values are placed, initial attractors (if any) are used to place initial values
-        if len(self.attractor_filters) > 0:
-            for x in range(self.map.size[0]):
-                for y in range(self.map.size[1]):
-                    for item in self.map.get_column(location=(x, y)):
-                        for attractor_function in self.attractor_filters:
-                            if attractor_function(item):
-                                self.update(location=(x,y), value=-5)
+        if not self.attractors:
+            if len(self.attractor_filters) > 0:
+                for x in range(self.map.size[0]):
+                    for y in range(self.map.size[1]):
+                        for item in self.map.get_column(location=(x, y)):
+                            for attractor_function in self.attractor_filters:
+                                if attractor_function(item):
+                                    self.attractors.append(item)
+        #  There is no reason to call self.update() if there are still zero attractors
+        if self.attractors:
+            self.update()
 
     def should_ignore(self, location):
         """
-        Return True if this column should be ignored during DijkstraMap upgrade.
-        Currently impassable BG and impassable factionless constructs are ignored
+        Return True if this map location should be ignored during DijkstraMap upgrade.
+        Currently tiles with impassable BG and impassable factionless constructs are ignored
         :param column:
         :return:
         """
@@ -95,7 +102,7 @@ class DijkstraMap(Listener):
                         self.updated_now.add(n)
         if s:
             for cell in s:
-                if self[cell[0]][cell[1]] > value+1:
+                if self[cell[0]][cell[1]] >= value+1:
                     self.set_value(location=cell, value=value + 1)
             self.updated_now = self.updated_now.union(s)
             self._breadth_fill(filled=s, value=value+1)
@@ -109,22 +116,21 @@ class DijkstraMap(Listener):
         :param value:
         :return:
         """
-        self.updated_now = set()
-        self.updated_now.add(tuple(location))
-        self.set_value(location=location, value=value)
-        self._breadth_fill(value=value, filled=set((tuple(location), )))
+        for x in range(len(self)):
+            for y in range(len(self[0])):
+                if self.should_ignore((x,y)):
+                    self.set_value(location=(x,y), value=None)
+                else:
+                    self.set_value(location=(x,y), value=1000)
+        filled = set()
+        for attractor in self.attractors:
+            self.updated_now = set()
+            self.updated_now.add(tuple(attractor.location))
+            filled.add(tuple(attractor.location))
+            self.set_value(location=attractor.location, value=-5)
+        self._breadth_fill(value=-5, filled=filled)
 
-    def __getitem__(self, item):
-        """
-        Allows DijkstraMap()[x][y]. DijkstraMap()[x, y] is not supported.
-        Neither is __setitem__, because it creates unnecessary problems with nested lists
-        :param item:
-        :return:
-        """
-        #  This class is two-dimensional and is expected to be called like this: `map_object[x][y]`
-        #  Therefore, call to __getitem__ returns a whole row and getting to element within it is a row's
-        #  business.
-        return self._values[item]
+
 
     def set_value(self, location=(None, None), value=None):
         """
@@ -139,18 +145,33 @@ class DijkstraMap(Listener):
 
     def process_game_event(self, event):
         """
-        Set an attractor if an event is interesting, ignore the event otherwise.
-        Doesn't currently accept different values for different attractors. Currently Controllers decide
-        how much they care about some or other type of attractor and different attractors belong in different
-        DijkstraMaps anyway. This behaviour may or may not change in the future.
+        Processes the event if it is interesting (as determined by self.event_filters)
+        Adds or removes event.actor to self.attractors, if necessary, and triggers self.update()
         :param event:
         :return:
         """
         if event.event_type in self.event_filters.keys():
             if self.event_filters[event.event_type](event):
-                self.update(location=event.location,
-                            value=-5)
+                if event.actor not in self.attractors:
+                    self.attractors.append(event.actor)
+                elif event.event_type == 'was_destroyed':
+                    self.attractors.remove(event.actor)
+                self.update()
 
+    def __getitem__(self, item):
+        """
+        Allows DijkstraMap()[x][y]. DijkstraMap()[x, y] is not supported.
+        Neither is __setitem__, because it creates unnecessary problems with nested lists
+        :param item:
+        :return:
+        """
+        #  This class is two-dimensional and is expected to be called like this: `map_object[x][y]`
+        #  Therefore, call to __getitem__ returns a whole row and getting to element within it is a row's
+        #  business.
+        return self._values[item]
+
+    def __len__(self):
+        return len(self._values)
 
 class RLMap(object):
     def __init__(self, size=(10, 10), layers=['default']):
@@ -170,7 +191,11 @@ class RLMap(object):
                         #  A map that has PC as the sole attractor. Used by all AI for combat
                         'PC': DijkstraMap(map=self,
                                             event_filters={'moved':
-                                              lambda x: isinstance(x.actor.controller, PlayerController)},
+                                              lambda x: isinstance(x.actor, Actor)
+                                                  and isinstance(x.actor.controller, PlayerController),
+                                                           'was_destroyed':
+                                              lambda x: isinstance(x.actor, Actor)
+                                                  and isinstance(x.actor.controller, PlayerController)},
                                             attractor_filters=[
                                               lambda x: isinstance(x, Actor)
                                                   and isinstance(x.controller, PlayerController)
