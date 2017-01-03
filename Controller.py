@@ -131,8 +131,9 @@ class AIController(Controller):
     An AI controller superclass. Contains useful methods for finding best dijkstra cells, deciding whether to
     use an item and so on
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, dijkstra_weights={'PC': 1}, *args, **kwargs):
         super(AIController, self).__init__(*args, **kwargs)
+        self.dijkstra_weights = dijkstra_weights
 
     def is_useful(self, item):
         """
@@ -147,6 +148,22 @@ class AIController(Controller):
         if item.descriptor.name == 'Ammo' and self.actor.fighter.ammo == 0 and self.actor.fighter.max_ammo > 0:
             return True
         return False
+
+    def get_dijkstra_value(self, location):
+        """
+        Get a summary Dijkstra value for a cell taking into account all the Dijkstra maps and their weights
+        :param location:
+        :return:
+        """
+        value = 0
+        for x in self.dijkstra_weights.keys():
+            dijkstra_value = self.actor.map.dijkstras[x][location[0]][location[1]]
+            if dijkstra_value is not None:
+                value += dijkstra_value * self.dijkstra_weights[x]
+            else:
+                return None
+        return value
+
 
 class MeleeAIController(AIController):
     """
@@ -172,14 +189,20 @@ class MeleeAIController(AIController):
         #  Get lowest-Dijkstra neighbours
         neighbours = self.actor.map.get_neighbour_coordinates(location=self.actor.location)
         candidates = []
-        current = self.actor.map.dijkstra[self.actor.location[0]][self.actor.location[1]]
-        minimum = 1001  #  Hopefully above any possible Dijkstra map value
+        current = self.get_dijkstra_value(self.actor.location)
+        try:
+            minimum = current+1  #  No walking to cells with higher Dijkstra value than current
+        except TypeError:
+            print(self.actor.location)
+            quit()
         for n in neighbours:
-            if self.actor.map.dijkstra[n[0]][n[1]] < minimum and self.should_walk(n):
-                minimum = self.actor.map.dijkstra[n[0]][n[1]]
-                candidates = [n]
-            elif self.actor.map.dijkstra[n[0]][n[1]] == minimum and self.should_walk(n):
-                candidates.append(n)
+            value = self.get_dijkstra_value(n)
+            if value:
+                if value < minimum and self.should_walk(n):
+                    minimum = value
+                    candidates = [n]
+                elif value == minimum and self.should_walk(n):
+                    candidates.append(n)
         try:
             target = random.choice(tuple(filter(lambda a: self.should_walk(a), candidates)))
             self.last_command = Command(command_type='walk',
