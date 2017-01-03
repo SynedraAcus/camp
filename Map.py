@@ -16,10 +16,14 @@ class DijkstraMap(Listener):
     A container for Dijkstra map data.
     Any particular instance of this map listens to events so that it could update.
     """
-    def __init__(self, map=None, event_filters={}, event_counters={}):
+    def __init__(self, map=None, event_filters={}):
         self._values = []
+        if not map:
+            raise ValueError('DijkstraMap requires map to be created')
         self.map = map
         self.updated_now = set()
+        if len(event_filters.keys()) == 0:
+            raise ValueError('DijkstraMap cannot be created with empty event filter')
         self.event_filters = event_filters
 
     def rebuild_self(self):
@@ -27,14 +31,15 @@ class DijkstraMap(Listener):
         Build a fresh Dijkstra map for a newly-attached map
         :return:
         """
-        #  Initialize data container. It should be the same size as the map in question
+        #  Initializing data container. It should be the same size as the map in question
         self._values = [[None for x in range(self.map.size[1])] for y in range(self.map.size[0])]
-        #  There should be some initial values
         for x in range(self.map.size[0]):
             for y in range(self.map.size[1]):
                 if self.should_ignore((x, y)):
                     self.set_value(location=(x, y), value=None)
                 else:
+                    #  Way above anything possible on a reasonable-sized map of a reasonable topology, but
+                    #  can be easily raised to 10k or something for obscure cases.
                     self.set_value(location=(x, y), value=1000)
 
     def should_ignore(self, location):
@@ -102,7 +107,7 @@ class DijkstraMap(Listener):
         """
         #  This class is two-dimensional and is expected to be called like this: `map_object[x][y]`
         #  Therefore, call to __getitem__ returns a whole row and getting to element within it is a row's
-        #  business. It's a list, BTW.
+        #  business.
         return self._values[item]
 
     def set_value(self, location=(None, None), value=None):
@@ -117,6 +122,14 @@ class DijkstraMap(Listener):
         self._values[location[0]][location[1]] = value
 
     def process_game_event(self, event):
+        """
+        Set an attractor if an event is interesting, ignore the event otherwise.
+        Doesn't currently accept different values for different attractors. Currently Controllers decide
+        how much they care about some or other type of attractor and different attractors belong in different
+        DijkstraMaps anyway. This behaviour may or may not change in the future.
+        :param event:
+        :return:
+        """
         if event.event_type in self.event_filters.keys():
             if self.event_filters[event.event_type](event):
                 self.update(location=event.location,
@@ -125,7 +138,7 @@ class DijkstraMap(Listener):
 
 class RLMap(object):
     def __init__(self, size=(10, 10), layers=['default']):
-        self.size=size
+        self.size = size
         #  Initializing items container
         self.layers = layers
         self.items = {l: [[None for y in range(size[1])] for x in range(size[0])] for l in layers}
