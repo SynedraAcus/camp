@@ -31,16 +31,26 @@ class DijkstraMap(Listener):
         #  There should be some initial values
         for x in range(self.map.size[0]):
             for y in range(self.map.size[1]):
-                if self.map.get_column(location=(x,y)):
-                    pass
+                if self.should_ignore((x, y)):
+                    self.set_value(location=(x, y), value=None)
+                else:
+                    self.set_value(location=(x, y), value=0)
 
-    def should_ignore(self, column):
+    def should_ignore(self, location):
         """
         Return True if this column should be ignored during DijkstraMap upgrade.
         Currently impassable BG and impassable factionless constructs are ignored
         :param column:
         :return:
         """
+        bg = self.map.get_item(location=location, layer='bg')
+        c = self.map.get_item(location=location, layer='constructions')
+        if not bg or not bg.passable:
+            return False
+        if c and (not c.passable and not c.faction):
+            return False
+        return True
+
 
     def _breadth_fill(self, filled=set(), value=-5):
         """
@@ -127,6 +137,7 @@ class RLMap(object):
         self.dijkstra = [[1000 for y in range(self.size[1])] for x in range(self.size[0])]
         self.empty_dijkstra = deepcopy(self.dijkstra)
         self.updated_now = set()
+        self.prototype_dijkstra = DijkstraMap(map=self)
         #  Neighbouring maps
         self.neighbour_maps = {}
         self.entrance_message = ''

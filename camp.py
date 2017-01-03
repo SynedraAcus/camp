@@ -30,7 +30,7 @@ from collections import deque
 
 #  Whether to display Dijkstra map values overlay. Extremely laggy and should be False unless debugging
 #  Dijkstra maps
-DISPLAY_DIJKSTRA_MAP = False
+DISPLAY_DIJKSTRA_MAP = True
 
 class KeyParser(object):
     """
@@ -268,6 +268,7 @@ class GameWidget(RelativeLayout):
             self.game_manager.queue.unregister_listener(self.map_widget)
             self.remove_widget(self.map_widget)
         #  Initializing widgets
+
         self.map_widget = RLMapWidget(map=self.game_manager.map,
                                       size=(self.game_manager.map.size[0]*32,
                                             self.game_manager.map.size[1]*32),
@@ -534,11 +535,12 @@ class DijkstraWidget(RelativeLayout):
         for x in range(parent.map.size[0]):
             for y in range(parent.map.size[1]):
                 self.add_widget(Label(size=(64, 64),
-                                      size_hint=(None,None),
+                                      size_hint=(None, None),
                                       pos=parent.get_screen_pos((x, y)),
-                                      text=str(parent.map.dijkstra[x][y]),
+                                      text=str(parent.map.prototype_dijkstra[x][y]),
                                       text_size=(64, 64),
-                                      font_size=7))
+                                      font_size=7,
+                                      color=(0, 0, 0, 1)))
 
 
 class RLMapWidget(RelativeLayout, Listener):
@@ -741,6 +743,7 @@ class RLMapWidget(RelativeLayout, Listener):
             #  Might as well be time to redraw the Dijkstra widget
             if DISPLAY_DIJKSTRA_MAP:
                 self.remove_widget(self.dijkstra_widget)
+                self.map.prototype_dijkstra.update_self()
                 self.dijkstra_widget = DijkstraWidget(parent=self)
                 self.add_widget(self.dijkstra_widget)
 
