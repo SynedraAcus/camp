@@ -575,8 +575,9 @@ class RLMapWidget(RelativeLayout, Listener):
         self.overlay_widget = None
         #  Debugging Dijkstra map view
         if DISPLAY_DIJKSTRA_MAP:
-            self.dijkstra_widget = DijkstraWidget(parent=self)
-            self.add_widget(self.dijkstra_widget)
+            self.dijkstra_widget = None
+            # self.dijkstra_widget = DijkstraWidget(parent=self)
+            # self.add_widget(self.dijkstra_widget)
         self.counter = 0
 
 
@@ -742,8 +743,9 @@ class RLMapWidget(RelativeLayout, Listener):
             self.animating = False
             #  Might as well be time to redraw the Dijkstra widget
             if DISPLAY_DIJKSTRA_MAP:
-                self.remove_widget(self.dijkstra_widget)
-                self.map.prototype_dijkstra.update_self()
+                if self.dijkstra_widget:
+                    self.remove_widget(self.dijkstra_widget)
+                self.map.prototype_dijkstra.rebuild_self()
                 self.dijkstra_widget = DijkstraWidget(parent=self)
                 self.add_widget(self.dijkstra_widget)
 

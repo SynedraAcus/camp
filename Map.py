@@ -46,10 +46,10 @@ class DijkstraMap(Listener):
         bg = self.map.get_item(location=location, layer='bg')
         c = self.map.get_item(location=location, layer='constructions')
         if not bg or not bg.passable:
-            return False
+            return True
         if c and (not c.passable and not c.faction):
-            return False
-        return True
+            return True
+        return False
 
 
     def _breadth_fill(self, filled=set(), value=-5):
@@ -101,6 +101,7 @@ class DijkstraMap(Listener):
         #  This class is two-dimensional and is expected to be called like this: `map_object[x][y]`
         #  Therefore, call to __getitem__ returns a whole row and getting to element within it is a row's
         #  business. It's a list, BTW.
+        print(item, len(self._values))
         return self._values[item]
 
     def get_item(self, location=(None, None)):
