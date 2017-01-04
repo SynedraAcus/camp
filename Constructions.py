@@ -144,10 +144,10 @@ class ShooterConstruction(FighterConstruction):
             self.map.game_events.append(GameEvent(event_type='shot',
                                                   location=location,
                                                   actor=self))
-            victim = self.map.get_column(location)[-1]
-            if victim.fighter:
-                victim.fighter.get_damaged(self.fighter.ranged_attack())
-            return True
+            for victim in reversed(self.map.get_column(location)):
+                if hasattr(victim, 'fighter') and victim.fighter:
+                    victim.fighter.get_damaged(self.fighter.ranged_attack())
+                    return True
         else:
             return False
 
