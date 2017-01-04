@@ -193,11 +193,7 @@ class MeleeAIController(AIController):
         neighbours = self.actor.map.get_neighbour_coordinates(location=self.actor.location)
         candidates = []
         current = self.get_dijkstra_value(self.actor.location)
-        try:
-            minimum = current+1  #  No walking to cells with higher Dijkstra value than current
-        except TypeError:
-            print(self.actor.location)
-            quit()
+        minimum = 1001  #  No walking to cells with higher Dijkstra value than current
         for n in neighbours:
             value = self.get_dijkstra_value(n)
             if value:

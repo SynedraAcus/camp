@@ -253,7 +253,7 @@ class MapItemDepot:
         :return:
         """
         return Actor(image_source='Chassis.png',
-                     controller=MeleeAIController(dijkstra_weights={'PC': 1,
+                     controller=MeleeAIController(dijkstra_weights={'PC': 1.5,
                                                                     'upgraders': 1}),
                      fighter=FighterComponent(max_hp=3, ammo=0, max_ammo=0),
                      descriptor=DescriptorComponent(name='An empty chassis',
@@ -521,7 +521,6 @@ class ActorFactory(object):
         :return:
         """
         r = randint(1, sum(self.weights.values()))
-        print(r)
         s = 0
         child = None
         for x in self.weights.keys():

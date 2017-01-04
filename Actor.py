@@ -119,9 +119,9 @@ class Actor(MapItem):
                                old_location=self.location,
                                new_location=location)
             self.location = location
+            moved = True
             self.map.game_events.append(GameEvent(event_type='moved',
                                                   actor=self))
-            moved = True
             self.widget.last_move_animated = False
         return moved or collision_occured
 

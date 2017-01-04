@@ -127,8 +127,8 @@ class DijkstraMap(Listener):
             self.updated_now = set()
             self.updated_now.add(tuple(attractor.location))
             filled.add(tuple(attractor.location))
-            self.set_value(location=attractor.location, value=-5)
-        self._breadth_fill(value=-5, filled=filled)
+            self.set_value(location=attractor.location, value=0)
+        self._breadth_fill(value=0, filled=filled)
 
     def set_value(self, location=(None, None), value=None):
         """
