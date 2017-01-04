@@ -127,6 +127,7 @@ class MapItemDepot:
                               '_': self.make_hole,
                               '@': self.make_pc,
                               'z': self.make_chassis,
+                              'Z': self.make_melee,
                               'g': self.make_gunner,
                               'R': self.make_rocket,
                               'L': self.make_landmine,
@@ -263,7 +264,7 @@ class MapItemDepot:
 
     def make_gunner(self):
         """
-        A thug that gets three shots but only 1 HP
+        An upgraded Chassis that gets three shots but only 1 HP
         :return:
         """
         return Actor(image_source='GunnerChassis.png',
@@ -271,6 +272,20 @@ class MapItemDepot:
                      fighter=FighterComponent(max_hp=1, ammo=3, max_ammo=3),
                      descriptor=DescriptorComponent(name='Gunner',
                                                     description='A short-range gunner assembly.'),
+                     inventory=InventoryComponent(volume=1,
+                                                  initial_items=[self.make_random_item()]),
+                     faction=FactionComponent(faction='npc', enemies=['pc']))
+
+    def make_melee(self):
+        """
+        An upgraded Chassis with 7 HP
+        :return:
+        """
+        return Actor(image_source='Melee.png',
+                     controller=MeleeAIController(),
+                     fighter=FighterComponent(max_hp=7),
+                     descriptor=DescriptorComponent(name='Thug',
+                                                    description='A chassis protected by primitive armor'),
                      inventory=InventoryComponent(volume=1,
                                                   initial_items=[self.make_random_item()]),
                      faction=FactionComponent(faction='npc', enemies=['pc']))
@@ -401,6 +416,7 @@ class MapLoader:
                        'r': 'constructions',
                        '_': 'constructions',
                        'z': 'actors',
+                       'Z': 'actors',
                        'g': 'actors',
                        'R': 'items',
                        'L': 'items',
