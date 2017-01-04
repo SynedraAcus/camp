@@ -176,7 +176,8 @@ class MapItemDepot:
         :return:
         """
         return Construction(image_source='Tree.png', passable=False,
-                            descriptor=DescriptorComponent(name='Tree'))
+                            descriptor=DescriptorComponent(name='Tree'),
+                            faction=FactionComponent(faction='decorations'))
 
     @staticmethod
     def make_h_wall():
@@ -186,7 +187,8 @@ class MapItemDepot:
         """
         return Construction(image_source='Wall_horizontal.png', passable=False,
                             fighter=FighterComponent(max_hp=10),
-                            descriptor=DescriptorComponent(name='Wall segment'))
+                            descriptor=DescriptorComponent(name='Wall segment'),
+                            faction=FactionComponent(faction='decorations'))
 
     @staticmethod
     def make_v_wall():
@@ -196,7 +198,8 @@ class MapItemDepot:
         """
         return Construction(image_source='Wall_vertical.png', passable=False,
                             fighter=FighterComponent(max_hp=10),
-                            descriptor=DescriptorComponent(name='Wall segment'))
+                            descriptor=DescriptorComponent(name='Wall segment'),
+                            faction=FactionComponent(faction='decorations'))
 
     @staticmethod
     def make_spawner():
