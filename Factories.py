@@ -121,13 +121,14 @@ class MapItemDepot:
         self.glyph_methods = {'#': self.make_wall,
                               'S': self.make_spawner,
                               'G': self.make_gunner_upgrader,
+                              'T': self.make_thug_upgrader,
                               '^': self.make_mine,
                               'f': self.make_fighter,
                               'r': self.make_shooter,
                               '_': self.make_hole,
                               '@': self.make_pc,
                               'z': self.make_chassis,
-                              'Z': self.make_melee,
+                              't': self.make_melee,
                               'g': self.make_gunner,
                               'R': self.make_rocket,
                               'L': self.make_landmine,
@@ -200,8 +201,23 @@ class MapItemDepot:
                         descriptor=DescriptorComponent(name='Gunner upgrader',
                                                        description='Fits chassis with a gun, producing Gunners'),
                         fighter=FighterComponent(max_hp=10, defenses=[0, 0]),
-                        spawn_factory=ActorFactory(weights={'z': 0, 'g': 1},
+                        spawn_factory=ActorFactory(weights={'z': 0, 'g': 1, 't': 0},
                                                    faction=FactionComponent(faction='npc', enemies=['pc'])),
+                        passable=True, allow_entrance=True)
+
+    @staticmethod
+    def make_thug_upgrader():
+        """
+        Thug chassis upgrader
+        :return:
+        """
+        return Upgrader(image_source='MeleeUpgrader.png',
+                        faction=FactionComponent(faction='npc', enemies=['pc']),
+                        descriptor=DescriptorComponent(name='Thug upgrader',
+                                                       description='Puts armor on chassis, producing Thugs'),
+                        fighter=FighterComponent(max_hp=10, defenses=[0, 0]),
+                        spawn_factory=ActorFactory(weights={'z': 0, 'g': 0, 't': 1},
+                                            faction=FactionComponent(faction='npc', enemies=['pc'])),
                         passable=True, allow_entrance=True)
 
     @staticmethod
@@ -253,8 +269,8 @@ class MapItemDepot:
         :return:
         """
         return Actor(image_source='Chassis.png',
-                     controller=MeleeAIController(dijkstra_weights={'PC': 1.5,
-                                                                    'upgraders': 1}),
+                     controller=MeleeAIController(dijkstra_weights={'PC': 1,
+                                                                    'upgraders': 1.5}),
                      fighter=FighterComponent(max_hp=3, ammo=0, max_ammo=0),
                      descriptor=DescriptorComponent(name='An empty chassis',
                                                     description='The chassis on which weapons or tools could be installed.'),
@@ -411,12 +427,13 @@ class MapLoader:
                        '@': 'actors',
                        'S': 'constructions',
                        'G': 'constructions',
+                       'T': 'constructions',
                        '^': 'constructions',
                        'f': 'constructions',
                        'r': 'constructions',
                        '_': 'constructions',
                        'z': 'actors',
-                       'Z': 'actors',
+                       't': 'actors',
                        'g': 'actors',
                        'R': 'items',
                        'L': 'items',
@@ -506,12 +523,13 @@ class ActorFactory(object):
     """
     Factory that produces Actors of a given faction
     """
-    def __init__(self, faction, weights={'z': 0, 'g': 1}):
+    def __init__(self, faction, weights={'z': 0, 'g': 1, 't': 1}):
         assert isinstance(faction, FactionComponent)
         self.faction = faction
         self.depot = MapItemDepot()
         self.unit_methods = {'z': self.depot.make_chassis,
-                             'g': self.depot.make_gunner}
+                             'g': self.depot.make_gunner,
+                             't': self.depot.make_melee}
         self.weights = weights
 
     def create_unit(self):
