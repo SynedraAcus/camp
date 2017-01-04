@@ -39,7 +39,7 @@ class GameEvent:
             self.location = actor.location
 
 
-class EventQueue:
+class EventDispatcher:
     """
     Event queue. Currently a wrapper around a standard collections.deque
     """
@@ -59,7 +59,7 @@ class EventQueue:
 
     def clear(self):
         """
-        Remove all elements from EventQueue leaving it with length 0
+        Remove all elements from EventDispatcher leaving it with length 0
         :return:
         """
         self._deque.clear()

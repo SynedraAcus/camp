@@ -17,7 +17,7 @@ from kivy.core.audio import SoundLoader
 #  My own stuff
 from Factories import TileWidgetFactory, MapLoader
 from Controller import Command, PlayerController
-from GameEvent import EventQueue, GameEvent
+from GameEvent import EventDispatcher, GameEvent
 from Listeners import Listener, DeathListener, BorderWalkListener, TutorialListener
 
 #  Others
@@ -101,7 +101,7 @@ class GameManager():
     Basically anything that is neither interface nor is limited to a single map/actor belongs here
     """
     def __init__(self, map_file='test_level.lvl'):
-        self.queue = EventQueue()
+        self.queue = EventDispatcher()
         self.map_loader = MapLoader()
         self.map_loader.read_map_file(map_file)
         self.map = None

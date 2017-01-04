@@ -526,6 +526,11 @@ class RLMap(object):
         self.actors[0].controller.accept_command(command)
         r = self.actors[0].make_turn()
         if r:
+            # This is sorta ugly, but Dijkstras are rebuilt only when the queue starts processing and that happens
+            # only at the turn's end. Thus, enemies act using outdated information (especially re:PC position)
+            # Proper real-time queue might be better, but this thing is simple enough and does not require heavy
+            # refactoring
+            self.rebuild_dijkstras()
             for a in self.actors[1:]:
                 a.make_turn()
             for a in self.constructions:
