@@ -226,6 +226,8 @@ class Upgrader(Construction):
             self.map.game_events.append(GameEvent(event_type='was_destroyed', actor=visitor,
                                                   location=self.location))
             baby = self.spawn_factory.create_unit()
+            self.map.extend_log('{0} upgraded to {1}'.format(visitor.descriptor.name,
+                                                             baby.descriptor.name))
             self.map.add_item(location=self.location, layer='actors', item=baby)
             self.map.game_events.append(GameEvent(event_type='actor_spawned', actor=baby,
                                                   location=self.location))
