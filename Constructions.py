@@ -221,7 +221,8 @@ class Upgrader(Construction):
 
     def make_turn(self):
         visitor = self.map.get_item(location=self.location, layer='actors')
-        if visitor and self.faction.is_friendly(visitor.faction):
+        if visitor and self.faction.is_friendly(visitor.faction)\
+                and 'chassis' in visitor.descriptor.name.lower():  # Only upgrade Chassis!
             self.map.delete_item(location=visitor.location, layer='actors')
             self.map.game_events.append(GameEvent(event_type='was_destroyed', actor=visitor,
                                                   location=self.location))
