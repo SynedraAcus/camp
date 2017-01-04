@@ -67,6 +67,11 @@ class TileTargetedEffect(Effect):
             for tile in map.get_neighbour_coordinates(location=location, return_query=True):
                 for victim in map.get_column(tile):
                     if hasattr(victim, 'fighter') and victim.fighter:
+                        if isinstance(victim, Construction) and tile == location:
+                            #  Deal over-the-top damage to constructions on ground zero
+                            #  This means that, barring incredible defense, explosion under a costruction should
+                            #  kill it outright
+                            victim.fighter.get_damaged(victim.fighter.max_hp*2)
                         victim.fighter.get_damaged(self.effect_value)
                 for victim in map.get_column(tile):
                     #  Items are checked in a separate cycle because items could've been dropped by killed enemies
