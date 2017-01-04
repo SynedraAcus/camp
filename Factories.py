@@ -121,6 +121,8 @@ class MapItemDepot:
         self.glyph_methods = {'#': self.make_tree,
                               '|': self.make_v_wall,
                               '-': self.make_h_wall,
+                              '/': self.make_nw_wall,
+                              '\\': self.make_ne_wall,
                               'S': self.make_spawner,
                               'G': self.make_gunner_upgrader,
                               'T': self.make_thug_upgrader,
@@ -200,6 +202,28 @@ class MapItemDepot:
                             fighter=FighterComponent(max_hp=10),
                             descriptor=DescriptorComponent(name='Wall segment'),
                             faction=FactionComponent(faction='decorations'))
+
+    @staticmethod
+    def make_nw_wall():
+        """
+        Make a corner wall (`/`)
+        :return:
+        """
+        return Construction(image_source='Wall_NW.png', passable=False,
+                            fighter=FighterComponent(max_hp=10),
+                            descriptor=DescriptorComponent(name='Wall segment'),
+                            faction=FactionComponent(faction='decorations'))
+
+    @staticmethod
+    def make_ne_wall():
+        """
+        Make a corner wall (`\`)
+        :return:
+        """
+        return Construction(image_source='Wall_NE.png', passable=False,
+                            fighter=FighterComponent(max_hp=10),
+                            descriptor=DescriptorComponent(name='Wall segment'),
+                            faction=FactionComponent(faction='decorations'))\
 
     @staticmethod
     def make_spawner():
@@ -451,6 +475,8 @@ class MapLoader:
         self.layers = {'#': 'constructions',
                        '|': 'constructions',
                        '-': 'constructions',
+                       '/': 'constructions',
+                       '\\': 'constructions',
                        '@': 'actors',
                        'S': 'constructions',
                        'G': 'constructions',
