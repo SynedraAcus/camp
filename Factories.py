@@ -118,7 +118,9 @@ class MapItemDepot:
                              self.make_shooter_flag,
                              self.make_rocket,
                              self.make_ammo]
-        self.glyph_methods = {'#': self.make_wall,
+        self.glyph_methods = {'#': self.make_tree,
+                              '|': self.make_v_wall,
+                              '-': self.make_h_wall,
                               'S': self.make_spawner,
                               'G': self.make_gunner_upgrader,
                               'T': self.make_thug_upgrader,
@@ -168,13 +170,33 @@ class MapItemDepot:
                      breath=BreathComponent())
 
     @staticmethod
-    def make_wall():
+    def make_tree():
         """
         Impassable wall
         :return:
         """
         return Construction(image_source='Tree.png', passable=False,
                             descriptor=DescriptorComponent(name='Tree'))
+
+    @staticmethod
+    def make_h_wall():
+        """
+        Horizontal wall. Unlike a tree, this has a fighter component with 10 HP and can be destroyed
+        :return:
+        """
+        return Construction(image_source='Wall_horizontal.png', passable=False,
+                            fighter=FighterComponent(max_hp=10),
+                            descriptor=DescriptorComponent(name='Wall segment'))
+
+    @staticmethod
+    def make_v_wall():
+        """
+        The same as make_h_wall, but with a vertical image
+        :return:
+        """
+        return Construction(image_source='Wall_vertical.png', passable=False,
+                            fighter=FighterComponent(max_hp=10),
+                            descriptor=DescriptorComponent(name='Wall segment'))
 
     @staticmethod
     def make_spawner():
@@ -424,6 +446,8 @@ class MapLoader:
                                'on_entrance': str}
         self.depot = MapItemDepot()
         self.layers = {'#': 'constructions',
+                       '|': 'constructions',
+                       '-': 'constructions',
                        '@': 'actors',
                        'S': 'constructions',
                        'G': 'constructions',
