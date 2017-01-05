@@ -76,7 +76,7 @@ class DijkstraMap(Listener):
         c = self.map.get_item(location=location, layer='constructions')
         if not bg or not bg.passable:
             return True
-        if c and (not c.passable and not c.faction):
+        if c and (not c.passable and (not c.faction or c.faction not in ('pc', 'npc'))):
             return True
         return False
 
